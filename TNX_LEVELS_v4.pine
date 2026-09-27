@@ -1,0 +1,620 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0
+// © tnxtrader — TNX LEVELS v4.0
+// ─────────────────────────────────────────────────────────────────────────────
+// CHANGES vs v3.0:
+//   [E] Call Wall × 1, Put Wall × 1 per ETF (unchanged)
+//   [F] General Calls Bar × 3 inputs per ETF (gcb1, gcb2, gcb3)
+//   [G] Smart dedup: if two or more levels share the same price (within 1 tick)
+//       they are merged into a single line + label showing all names together.
+// ─────────────────────────────────────────────────────────────────────────────
+//@version=6
+indicator(title="TNX LEVELS", shorttitle="TNX LVL v4",
+     overlay=true, max_lines_count=500, max_labels_count=500)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═════════════════════════════════════════════════════════════════════════════
+PHI  = 1.6180339887
+PI   = math.pi
+VLEN = 14
+
+// ═════════════════════════════════════════════════════════════════════════════
+// INPUTS — KEY LEVELS
+// ═════════════════════════════════════════════════════════════════════════════
+grpY   = "🟡 YEARLY ──────────────────────────────────"
+showYH = input.bool(true, "Yearly High",  group=grpY)
+showYL = input.bool(true, "Yearly Low",   group=grpY)
+colYH  = input.color(#FFD700, "H Color",  group=grpY, inline="y1")
+colYL  = input.color(#FFA500, "L Color",  group=grpY, inline="y1")
+
+grpM1   = "🔵 LAST MONTH ──────────────────────────────"
+showM1H = input.bool(true, "Last Month High", group=grpM1)
+showM1L = input.bool(true, "Last Month Low",  group=grpM1)
+colM1H  = input.color(#00BFFF, "H Color", group=grpM1, inline="m1")
+colM1L  = input.color(#0080FF, "L Color", group=grpM1, inline="m1")
+
+grpM2   = "🟣 TWO MONTHS AGO ──────────────────────────"
+showM2H = input.bool(true, "2M Ago High", group=grpM2)
+showM2L = input.bool(true, "2M Ago Low",  group=grpM2)
+colM2H  = input.color(#9370DB, "H Color", group=grpM2, inline="m2")
+colM2L  = input.color(#7B68EE, "L Color", group=grpM2, inline="m2")
+
+grpD1   = "🔴 YESTERDAY ───────────────────────────────"
+showD1H = input.bool(true, "Yesterday High",  group=grpD1)
+showD1L = input.bool(true, "Yesterday Low",   group=grpD1)
+showD1C = input.bool(true, "Yesterday Close", group=grpD1)
+colD1H  = input.color(#FF4444, "H Color", group=grpD1, inline="d1")
+colD1L  = input.color(#FF8888, "L Color", group=grpD1, inline="d1")
+colD1C  = input.color(#FF8C00, "C Color", group=grpD1, inline="d1c")
+
+grpD2   = "🟢 TWO DAYS AGO ────────────────────────────"
+showD2H = input.bool(true, "2D Ago High",  group=grpD2)
+showD2L = input.bool(true, "2D Ago Low",   group=grpD2)
+showD2C = input.bool(true, "2D Ago Close", group=grpD2)
+colD2H  = input.color(#66FF66, "H Color", group=grpD2, inline="d2")
+colD2L  = input.color(#33CC33, "L Color", group=grpD2, inline="d2")
+colD2C  = input.color(#00AA00, "C Color", group=grpD2, inline="d2c")
+
+grpON   = "🩷 OVERNIGHT ───────────────────────────────"
+showONH = input.bool(true, "Overnight High", group=grpON)
+showONL = input.bool(true, "Overnight Low",  group=grpON)
+colONH  = input.color(#FF69B4, "H Color",    group=grpON, inline="on")
+colONL  = input.color(#FF1493, "L Color",    group=grpON, inline="on")
+onSess  = input.session("1700-0930", "Overnight Session (Exchange TZ)", group=grpON)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// INPUTS — PIVOT TYPES
+// ═════════════════════════════════════════════════════════════════════════════
+grpPV        = "📐 PIVOT TYPES ─────────────────────────────"
+showClassic  = input.bool(true,  "Classic Pivot",            group=grpPV)
+showWoodie   = input.bool(true,  "Woodie Pivot",             group=grpPV)
+showCamarilla= input.bool(true,  "Camarilla Pivot",          group=grpPV)
+showDemark   = input.bool(true,  "DeMark Pivot",             group=grpPV)
+showFib      = input.bool(true,  "Fibonacci Pivot",          group=grpPV)
+showVortex   = input.bool(true,  "Vortex Pivot",             group=grpPV)
+showHGP      = input.bool(true,  "Harmonic Geometric Pivot", group=grpPV)
+showAxis     = input.bool(false, "Axis Projection Band",     group=grpPV)
+
+grpPVC  = "🎨 PIVOT COLORS ────────────────────────────"
+colClas = input.color(#FFFFFF, "Classic",             group=grpPVC)
+colWood = input.color(#FFD700, "Woodie",              group=grpPVC)
+colCam  = input.color(#FF6B35, "Camarilla",           group=grpPVC)
+colDem  = input.color(#00FFFF, "DeMark",              group=grpPVC)
+colFib  = input.color(#C0C0C0, "Fibonacci",           group=grpPVC)
+colVort = input.color(#00FF88, "Vortex",              group=grpPVC)
+colHGP  = input.color(#FF00FF, "Harmonic Geo",        group=grpPVC)
+colAxis = input.color(#FFAA00, "Axis Projection",     group=grpPVC)
+colR    = input.color(#44FF44, "Resistance (shared)", group=grpPVC)
+colS    = input.color(#FF4444, "Support (shared)",    group=grpPVC)
+
+grpSty    = "✏️ STYLE ───────────────────────────────────"
+lineWid   = input.int(2, "Line Width", minval=1, maxval=4, group=grpSty)
+lblSize   = input.string(size.small, "Label Size",
+              options=[size.tiny, size.small, size.normal, size.large, size.huge], group=grpSty)
+showLbl   = input.bool(true, "Show Labels",  group=grpSty)
+lblOffset = input.int(3, "Label Offset (bars right)", minval=0, maxval=50, group=grpSty)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// INPUTS — ETF OPTIONS LEVELS
+// ═════════════════════════════════════════════════════════════════════════════
+grpETF     = "📊 ETF OPTIONS LEVELS ──────────────────────"
+etfMode    = input.string("Auto-Detect", "ETF Selection",
+               options=["Auto-Detect","SPY","SPXL","SPXS","TQQQ","GLD","None"],
+               group=grpETF,
+               tooltip="Auto-Detect reads the ticker. Choose manually to override.")
+showOptLvl = input.bool(true, "Show Options Levels", group=grpETF)
+
+// ── SPY ─────────────────────────────────────────────────────────────────────
+grpSPY       = "🕵️ SPY — Options Levels"
+spy_cw       = input.float(0.0, "📞 Call Wall",            group=grpSPY, step=0.5)
+spy_pw       = input.float(0.0, "📉 Put Wall",             group=grpSPY, step=0.5)
+spy_gcb1     = input.float(0.0, "📈 Gen Calls Bar 1",      group=grpSPY, step=0.5)
+spy_gcb2     = input.float(0.0, "📈 Gen Calls Bar 2",      group=grpSPY, step=0.5)
+spy_gcb3     = input.float(0.0, "📈 Gen Calls Bar 3",      group=grpSPY, step=0.5)
+spy_gpb1     = input.float(0.0, "📊 Gen Puts Bar 1",       group=grpSPY, step=0.5)
+spy_gpb2     = input.float(0.0, "📊 Gen Puts Bar 2",       group=grpSPY, step=0.5)
+spy_gpb3     = input.float(0.0, "📊 Gen Puts Bar 3",       group=grpSPY, step=0.5)
+spy_mp       = input.float(0.0, "😫 Max Pain",             group=grpSPY, step=0.5)
+spy_gf       = input.float(0.0, "🔄 Gamma Flip",           group=grpSPY, step=0.5)
+spy_emu      = input.float(0.0, "⬆️ Expected Move Up",     group=grpSPY, step=0.5)
+spy_emd      = input.float(0.0, "⬇️ Expected Move Down",   group=grpSPY, step=0.5)
+
+// ── SPXL ────────────────────────────────────────────────────────────────────
+grpSPXL      = "⚡ SPXL — Options Levels"
+spxl_cw      = input.float(0.0, "📞 Call Wall",            group=grpSPXL, step=0.5)
+spxl_pw      = input.float(0.0, "📉 Put Wall",             group=grpSPXL, step=0.5)
+spxl_gcb1    = input.float(0.0, "📈 Gen Calls Bar 1",      group=grpSPXL, step=0.5)
+spxl_gcb2    = input.float(0.0, "📈 Gen Calls Bar 2",      group=grpSPXL, step=0.5)
+spxl_gcb3    = input.float(0.0, "📈 Gen Calls Bar 3",      group=grpSPXL, step=0.5)
+spxl_gpb1    = input.float(0.0, "📊 Gen Puts Bar 1",       group=grpSPXL, step=0.5)
+spxl_gpb2    = input.float(0.0, "📊 Gen Puts Bar 2",       group=grpSPXL, step=0.5)
+spxl_gpb3    = input.float(0.0, "📊 Gen Puts Bar 3",       group=grpSPXL, step=0.5)
+spxl_mp      = input.float(0.0, "😫 Max Pain",             group=grpSPXL, step=0.5)
+spxl_gf      = input.float(0.0, "🔄 Gamma Flip",           group=grpSPXL, step=0.5)
+spxl_emu     = input.float(0.0, "⬆️ Expected Move Up",     group=grpSPXL, step=0.5)
+spxl_emd     = input.float(0.0, "⬇️ Expected Move Down",   group=grpSPXL, step=0.5)
+
+// ── SPXS ────────────────────────────────────────────────────────────────────
+grpSPXS      = "🔻 SPXS — Options Levels"
+spxs_cw      = input.float(0.0, "📞 Call Wall",            group=grpSPXS, step=0.5)
+spxs_pw      = input.float(0.0, "📉 Put Wall",             group=grpSPXS, step=0.5)
+spxs_gcb1    = input.float(0.0, "📈 Gen Calls Bar 1",      group=grpSPXS, step=0.5)
+spxs_gcb2    = input.float(0.0, "📈 Gen Calls Bar 2",      group=grpSPXS, step=0.5)
+spxs_gcb3    = input.float(0.0, "📈 Gen Calls Bar 3",      group=grpSPXS, step=0.5)
+spxs_gpb1    = input.float(0.0, "📊 Gen Puts Bar 1",       group=grpSPXS, step=0.5)
+spxs_gpb2    = input.float(0.0, "📊 Gen Puts Bar 2",       group=grpSPXS, step=0.5)
+spxs_gpb3    = input.float(0.0, "📊 Gen Puts Bar 3",       group=grpSPXS, step=0.5)
+spxs_mp      = input.float(0.0, "😫 Max Pain",             group=grpSPXS, step=0.5)
+spxs_gf      = input.float(0.0, "🔄 Gamma Flip",           group=grpSPXS, step=0.5)
+spxs_emu     = input.float(0.0, "⬆️ Expected Move Up",     group=grpSPXS, step=0.5)
+spxs_emd     = input.float(0.0, "⬇️ Expected Move Down",   group=grpSPXS, step=0.5)
+
+// ── TQQQ ────────────────────────────────────────────────────────────────────
+grpTQQQ      = "🚀 TQQQ — Options Levels"
+tqqq_cw      = input.float(0.0, "📞 Call Wall",            group=grpTQQQ, step=0.5)
+tqqq_pw      = input.float(0.0, "📉 Put Wall",             group=grpTQQQ, step=0.5)
+tqqq_gcb1    = input.float(0.0, "📈 Gen Calls Bar 1",      group=grpTQQQ, step=0.5)
+tqqq_gcb2    = input.float(0.0, "📈 Gen Calls Bar 2",      group=grpTQQQ, step=0.5)
+tqqq_gcb3    = input.float(0.0, "📈 Gen Calls Bar 3",      group=grpTQQQ, step=0.5)
+tqqq_gpb1    = input.float(0.0, "📊 Gen Puts Bar 1",       group=grpTQQQ, step=0.5)
+tqqq_gpb2    = input.float(0.0, "📊 Gen Puts Bar 2",       group=grpTQQQ, step=0.5)
+tqqq_gpb3    = input.float(0.0, "📊 Gen Puts Bar 3",       group=grpTQQQ, step=0.5)
+tqqq_mp      = input.float(0.0, "😫 Max Pain",             group=grpTQQQ, step=0.5)
+tqqq_gf      = input.float(0.0, "🔄 Gamma Flip",           group=grpTQQQ, step=0.5)
+tqqq_emu     = input.float(0.0, "⬆️ Expected Move Up",     group=grpTQQQ, step=0.5)
+tqqq_emd     = input.float(0.0, "⬇️ Expected Move Down",   group=grpTQQQ, step=0.5)
+
+// ── GLD ─────────────────────────────────────────────────────────────────────
+grpGLD       = "🥇 GLD — Options Levels"
+gld_cw       = input.float(0.0, "📞 Call Wall",            group=grpGLD, step=0.5)
+gld_pw       = input.float(0.0, "📉 Put Wall",             group=grpGLD, step=0.5)
+gld_gcb1     = input.float(0.0, "📈 Gen Calls Bar 1",      group=grpGLD, step=0.5)
+gld_gcb2     = input.float(0.0, "📈 Gen Calls Bar 2",      group=grpGLD, step=0.5)
+gld_gcb3     = input.float(0.0, "📈 Gen Calls Bar 3",      group=grpGLD, step=0.5)
+gld_gpb1     = input.float(0.0, "📊 Gen Puts Bar 1",       group=grpGLD, step=0.5)
+gld_gpb2     = input.float(0.0, "📊 Gen Puts Bar 2",       group=grpGLD, step=0.5)
+gld_gpb3     = input.float(0.0, "📊 Gen Puts Bar 3",       group=grpGLD, step=0.5)
+gld_mp       = input.float(0.0, "😫 Max Pain",             group=grpGLD, step=0.5)
+gld_gf       = input.float(0.0, "🔄 Gamma Flip",           group=grpGLD, step=0.5)
+gld_emu      = input.float(0.0, "⬆️ Expected Move Up",     group=grpGLD, step=0.5)
+gld_emd      = input.float(0.0, "⬇️ Expected Move Down",   group=grpGLD, step=0.5)
+
+// ETF options colors
+grpETFC      = "🎨 ETF Options Colors ──────────────────────"
+colCW        = input.color(#00FF00, "📞 Call Wall",          group=grpETFC)
+colPW        = input.color(#FF0000, "📉 Put Wall",           group=grpETFC)
+colGCB       = input.color(#66FF88, "📈 General Calls Bar",  group=grpETFC)
+colGPB       = input.color(#FF6666, "📊 General Puts Bar",   group=grpETFC)
+colMP        = input.color(#FFFF00, "😫 Max Pain",           group=grpETFC)
+colGF        = input.color(#FF00FF, "🔄 Gamma Flip",         group=grpETFC)
+colEMU       = input.color(#00FFFF, "⬆️ Expected Move Up",   group=grpETFC)
+colEMD       = input.color(#FF8800, "⬇️ Expected Move Down", group=grpETFC)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// AUTO-DETECT ETF TICKER
+// ═════════════════════════════════════════════════════════════════════════════
+detectedETF = switch syminfo.ticker
+    "SPY"  => "SPY"
+    "SPXL" => "SPXL"
+    "SPXS" => "SPXS"
+    "TQQQ" => "TQQQ"
+    "GLD"  => "GLD"
+    =>         "None"
+
+activeETF = etfMode == "Auto-Detect" ? detectedETF : etfMode
+
+// Resolve active ETF option values — 1 cw, 1 pw, 3 gcb, 3 gpb
+act_cw   = activeETF == "SPY"  ? spy_cw   : activeETF == "SPXL" ? spxl_cw   : activeETF == "SPXS" ? spxs_cw   : activeETF == "TQQQ" ? tqqq_cw   : activeETF == "GLD" ? gld_cw   : 0.0
+act_pw   = activeETF == "SPY"  ? spy_pw   : activeETF == "SPXL" ? spxl_pw   : activeETF == "SPXS" ? spxs_pw   : activeETF == "TQQQ" ? tqqq_pw   : activeETF == "GLD" ? gld_pw   : 0.0
+act_gcb1 = activeETF == "SPY"  ? spy_gcb1 : activeETF == "SPXL" ? spxl_gcb1 : activeETF == "SPXS" ? spxs_gcb1 : activeETF == "TQQQ" ? tqqq_gcb1 : activeETF == "GLD" ? gld_gcb1 : 0.0
+act_gcb2 = activeETF == "SPY"  ? spy_gcb2 : activeETF == "SPXL" ? spxl_gcb2 : activeETF == "SPXS" ? spxs_gcb2 : activeETF == "TQQQ" ? tqqq_gcb2 : activeETF == "GLD" ? gld_gcb2 : 0.0
+act_gcb3 = activeETF == "SPY"  ? spy_gcb3 : activeETF == "SPXL" ? spxl_gcb3 : activeETF == "SPXS" ? spxs_gcb3 : activeETF == "TQQQ" ? tqqq_gcb3 : activeETF == "GLD" ? gld_gcb3 : 0.0
+act_gpb1 = activeETF == "SPY"  ? spy_gpb1 : activeETF == "SPXL" ? spxl_gpb1 : activeETF == "SPXS" ? spxs_gpb1 : activeETF == "TQQQ" ? tqqq_gpb1 : activeETF == "GLD" ? gld_gpb1 : 0.0
+act_gpb2 = activeETF == "SPY"  ? spy_gpb2 : activeETF == "SPXL" ? spxl_gpb2 : activeETF == "SPXS" ? spxs_gpb2 : activeETF == "TQQQ" ? tqqq_gpb2 : activeETF == "GLD" ? gld_gpb2 : 0.0
+act_gpb3 = activeETF == "SPY"  ? spy_gpb3 : activeETF == "SPXL" ? spxl_gpb3 : activeETF == "SPXS" ? spxs_gpb3 : activeETF == "TQQQ" ? tqqq_gpb3 : activeETF == "GLD" ? gld_gpb3 : 0.0
+act_mp   = activeETF == "SPY"  ? spy_mp   : activeETF == "SPXL" ? spxl_mp   : activeETF == "SPXS" ? spxs_mp   : activeETF == "TQQQ" ? tqqq_mp   : activeETF == "GLD" ? gld_mp   : 0.0
+act_gf   = activeETF == "SPY"  ? spy_gf   : activeETF == "SPXL" ? spxl_gf   : activeETF == "SPXS" ? spxs_gf   : activeETF == "TQQQ" ? tqqq_gf   : activeETF == "GLD" ? gld_gf   : 0.0
+act_emu  = activeETF == "SPY"  ? spy_emu  : activeETF == "SPXL" ? spxl_emu  : activeETF == "SPXS" ? spxs_emu  : activeETF == "TQQQ" ? tqqq_emu  : activeETF == "GLD" ? gld_emu  : 0.0
+act_emd  = activeETF == "SPY"  ? spy_emd  : activeETF == "SPXL" ? spxl_emd  : activeETF == "SPXS" ? spxs_emd  : activeETF == "TQQQ" ? tqqq_emd  : activeETF == "GLD" ? gld_emd  : 0.0
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SESSION DETECTION
+// ═════════════════════════════════════════════════════════════════════════════
+isNewSession = ta.change(time("D")) != 0
+
+var int sessionStartBar = na
+if isNewSession or na(sessionStartBar)
+    sessionStartBar := bar_index
+
+// ═════════════════════════════════════════════════════════════════════════════
+// DAILY DATA
+// ═════════════════════════════════════════════════════════════════════════════
+[dO1, dH1, dL1, dC1] = request.security(syminfo.tickerid, "D",
+     [open[1], high[1], low[1], close[1]], lookahead=barmerge.lookahead_on)
+[dO2, dH2, dL2, dC2] = request.security(syminfo.tickerid, "D",
+     [open[2], high[2], low[2], close[2]], lookahead=barmerge.lookahead_on)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// MONTHLY & YEARLY DATA
+// ═════════════════════════════════════════════════════════════════════════════
+[mH1, mL1] = request.security(syminfo.tickerid, "1M",
+     [high[1], low[1]], lookahead=barmerge.lookahead_on)
+[mH2, mL2] = request.security(syminfo.tickerid, "1M",
+     [high[2], low[2]], lookahead=barmerge.lookahead_on)
+[yH, yL]   = request.security(syminfo.tickerid, "12M",
+     [high[1], low[1]], lookahead=barmerge.lookahead_on)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// OVERNIGHT SESSION
+// ═════════════════════════════════════════════════════════════════════════════
+isON = not na(time(timeframe.period, onSess))
+var float onH = na
+var float onL = na
+if isON and not isON[1]
+    onH := high
+    onL := low
+else if isON
+    onH := math.max(onH, high)
+    onL := math.min(onL, low)
+var float onH_done = na
+var float onL_done = na
+if not isON and isON[1]
+    onH_done := onH
+    onL_done := onL
+
+// ═════════════════════════════════════════════════════════════════════════════
+// OHLC4 OF YESTERDAY
+// ═════════════════════════════════════════════════════════════════════════════
+ohlc4_y = (dO1 + dH1 + dL1 + dC1) / 4
+
+// ═════════════════════════════════════════════════════════════════════════════
+// PIVOT CALCULATIONS
+// ═════════════════════════════════════════════════════════════════════════════
+
+// ── 1. CLASSIC ──────────────────────────────────────────────────────────────
+pp_c = (dH1 + dL1 + dC1) / 3
+r1_c = 2 * pp_c - dL1
+r2_c = pp_c + (dH1 - dL1)
+r3_c = dH1 + 2 * (pp_c - dL1)
+s1_c = 2 * pp_c - dH1
+s2_c = pp_c - (dH1 - dL1)
+s3_c = dL1 - 2 * (dH1 - pp_c)
+
+// ── 2. WOODIE ───────────────────────────────────────────────────────────────
+pp_w = (dH1 + dL1 + 2 * dO1) / 4
+r1_w = 2 * pp_w - dL1
+r2_w = pp_w + (dH1 - dL1)
+s1_w = 2 * pp_w - dH1
+s2_w = pp_w - (dH1 - dL1)
+
+// ── 3. CAMARILLA ────────────────────────────────────────────────────────────
+rng_ca = dH1 - dL1
+r1_ca  = dC1 + rng_ca * (3.0 / 11.0)
+r2_ca  = dC1 + rng_ca * (6.0 / 11.0)
+r3_ca  = dC1 + rng_ca * (4.0 / 3.0)
+r4_ca  = dC1 + rng_ca * 2.0
+s1_ca  = dC1 - rng_ca * (3.0 / 11.0)
+s2_ca  = dC1 - rng_ca * (6.0 / 11.0)
+s3_ca  = dC1 - rng_ca * (4.0 / 3.0)
+s4_ca  = dC1 - rng_ca * 2.0
+
+// ── 4. DeMARK ───────────────────────────────────────────────────────────────
+x_dm  = (dC1 > dO1 ? dH1 * 2 + dL1 + dC1 :
+         dC1 < dO1 ? dH1 + dL1 * 2 + dC1 :
+         dH1 + dL1 + dC1 * 2)
+pp_dm = x_dm / 4
+r1_dm = x_dm / 2 - dL1
+s1_dm = x_dm / 2 - dH1
+
+// ── 5. FIBONACCI ────────────────────────────────────────────────────────────
+pp_f  = (dH1 + dL1 + dC1) / 3
+rng_f = dH1 - dL1
+r1_f  = pp_f + 0.382 * rng_f
+r2_f  = pp_f + 0.618 * rng_f
+r3_f  = pp_f + 1.000 * rng_f
+s1_f  = pp_f - 0.382 * rng_f
+s2_f  = pp_f - 0.618 * rng_f
+s3_f  = pp_f - 1.000 * rng_f
+
+// ── 6. VORTEX PIVOT ─────────────────────────────────────────────────────────
+vm_plus  = math.sum(math.abs(high - low[1]),  VLEN)
+vm_minus = math.sum(math.abs(low  - high[1]), VLEN)
+tr_bar   = math.max(high - low, math.abs(high - close[1]), math.abs(low - close[1]))
+atr_v    = math.sum(tr_bar, VLEN)
+vi_plus  = atr_v != 0 ? vm_plus  / atr_v : 1.0
+vi_minus = atr_v != 0 ? vm_minus / atr_v : 1.0
+vbias    = vi_plus[1] - vi_minus[1]
+v_mid    = (dH1 + dL1) / 2
+v_range  = dH1 - dL1
+pp_v     = v_mid + vbias * v_range * 0.5
+r1_v     = pp_v + v_range * vi_plus[1]
+r2_v     = r1_v + v_range * vi_plus[1]  * PHI
+s1_v     = pp_v - v_range * vi_minus[1]
+s2_v     = s1_v - v_range * vi_minus[1] * PHI
+
+// ── 7. HARMONIC GEOMETRIC PIVOT ─────────────────────────────────────────────
+eps           = syminfo.mintick
+cnd_dx        = dH1 - dL1 + eps
+cnd_dy        = dC1 - dO1
+theta         = math.atan(cnd_dy / cnd_dx)
+rho           = math.sqrt(cnd_dy * cnd_dy + cnd_dx * cnd_dx)
+pp_hgp        = ohlc4_y + rho * math.sin(theta)
+r1_hgp        = pp_hgp + rho * math.cos(theta) * PHI
+r2_hgp        = pp_hgp + rho * math.cos(theta) * PHI * PHI
+s1_hgp        = pp_hgp - rho * math.cos(theta) * PHI
+s2_hgp        = pp_hgp - rho * math.cos(theta) * PHI * PHI
+hgp_sin_ext   = rho * math.sin(theta + PI / 4) * PHI * PHI * PHI
+r3_hgp        = hgp_sin_ext > 0 ? pp_hgp + hgp_sin_ext : na
+s3_hgp        = hgp_sin_ext > 0 ? pp_hgp - hgp_sin_ext : na
+
+// ── 8. AXIS PROJECTION BAND ─────────────────────────────────────────────────
+var float v_prev = na
+var float a_prev = na
+vel       = close - open
+acc       = na(v_prev) ? 0.0 : vel - v_prev
+jerk      = na(a_prev) ? 0.0 : acc - a_prev
+lf        = 5.0
+axis_proj = close + vel * lf + 0.5 * acc * lf * lf + (1.0/6.0) * jerk * math.pow(lf, 3)
+axis_band = 0.5 * math.abs(acc) * lf * lf
+v_prev   := vel
+a_prev   := acc
+
+// ═════════════════════════════════════════════════════════════════════════════
+// DEDUP ENGINE
+// ═════════════════════════════════════════════════════════════════════════════
+// All levels are staged into two parallel arrays (prices + labels + colors).
+// Before drawing, we scan for prices within 1 tick of each other and merge
+// their labels into a single entry. Only the merged set is drawn.
+// ═════════════════════════════════════════════════════════════════════════════
+var float[] stagePrice  = array.new<float>()
+var string[] stageLbl   = array.new<string>()
+var color[]  stageCol   = array.new<color>()
+var string[] stageStyle = array.new<string>()  // "solid" | "dash" | "dot"
+
+f_stage(price, col, lbl, lstyle) =>
+    if not na(price) and price > 0.0
+        array.push(stagePrice,  price)
+        array.push(stageLbl,    lbl)
+        array.push(stageCol,    col)
+        array.push(stageStyle,  lstyle)
+
+// ── Merge pass: collapse entries within 1 tick into one ─────────────────────
+// Returns parallel arrays of merged (price, label, color, style).
+// The color and style of the FIRST occurrence at that price level wins.
+f_merge() =>
+    int n = array.size(stagePrice)
+    bool[] used = array.new<bool>(n, false)
+
+    float[]  mPrice = array.new<float>()
+    string[] mLbl   = array.new<string>()
+    color[]  mCol   = array.new<color>()
+    string[] mStyle = array.new<string>()
+
+    float tick = syminfo.mintick
+
+    for i = 0 to n - 1
+        if not array.get(used, i)
+            float  baseP = array.get(stagePrice, i)
+            string baseL = array.get(stageLbl,   i)
+            color  baseC = array.get(stageCol,   i)
+            string baseS = array.get(stageStyle,  i)
+
+            // Scan forward for same-price duplicates
+            // Guard: only enter inner loop when there is at least one element after i
+            if i < n - 1
+                for j = i + 1 to n - 1
+                    if not array.get(used, j)
+                        float pj = array.get(stagePrice, j)
+                        if math.abs(pj - baseP) <= tick
+                            baseL := baseL + " | " + array.get(stageLbl, j)
+                            array.set(used, j, true)
+
+            array.push(mPrice, baseP)
+            array.push(mLbl,   baseL)
+            array.push(mCol,   baseC)
+            array.push(mStyle,  baseS)
+            array.set(used, i, true)
+
+    [mPrice, mLbl, mCol, mStyle]
+
+// ═════════════════════════════════════════════════════════════════════════════
+// LINE / LABEL MANAGEMENT
+// ═════════════════════════════════════════════════════════════════════════════
+var line[]  allLines  = array.new<line>()
+var label[] allLabels = array.new<label>()
+
+f_purge() =>
+    for ln in allLines
+        line.delete(ln)
+    for lb in allLabels
+        label.delete(lb)
+    array.clear(allLines)
+    array.clear(allLabels)
+
+// Draw a single merged entry
+f_drawMerged(price, col, lbl, lstyle) =>
+    if not na(price) and price > 0
+        lnStyle = lstyle == "dot"  ? line.style_dotted :
+                  lstyle == "dash" ? line.style_dashed  :
+                  line.style_solid
+        ln = line.new(sessionStartBar, price, bar_index + 1, price,
+             color=col, width=lineWid, extend=extend.right,
+             style=lnStyle, xloc=xloc.bar_index)
+        array.push(allLines, ln)
+        if showLbl
+            lb = label.new(bar_index + lblOffset, price,
+                 text      = lbl + "  " + str.tostring(price, format.mintick),
+                 color     = color.new(col, 75),
+                 textcolor = col,
+                 style     = label.style_label_lower_left,
+                 size      = lblSize,
+                 xloc      = xloc.bar_index)
+            array.push(allLabels, lb)
+
+// Convenience stage helpers
+f_solid(price, col, lbl) => f_stage(price, col, lbl, "solid")
+f_dash(price, col, lbl)  => f_stage(price, col, lbl, "dash")
+f_dot(price, col, lbl)   => f_stage(price, col, lbl, "dot")
+
+// ═════════════════════════════════════════════════════════════════════════════
+// STAGE ALL LEVELS → MERGE → DRAW
+// ═════════════════════════════════════════════════════════════════════════════
+if barstate.islast or isNewSession
+
+    // Clear stage arrays
+    array.clear(stagePrice)
+    array.clear(stageLbl)
+    array.clear(stageCol)
+    array.clear(stageStyle)
+
+    // ── KEY LEVELS ──────────────────────────────────────────────────────────
+    if showYH
+        f_solid(yH, colYH, "🟡▲ YEAR H")
+    if showYL
+        f_solid(yL, colYL, "🟡▼ YEAR L")
+
+    if showM1H
+        f_dash(mH1, colM1H, "🔵▲ LAST-M H")
+    if showM1L
+        f_dash(mL1, colM1L, "🔵▼ LAST-M L")
+
+    if showM2H
+        f_dash(mH2, colM2H, "🟣▲ 2M H")
+    if showM2L
+        f_dash(mL2, colM2L, "🟣▼ 2M L")
+
+    if showD1H
+        f_dash(dH1, colD1H, "🔴▲ YEST H")
+    if showD1L
+        f_dash(dL1, colD1L, "🔴▼ YEST L")
+    if showD1C
+        f_dot(dC1,  colD1C, "🟠● YEST C")
+
+    if showD2H
+        f_dash(dH2, colD2H, "🟢▲ 2D H")
+    if showD2L
+        f_dash(dL2, colD2L, "🟢▼ 2D L")
+    if showD2C
+        f_dot(dC2,  colD2C, "🌿● 2D C")
+
+    if showONH and not na(onH_done)
+        f_dash(onH_done, colONH, "🩷▲ ON H")
+    if showONL and not na(onL_done)
+        f_dash(onL_done, colONL, "🩷▼ ON L")
+
+    // ── CLASSIC PIVOT ───────────────────────────────────────────────────────
+    if showClassic
+        f_solid(pp_c, colClas, "⚪ PP (Classic)")
+        f_dash(r1_c,  colR,    "⬆️ cR1")
+        f_dash(r2_c,  colR,    "⬆️ cR2")
+        f_dash(r3_c,  colR,    "⬆️ cR3")
+        f_dash(s1_c,  colS,    "⬇️ cS1")
+        f_dash(s2_c,  colS,    "⬇️ cS2")
+        f_dash(s3_c,  colS,    "⬇️ cS3")
+
+    // ── WOODIE PIVOT ────────────────────────────────────────────────────────
+    if showWoodie
+        f_solid(pp_w, colWood, "🌳 PP (Woodie)")
+        f_dash(r1_w, color.new(colWood, 30), "🌳⬆️ wR1")
+        f_dash(r2_w, color.new(colWood, 30), "🌳⬆️ wR2")
+        f_dash(s1_w, color.new(colWood, 30), "🌳⬇️ wS1")
+        f_dash(s2_w, color.new(colWood, 30), "🌳⬇️ wS2")
+
+    // ── CAMARILLA PIVOT ─────────────────────────────────────────────────────
+    if showCamarilla
+        f_solid(dC1,   colCam, "🟠 PP (Camarilla)")
+        f_dash(r1_ca, color.new(colCam, 20), "🟠⬆️ camR1")
+        f_dash(r2_ca, color.new(colCam, 20), "🟠⬆️ camR2")
+        f_dash(r3_ca, colR,                  "🟠⚡ camR3")
+        f_dash(r4_ca, colR,                  "🟠⚡⚡ camR4")
+        f_dash(s1_ca, color.new(colCam, 20), "🟠⬇️ camS1")
+        f_dash(s2_ca, color.new(colCam, 20), "🟠⬇️ camS2")
+        f_dash(s3_ca, colS,                  "🟠⚡ camS3")
+        f_dash(s4_ca, colS,                  "🟠⚡⚡ camS4")
+
+    // ── DeMARK PIVOT ────────────────────────────────────────────────────────
+    if showDemark
+        f_solid(pp_dm, colDem,               "🔷 PP (DeMark)")
+        f_dash(r1_dm, color.new(colDem, 20), "🔷⬆️ dmR1")
+        f_dash(s1_dm, color.new(colDem, 20), "🔷⬇️ dmS1")
+
+    // ── FIBONACCI PIVOT ─────────────────────────────────────────────────────
+    if showFib
+        f_solid(pp_f, colFib,               "🌀 PP (Fib)")
+        f_dash(r1_f, color.new(colFib, 20), "🌀⬆️ fibR1 38.2%")
+        f_dash(r2_f, color.new(colFib, 20), "🌀⬆️ fibR2 61.8%")
+        f_dash(r3_f, colR,                  "🌀⬆️ fibR3 100%")
+        f_dash(s1_f, color.new(colFib, 20), "🌀⬇️ fibS1 38.2%")
+        f_dash(s2_f, color.new(colFib, 20), "🌀⬇️ fibS2 61.8%")
+        f_dash(s3_f, colS,                  "🌀⬇️ fibS3 100%")
+
+    // ── VORTEX PIVOT ────────────────────────────────────────────────────────
+    if showVortex
+        f_solid(pp_v, colVort, "🌪️ PP (Vortex) VI+=" + str.tostring(vi_plus[1], "#.##") + " VI−=" + str.tostring(vi_minus[1], "#.##"))
+        f_dash(r1_v, color.new(colVort, 20), "🌪️⬆️ vortR1")
+        f_dash(r2_v, colR,                   "🌪️⬆️ vortR2 φ")
+        f_dash(s1_v, color.new(colVort, 20), "🌪️⬇️ vortS1")
+        f_dash(s2_v, colS,                   "🌪️⬇️ vortS2 φ")
+
+    // ── HARMONIC GEOMETRIC PIVOT ────────────────────────────────────────────
+    if showHGP
+        f_solid(pp_hgp, colHGP, "✳️ PP (HGP) θ=" + str.tostring(theta * 180 / PI, "#.#") + "°")
+        f_dash(r1_hgp, color.new(colHGP, 20), "✳️⬆️ hgpR1 φ")
+        f_dash(r2_hgp, color.new(colHGP, 40), "✳️⬆️ hgpR2 φ²")
+        f_dash(s1_hgp, color.new(colHGP, 20), "✳️⬇️ hgpS1 φ")
+        f_dash(s2_hgp, color.new(colHGP, 40), "✳️⬇️ hgpS2 φ²")
+        if not na(r3_hgp)
+            f_dash(r3_hgp, colR, "✳️⬆️ hgpR3 φ³")
+        if not na(s3_hgp)
+            f_dash(s3_hgp, colS, "✳️⬇️ hgpS3 φ³")
+
+    // ── AXIS PROJECTION BAND ────────────────────────────────────────────────
+    if showAxis
+        f_solid(axis_proj,             colAxis,                "🎯 PROJ (5-bar)")
+        f_dot(axis_proj + axis_band,   color.new(colAxis, 40), "🎯⬆️ proj+½At²")
+        f_dot(axis_proj - axis_band,   color.new(colAxis, 40), "🎯⬇️ proj−½At²")
+
+    // ── ETF OPTIONS LEVELS (3× Call Walls, 3× Gen Calls Bars) ───────────────
+    if showOptLvl and activeETF != "None"
+        etfTag = "[" + activeETF + "] "
+
+        if act_cw > 0
+            f_solid(act_cw, colCW,  "📞" + etfTag + "Call Wall")
+
+        if act_pw > 0
+            f_solid(act_pw, colPW,  "📉" + etfTag + "Put Wall")
+
+        if act_gcb1 > 0
+            f_dash(act_gcb1, colGCB, "📈" + etfTag + "Gen Calls Bar 1")
+        if act_gcb2 > 0
+            f_dash(act_gcb2, colGCB, "📈" + etfTag + "Gen Calls Bar 2")
+        if act_gcb3 > 0
+            f_dash(act_gcb3, colGCB, "📈" + etfTag + "Gen Calls Bar 3")
+
+        if act_gpb1 > 0
+            f_dash(act_gpb1, colGPB, "📊" + etfTag + "Gen Puts Bar 1")
+        if act_gpb2 > 0
+            f_dash(act_gpb2, colGPB, "📊" + etfTag + "Gen Puts Bar 2")
+        if act_gpb3 > 0
+            f_dash(act_gpb3, colGPB, "📊" + etfTag + "Gen Puts Bar 3")
+
+        if act_mp > 0
+            f_solid(act_mp, colMP,  "😫" + etfTag + "Max Pain")
+        if act_gf > 0
+            f_solid(act_gf, colGF,  "🔄" + etfTag + "Gamma Flip")
+        if act_emu > 0
+            f_dash(act_emu, colEMU, "⬆️" + etfTag + "Exp Move Up")
+        if act_emd > 0
+            f_dash(act_emd, colEMD, "⬇️" + etfTag + "Exp Move Down")
+
+    // ── MERGE DUPLICATES → DRAW ──────────────────────────────────────────────
+    // After all levels are staged, merge same-price entries then draw once.
+    f_purge()
+    [mPrice, mLbl, mCol, mStyle] = f_merge()
+    int mLen = array.size(mPrice)
+    for i = 0 to mLen - 1
+        f_drawMerged(
+             array.get(mPrice, i),
+             array.get(mCol,   i),
+             array.get(mLbl,   i),
+             array.get(mStyle, i))
