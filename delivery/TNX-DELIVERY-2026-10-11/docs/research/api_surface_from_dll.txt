@@ -1,0 +1,130 @@
+ASSEMBLY REFS:
+   System.Runtime 10.0.0.0
+   TradingPlatform.BusinessLayer 1.146.7.0
+   System.Drawing.Primitives 10.0.0.0
+   System.Collections 10.0.0.0
+   System.Drawing.Common 9.0.0.0
+   System.Collections.Concurrent 10.0.0.0
+   System.Threading 10.0.0.0
+   System.Linq 10.0.0.0
+   System.Runtime.InteropServices 10.0.0.0
+
+TYPE REFS (TradingPlatform.*):
+   TradingPlatform.BusinessLayer.BasePeriod
+   TradingPlatform.BusinessLayer.Core
+   TradingPlatform.BusinessLayer.ExecutionEntity
+   TradingPlatform.BusinessLayer.HistoricalData
+   TradingPlatform.BusinessLayer.HistoryAggregation
+   TradingPlatform.BusinessLayer.HistoryAggregationRangeBars
+   TradingPlatform.BusinessLayer.HistoryAggregationRenko
+   TradingPlatform.BusinessLayer.HistoryAggregationTickBars
+   TradingPlatform.BusinessLayer.HistoryAggregationTime
+   TradingPlatform.BusinessLayer.ISession
+   TradingPlatform.BusinessLayer.ISessionsContainer
+   TradingPlatform.BusinessLayer.IVolumeAnalysisCalculationProgress
+   TradingPlatform.BusinessLayer.IVolumeAnalysisIndicator
+   TradingPlatform.BusinessLayer.Indicator
+   TradingPlatform.BusinessLayer.IndicatorLineMarker
+   TradingPlatform.BusinessLayer.IndicatorLineMarkerIconType
+   TradingPlatform.BusinessLayer.InputParameterAttribute
+   TradingPlatform.BusinessLayer.Line
+   TradingPlatform.BusinessLayer.LineLevel
+   TradingPlatform.BusinessLayer.LineSeries
+   TradingPlatform.BusinessLayer.LineStyle
+   TradingPlatform.BusinessLayer.PaintChartEventArgs
+   TradingPlatform.BusinessLayer.Period
+   TradingPlatform.BusinessLayer.PriceType
+   TradingPlatform.BusinessLayer.SeekOriginHistory
+   TradingPlatform.BusinessLayer.SelectItem
+   TradingPlatform.BusinessLayer.SessionsContainer
+   TradingPlatform.BusinessLayer.SessionsExtensions
+   TradingPlatform.BusinessLayer.SettingItem
+   TradingPlatform.BusinessLayer.Symbol
+   TradingPlatform.BusinessLayer.TimeUtils
+   TradingPlatform.BusinessLayer.TimeZone
+   TradingPlatform.BusinessLayer.UpdateArgs
+   TradingPlatform.BusinessLayer.UpdateReason
+   TradingPlatform.BusinessLayer.VolumeAnalysisCalculationState
+   TradingPlatform.BusinessLayer.VolumeAnalysisData
+   TradingPlatform.BusinessLayer.VolumeAnalysisItem
+   TradingPlatform.BusinessLayer.Chart.ChartMouseNativeEventArgs
+   TradingPlatform.BusinessLayer.Chart.IChart
+   TradingPlatform.BusinessLayer.Chart.IChartWindow
+   TradingPlatform.BusinessLayer.Chart.IChartWindowCoordinatesConverter
+   TradingPlatform.BusinessLayer.Native.NativeMouseButtons
+   TradingPlatform.BusinessLayer.Native.NativeMouseEventArgs
+   TradingPlatform.BusinessLayer.Utils.Interval`1
+
+MEMBER REFS grouped by parent type (TradingPlatform.* and non-System):
+   TradingPlatform.BusinessLayer.Chart.ChartMouseNativeEventArgs -> get_Window, set_NeedMouseCapture, set_NeedRedraw
+   TradingPlatform.BusinessLayer.Chart.IChart -> RedrawBuffer, add_MouseDown, add_MouseMove, add_MouseUp, add_MouseWheel, get_BarsWidth, get_CurrentTimeZone, get_Windows, remove_MouseDown, remove_MouseMove, remove_MouseUp, remove_MouseWheel
+   TradingPlatform.BusinessLayer.Chart.IChartWindow -> get_CoordinatesConverter, get_WindowNumber
+   TradingPlatform.BusinessLayer.Chart.IChartWindowCoordinatesConverter -> GetBarIndex, GetChartX, GetChartY
+   TradingPlatform.BusinessLayer.Core -> get_Instance, get_TimeUtils
+   TradingPlatform.BusinessLayer.ExecutionEntity -> set_Description, set_Name
+   TradingPlatform.BusinessLayer.HistoricalData -> get_Aggregation, get_VolumeAnalysisCalculationProgress
+   TradingPlatform.BusinessLayer.HistoryAggregationRangeBars -> get_RangeBars
+   TradingPlatform.BusinessLayer.HistoryAggregationRenko -> get_BrickSize
+   TradingPlatform.BusinessLayer.HistoryAggregationTickBars -> get_TicksCount
+   TradingPlatform.BusinessLayer.HistoryAggregationTime -> get_Period
+   TradingPlatform.BusinessLayer.ISession -> get_IsPrimary
+   TradingPlatform.BusinessLayer.IVolumeAnalysisCalculationProgress -> get_State
+   TradingPlatform.BusinessLayer.Indicator -> .ctor, AddLineLevel, AddLineSeries, GetPrice, GetVolumeAnalysisData, OnPaintChart, OnSettingsUpdated, Ticks, Time, get_Count, get_CurrentChart, get_HistoricalData, get_Settings, get_Symbol, set_SeparateWindow, set_Settings
+   TradingPlatform.BusinessLayer.IndicatorLineMarker -> .ctor
+   TradingPlatform.BusinessLayer.InputParameterAttribute -> .ctor, get_Name, get_Variants
+   TradingPlatform.BusinessLayer.Line -> set_Color, set_Visible, set_Width
+   TradingPlatform.BusinessLayer.LineSeries -> SetMarker, SetValue, set_ShowLineMarker
+   TradingPlatform.BusinessLayer.Native.NativeMouseEventArgs -> get_Button, get_Clicks, get_Delta, get_X, get_Y, set_Handled
+   TradingPlatform.BusinessLayer.PaintChartEventArgs -> get_Graphics, get_Rectangle, get_WindowIndex
+   TradingPlatform.BusinessLayer.Period -> get_BasePeriod, get_PeriodMultiplier, get_Ticks
+   TradingPlatform.BusinessLayer.SelectItem -> get_Value
+   TradingPlatform.BusinessLayer.SessionsContainer -> get_ActiveSessions
+   TradingPlatform.BusinessLayer.SessionsExtensions -> EnumerateSessionTimeFrames
+   TradingPlatform.BusinessLayer.SettingItem -> get_Name, get_Value
+   TradingPlatform.BusinessLayer.Symbol -> get_CurrentSessionsInfo, get_TickSize
+   TradingPlatform.BusinessLayer.TimeUtils -> get_DateTimeUtcNow, get_SelectedTimeZone
+   TradingPlatform.BusinessLayer.TimeZone -> get_TimeZoneInfo
+   TradingPlatform.BusinessLayer.UpdateArgs -> get_Reason
+   TradingPlatform.BusinessLayer.VolumeAnalysisData -> get_Total
+   TradingPlatform.BusinessLayer.VolumeAnalysisItem -> get_BuyVolume, get_Delta, get_MaxDelta, get_MinDelta, get_SellVolume, get_Volume
+
+TYPE REFS (other, non-System, non-TradingPlatform):
+   .DebuggingModes
+   .Enumerator
+   .ValueCollection
+
+TYPE DEFS in this DLL:
+   .<Module>
+   TNXIndicators.TNXCVDPro
+   TNXIndicators.GdiCache
+   TNXIndicators.PictureArrays
+   TNXIndicators.TnxErrors
+   .Display
+   .VelocityCvdStyle
+   .AccelStyle
+   .ResetMode
+   .SignalFilter
+   .Corner
+   .Theme
+   .BarStyle
+   .TableLook
+   .FlowTierMode
+   .MarkerLook
+   .CardPlace
+   .CardRows
+   .LaneLook
+   .SigKind
+   .Bar
+   .Sig
+   .Agg
+   .Pf
+   .LaneTitleAsk
+   .CardRow
+   .<>c
+   .<>c__DisplayClass331_0
+   .<>c__DisplayClass334_0
+   .GradientKey
+   .Gradient
+   .Slot
+   .Place
+   .<>c

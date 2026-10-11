@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- TNX IMBALANCE STRENGTH 1.0 - the same build as TNX CVD PRO (2026-10-11):
+       .NET 10 Windows, Release (optimized), TradingPlatform.BusinessLayer 1.146.7.0, System.Drawing.Common 9.0.0.0.
+       Build: dotnet build -c Release   (QuantowerApi_1_146_7 = the path of Quantower's TradingPlatform.BusinessLayer.dll)
+       Self-contained: no TNX-COMMON files needed. -->
+  <PropertyGroup>
+    <AssemblyName>TNXImbalanceStrength</AssemblyName>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Optimize>true</Optimize>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="TradingPlatform.BusinessLayer">
+      <HintPath>$(QuantowerApi_1_146_7)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" ExcludeAssets="runtime" />
+  </ItemGroup>
+</Project>

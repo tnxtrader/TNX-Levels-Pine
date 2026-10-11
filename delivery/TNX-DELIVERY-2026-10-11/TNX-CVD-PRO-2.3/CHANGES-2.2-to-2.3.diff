@@ -1,0 +1,1507 @@
+--- work/TNXCVDPro.orig.cs	2026-10-11 06:29:29.440257141 +0000
++++ upload/TNX-CVD-PRO/src/TNXIndicators/TNXCVDPro.cs	2026-10-11 06:54:19.932036538 +0000
+@@ -134,6 +134,21 @@
+ 		Classic
+ 	}
+ 
++	public enum FlowLook
++	{
++		Bars,
++		Area,
++		Histogram,
++		Ribbon,
++		Needles
++	}
++
++	public enum FlowShade
++	{
++		RealPush,
++		Classic
++	}
++
+ 	internal enum SigKind
+ 	{
+ 		Absorption,
+@@ -214,6 +229,33 @@
+ 		public long Anchor;
+ 
+ 		public int SessIdx;   // 2.0 (F5): bars since the session's first bar (only kept in "every N bars" mode)
++
++		// ---- 2.3: the real-push dials, computed once per bar in Compute and only read by the picture ----
++		public double Dur;        // seconds the bar took (finished: next open - this open; forming: now - open), floored at 0.1
++
++		public double PDur;       // prefix sum of Dur
++
++		public double Imb7;       // one-sidedness of the fast window: (buy - sell) / (buy + sell), -1 .. 1
++
++		public double Imb3;       // the same over the last 3 bars
++
++		public double Vps;        // volume per second over the fast window
++
++		public double FRank;      // rank of |Fast| among the lookback's bars (0 .. 1); -1 while fewer than 20 bars
++
++		public double SRank;      // the same for |Slow|
++
++		public double BusyRank;   // rank of Vps (how busy the market is); -1 while fewer than 20 bars
++
++		public double ImbRank;    // rank of |Imb7| (how one-sided); -1 while fewer than 20 bars
++
++		public double Q;          // real push 0 .. 1 = sqrt(busy rank x one-sided rank); 0.5 while the ranks are unknown
++
++		public bool Absorbed;     // the bar's own reading is ABSORBED or TRAPPED (Verdict's rule: effort >= 1x, result < 0.35 of it)
++
++		public bool Fade;         // flow still strong, but its one-sidedness over 3 bars fell under 60 % of the 7-bar one: the push is dying
++
++		public bool ThrustOk;     // a THRUST here is backed by a busy (rank >= 0.5), one-sided, not fading, not absorbed market
+ 	}
+ 
+ 	private sealed class Sig
+@@ -296,7 +338,8 @@
+ 		Vol,
+ 		Rej,
+ 		Delta,
+-		AbsAcc
++		AbsAcc,
++		Dur
+ 	}
+ 
+ 	[InputParameter("Display", 0, 0.0, 0.0, 0.0, 0, new object[]
+@@ -546,6 +589,8 @@
+ 	{
+ 		"Bottom right",
+ 		Corner.BottomRight,
++		"Top right",
++		Corner.TopRight,
+ 		"Bottom left",
+ 		Corner.BottomLeft,
+ 		"Hidden",
+@@ -679,6 +724,48 @@
+ 	})]
+ 	public LaneLook LaneStyle;
+ 
++	// ---- 2.3: the flow lane reads the market, not only the delta. Every new behaviour has its own setting; the 2.2 picture
++	// is one setting away (FlowShade = Classic, GateThrust off, ShowFade off, AccelInFlow off, CardCompass off) ----
++
++	[InputParameter("2.3 Flow lane look", 87, 0.0, 0.0, 0.0, 0, new object[]
++	{
++		"Bars (2.2)",
++		FlowLook.Bars,
++		"Polarized area (smooth)",
++		FlowLook.Area,
++		"Fast vs slow (histogram + lines)",
++		FlowLook.Histogram,
++		"Ribbon (fast / slow band)",
++		FlowLook.Ribbon,
++		"Needles (thin lines + dots)",
++		FlowLook.Needles
++	})]
++	public FlowLook FlowStyle;
++
++	[InputParameter("2.3 Flow bars brightness", 88, 0.0, 0.0, 0.0, 0, new object[]
++	{
++		"Real push: bright = one-sided AND busy, dark = thin or battle",
++		FlowShade.RealPush,
++		"Classic: by flow tier (2.2)",
++		FlowShade.Classic
++	})]
++	public FlowShade Shade;
++
++	[InputParameter("2.3 THRUST only when busy, one-sided and not absorbed (else a hollow 'thin' mark)", 89, -2147483648.0, 2147483647.0, 0.01, 2, null)]
++	public bool GateThrust = true;
++
++	[InputParameter("2.3 Early fade dot: flow still strong, one-sidedness dropping", 90, -2147483648.0, 2147483647.0, 0.01, 2, null)]
++	public bool ShowFade = true;
++
++	[InputParameter("2.3 Acceleration inside the flow lane (hollow = slowing, marks) when the strip is off", 91, -2147483648.0, 2147483647.0, 0.01, 2, null)]
++	public bool AccelInFlow = true;
++
++	[InputParameter("2.3 Card: flow compass (who, how busy, acceleration arrow, warning) instead of the flow text rows", 92, -2147483648.0, 2147483647.0, 0.01, 2, null)]
++	public bool CardCompass = true;
++
++	[InputParameter("2.3 Signal filter: all-history average when the lookback has fewer than 3 signals", 93, -2147483648.0, 2147483647.0, 0.01, 2, null)]
++	public bool SignalAvgFallback = true;
++
+ 	private Bar[] _b = new Bar[0];
+ 
+ 	private int _n;
+@@ -742,6 +829,8 @@
+ 
+ 	private int _rangeObsAt = -1;
+ 
++	private readonly double[] _rangeBuf = new double[21];   // 2.3: RangeFull's sort buffer
++
+ 	private double _rangeObs;
+ 
+ 	private int _pendingVa = -1;
+@@ -1063,6 +1152,7 @@
+ 		Theme.MidnightGold => Color.FromArgb(130, 210, 255), 
+ 		Theme.Solarized => Color.FromArgb(181, 137, 0), 
+ 		Theme.Matrix => Color.FromArgb(170, 255, 210), 
++		Theme.Custom => VelocityCvd, 
+ 		_ => Color.Orange, 
+ 	};
+ 
+@@ -1250,6 +1340,8 @@
+ 				_evalUpTo = -1;
+ 				_sigs.Clear();
+ 				_sigsVersion++;   // P4 F18
++				Array.Clear(_kindSum, 0, 6);   // 2.3
++				Array.Clear(_kindCnt, 0, 6);
+ 				_sessionCache.Clear();
+ 				_phAbs = (_plAbs = -1);
+ 				_pendingVa = -1;
+@@ -1321,6 +1413,11 @@
+ 			value3.Dispose();
+ 		}
+ 		_dotPens.Clear();
++		foreach (Pen value4 in _dashPens.Values)   // 2.3
++		{
++			value4.Dispose();
++		}
++		_dashPens.Clear();
+ 		_labelFont = null;
+ 		_hitList.Clear();
+ 		_hover = null;
+@@ -1387,6 +1484,29 @@
+ 		{
+ 			TnxErrors.Report("TNX CVD PRO", "OnSettingsUpdated#1", tnxError);   // P4 F5: was empty
+ 		}
++		try
++		{
++			base.CurrentChart?.RedrawBuffer();   // 2.3: a changed setting shows at once, not at the next tick (a quiet market kept the old picture)
++		}
++		catch (Exception tnxError)
++		{
++			TnxErrors.Report("TNX CVD PRO", "OnSettingsUpdated#2", tnxError);
++		}
++	}
++
++	// 2.3: the platform disposes a removed indicator; the mouse hooks, timer, fonts, pens and brushes go with it even when
++	// OnClear is not called first (the official mouse example unsubscribes in Dispose)
++	public override void Dispose()
++	{
++		try
++		{
++			OnClearCore();
++		}
++		catch (Exception tnxError)
++		{
++			TnxErrors.Report("TNX CVD PRO", "Dispose#1", tnxError);
++		}
++		base.Dispose();
+ 	}
+ 
+ 	private void DetectGeometry()
+@@ -1522,6 +1642,8 @@
+ 				_swingSaved = (_phAbs, _phPx, _phCvd, _plAbs, _plPx, _plCvd);
+ 				_sigsBefore.Clear();
+ 				_sigsBefore.AddRange(_sigs);
++				Array.Copy(_kindSum, _kindSumBefore, 6);   // 2.3: the filter's running averages belong to the same snapshot
++				Array.Copy(_kindCnt, _kindCntBefore, 6);
+ 			}
+ 			else
+ 			{
+@@ -1567,6 +1689,8 @@
+ 			// undone), so the bar is read again exactly as a reload reads it
+ 			_sigs.Clear();
+ 			_sigs.AddRange(_sigsBefore);
++			Array.Copy(_kindSumBefore, _kindSum, 6);   // 2.3
++			Array.Copy(_kindCntBefore, _kindCnt, 6);
+ 			_sigsVersion++;
+ 			(_phAbs, _phPx, _phCvd, _plAbs, _plPx, _plCvd) = _swingSaved;
+ 			Evaluate(abs, pending: false);
+@@ -1646,6 +1770,8 @@
+ 		}
+ 		_sigs.Clear();
+ 		_sigsVersion++;   // P4 F18
++		Array.Clear(_kindSum, 0, 6);   // 2.3
++		Array.Clear(_kindCnt, 0, 6);
+ 		_phAbs = (_plAbs = -1);
+ 		_pendingVa = -1;
+ 		_rangeObsAt = -1;
+@@ -1725,6 +1851,9 @@
+ 			}
+ 			ref Bar reference = ref _b[abs];
+ 			reference.Ticks = Time(num).Ticks;
++			// 2.3: how long the bar took, in seconds: a finished bar from its open to the next bar's open (as the card's "Last bar"
++			// row reads it), the forming bar from its open until now. Floored at 0.1 s (a small bar can finish inside one timestamp).
++			reference.Dur = Math.Max(0.1, (double)(((num >= 1) ? Time(num - 1).Ticks : NowTicks()) - reference.Ticks) / 1E+07);
+ 			bool barsFromSession = Reset == ResetMode.Bars && ResetBarsFromSession;
+ 			reference.Anchor = ((Reset == ResetMode.Session || barsFromSession) ? SessionAnchor(abs) : 0);
+ 			if (barsFromSession)
+@@ -1776,6 +1905,7 @@
+ 				reference.PVol = reference2.PVol + num7;
+ 				reference.PRej = reference2.PRej + val;
+ 				reference.PDelta = reference2.PDelta + num2;
++				reference.PDur = reference2.PDur + reference.Dur;   // 2.3
+ 			}
+ 			else
+ 			{
+@@ -1786,6 +1916,7 @@
+ 				reference.PVol = num7;
+ 				reference.PRej = val;
+ 				reference.PDelta = num2;
++				reference.PDur = reference.Dur;   // 2.3
+ 			}
+ 			Velocity(abs, out reference.R, out reference.E);
+ 			int val2 = Math.Max(2, VelocityPeriod / 3);
+@@ -1809,6 +1940,30 @@
+ 			bool flag3 = Math.Abs(reference.R) >= DivergeMin && Math.Abs(reference.E) >= DivergeMin && num20 != num21;
+ 			int num22 = ((abs > 0) ? _b[abs - 1].DivRun : 0);
+ 			reference.DivRun = (flag3 ? ((num20 <= 0) ? ((num22 < 0) ? (num22 - 1) : (-1)) : ((num22 <= 0) ? 1 : (num22 + 1))) : 0);
++			// ---- 2.3: the real-push dials. The flow lane used delta size alone; delta size cannot tell a busy, one-sided market
++			// (a real push) from a quiet one (a thin move) or from a two-sided fight (a battle). Three dials over the fast window:
++			// one-sidedness (delta / traded volume, Quantower's own Delta %), volume per second (how busy), and the bar's own
++			// effort-vs-result reading (absorbed). Ranks over the lookback, like the flow tiers. All O(lookback) once per bar. ----
++			double bs7 = Win(abs, num14, Pf.Buy) + Win(abs, num14, Pf.Sell);
++			reference.Imb7 = ((bs7 > 0.0) ? (Win(abs, num14, Pf.Delta) / bs7) : 0.0);
++			int n3 = Math.Min(3, abs + 1);
++			double bs3 = Win(abs, n3, Pf.Buy) + Win(abs, n3, Pf.Sell);
++			reference.Imb3 = ((bs3 > 0.0) ? (Win(abs, n3, Pf.Delta) / bs3) : 0.0);
++			reference.Vps = Win(abs, num14, Pf.Vol) / Math.Max(0.1, Win(abs, num14, Pf.Dur));
++			reference.FRank = FlowRank(_b, abs, slow: false);
++			reference.SRank = FlowRank(_b, abs, slow: true);
++			reference.BusyRank = RankOf(abs, 0);
++			reference.ImbRank = RankOf(abs, 1);
++			// real push = how one-sided, gated by how busy: under a busy rank of 20 % nothing is bright, from 70 % up the
++			// one-sidedness alone decides (a quiet one-sided move is a thin move, not a push)
++			reference.Q = ((reference.BusyRank < 0.0 || reference.ImbRank < 0.0) ? 0.5 : (reference.ImbRank * Math.Max(0.0, Math.Min(1.0, (reference.BusyRank - 0.2) / 0.5))));
++			BarRead(abs, out double e1, out double r1);
++			double ae1 = Math.Abs(e1);
++			double res1 = r1 * ((e1 >= 0.0) ? 1.0 : (-1.0));
++			reference.Absorbed = reference.Real && ae1 >= 0.7 && (res1 <= -0.7 || (ae1 >= 1.0 && res1 / ae1 < 0.35));
++			bool sameSide = (reference.Imb3 >= 0.0) == (reference.Fast >= 0.0);
++			reference.Fade = reference.FRank >= 0.8 && (!sameSide || Math.Abs(reference.Imb3) < 0.6 * Math.Abs(reference.Imb7));
++			reference.ThrustOk = reference.BusyRank >= 0.5 && ((reference.Imb7 >= 0.0) == (reference.Fast >= 0.0)) && Math.Abs(reference.Imb7) >= 0.1 && sameSide && Math.Abs(reference.Imb3) >= 0.9 * Math.Abs(reference.Imb7) && !reference.Absorbed;
+ 		}
+ 	}
+ 
+@@ -1833,6 +1988,7 @@
+ 			Pf.Vol => reference.PVol, 
+ 			Pf.Rej => reference.PRej, 
+ 			Pf.Delta => reference.PDelta, 
++			Pf.Dur => reference.PDur, 
+ 			_ => reference.PAbsAcc, 
+ 		};
+ 	}
+@@ -1913,12 +2069,12 @@
+ 		int num = Math.Min(21, forming);
+ 		if (num >= 3)
+ 		{
+-			double[] array = new double[num];
++			double[] array = _rangeBuf;   // 2.3: reused (was a new array per forming bar on the compute thread)
+ 			for (int i = 0; i < num; i++)
+ 			{
+ 				array[i] = _b[forming - 1 - i].PH - _b[forming - 1 - i].PL;
+ 			}
+-			Array.Sort(array);
++			Array.Sort(array, 0, num);
+ 			if (array[num / 2] > 0.0)
+ 			{
+ 				_rangeObs = array[num / 2];
+@@ -2361,7 +2517,12 @@
+ 
+ 	private double AvgScore(Sig g)
+ 	{
+-		return AvgScoreIn(_psigs, g.Abs, g.Kind, g.P1 >= 0);   // P4 F18: only the picture uses this, on its copy
++		double avg = AvgScoreIn(_psigs, g.Abs, g.Kind, g.P1 >= 0);   // P4 F18: only the picture uses this, on its copy
++		if (avg <= 0.0 && SignalAvgFallback)
++		{
++			avg = _pKindAvg[KindSlot(g)];   // 2.3: the all-history average of the kind (0 while fewer than 3)
++		}
++		return avg;
+ 	}
+ 
+ 	// the average score of the closed signals of one kind (swing divergences apart) in the LookbackBars before bar abs; 0
+@@ -2403,11 +2564,40 @@
+ 	private void Freeze(Sig s)
+ 	{
+ 		double avg = AvgScoreIn(_sigs, s.Abs, s.Kind, s.P1 >= 0);
++		int slot = KindSlot(s);
++		if (avg <= 0.0 && SignalAvgFallback && _kindCnt[slot] >= 3)
++		{
++			// 2.3: fewer than 3 signals of this kind in the lookback (the usual case: with the gap merging repeats, three in 60
++			// bars is rare), so the filter had nothing to compare with and every setting showed every signal. The average of
++			// all the signals of this kind seen so far on the chart is the reference then. Still frozen with the signal.
++			avg = _kindSum[slot] / (double)_kindCnt[slot];
++		}
+ 		s.Avg0 = avg;
+ 		s.AtAvg = (avg <= 0.0 || s.Score >= avg) ? s.Abs : (-1);
+ 		s.AtExt = (avg <= 0.0 || s.Score >= 1.5 * avg) ? s.Abs : (-1);
++		if (!s.Pending)
++		{
++			_kindSum[slot] += s.Score;
++			_kindCnt[slot]++;
++		}
+ 	}
+ 
++	// 2.3: the signal kind's slot in the running averages (swing divergences apart from flow divergences)
++	private static int KindSlot(Sig s)
++	{
++		return (int)s.Kind * 2 + ((s.P1 >= 0) ? 1 : 0);
++	}
++
++	private readonly double[] _kindSum = new double[6];   // 2.3: sum and count of the closed signals' scores per kind, all history
++
++	private readonly int[] _kindCnt = new int[6];
++
++	private readonly double[] _kindSumBefore = new double[6];   // 2.3: the F6 snapshot of the two above
++
++	private readonly int[] _kindCntBefore = new int[6];
++
++	private readonly double[] _pKindAvg = new double[6];   // 2.3: the picture's copy (classic path), made in CopyForPaint
++
+ 	// 2.0 (plan F2): the bar a marker is drawn on, or -1 when the signal filter hides it. Classic signals ask the filter at
+ 	// every picture with the scores as they are now, so a marker could appear late on an older bar or vanish. A 2.0 signal
+ 	// keeps the answer it got when it was known: drawn from the bar on which it reached its filter's level, never removed
+@@ -2673,6 +2863,23 @@
+ 			_psigs.Clear();
+ 			_psigs.AddRange(_sigs);
+ 			_psigsVersion = _sigsVersion;
++			// 2.3: the all-history average score per kind for the classic filter path (only when the list changed)
++			Span<double> sum = stackalloc double[6];
++			Span<int> cnt = stackalloc int[6];
++			for (int i = 0; i < _psigs.Count; i++)
++			{
++				Sig sg = _psigs[i];
++				if (!sg.Pending)
++				{
++					int k = KindSlot(sg);
++					sum[k] += sg.Score;
++					cnt[k]++;
++				}
++			}
++			for (int k = 0; k < 6; k++)
++			{
++				_pKindAvg[k] = ((cnt[k] >= 3) ? (sum[k] / (double)cnt[k]) : 0.0);
++			}
+ 		}
+ 	}
+ 
+@@ -2687,6 +2894,7 @@
+ 		int num = Math.Min(base.Count, _pn);
+ 		if (!XMap(conv, base.CurrentChart.BarsWidth, num, out var x, out var i, out var slot))
+ 		{
++			_hitList.Clear();   // 2.3: no markers in this picture, so no hover boxes from an older one
+ 			if (Table != Corner.Hidden)
+ 			{
+ 				DrawTable(g, rectangle, (LaneClosed && num >= 2) ? (num - 2) : (num - 1));
+@@ -3017,6 +3225,11 @@
+ 		_reserveFrac = Math.Min(0.8, (num6 + 6f) / num4);
+ 		_spRect = new RectangleF(rect.Left, num11, rect.Width, num10 - num11);
+ 		_acRect = (showAccel ? new RectangleF(rect.Left, num9, rect.Width, num8 - num9) : RectangleF.Empty);
++		if (!showAccel)
++		{
++			_laneAccScale = 0.0;   // 2.3: no strip in this picture (the test machine reads these)
++			_laneAccHalf = (_laneAccZero = (_laneAccTop = (_laneAccBot = 0f)));
++		}
+ 		Color color = (VelocityUseTheme ? BullColor : VelocityUp);
+ 		Color color2 = (VelocityUseTheme ? BearColor : VelocityDown);
+ 		float num12 = (float)Math.Max(1.5, Math.Min(slot - 1.5, slot * 0.66));
+@@ -3306,166 +3519,466 @@
+ 		_laneFlowBot = num57;
+ 		g.DrawLine(Pen(Color.FromArgb(70, 150, 158, 175), 1f), rect.Left, num54, num15, num54);
+ 		int num58 = Math.Min(base.Count, _pn);
+-		for (int num59 = vL; num59 <= vR; num59++)
++		if (FlowStyle != FlowLook.Bars && LaneStyle == LaneLook.Pro)
+ 		{
+-			int num60 = ((LaneClosed && num59 == num58 - 1) ? Math.Max(0, num59 - 1) : num59);
+-			double fast = _pb[num60].Fast;
+-			float num61 = ((LaneStyle == LaneLook.Pro) ? ((float)((double)num55 * Math.Abs(fast) / num51)) : ((float)Math.Min((double)num55 * 1.5, (double)num55 * Math.Abs(fast) / num51)));
+-			float num62 = X(num59, x0, i0, slot);
+-			if (num62 > num15)
++			// 2.3: another look of the same numbers (the Bars look is the per-bar loop and the slow line below)
++			FlowStyled(g, rect, vL, vR, x0, i0, slot, num12, num51, num54, num55, num56, num57, num15, color, color2, flowTop, flowBot);
++		}
++		else
++		{
++			for (int num59 = vL; num59 <= vR; num59++)
+ 			{
+-				break;
++				int num60 = ((LaneClosed && num59 == num58 - 1) ? Math.Max(0, num59 - 1) : num59);
++				double fast = _pb[num60].Fast;
++				float num61 = ((LaneStyle == LaneLook.Pro) ? ((float)((double)num55 * Math.Abs(fast) / num51)) : ((float)Math.Min((double)num55 * 1.5, (double)num55 * Math.Abs(fast) / num51)));
++				float num62 = X(num59, x0, i0, slot);
++				if (num62 > num15)
++				{
++					break;
++				}
++				bool flag2 = fast >= 0.0;
++				double num63 = ScaleC(_pb, num60);
++				double num64 = ((num63 > 1E-09) ? (Math.Abs(fast) / num63) : ((num55 > 0f) ? ((double)num61 / (double)num55 * 2.0) : 0.0));
++				Color color5 = (flag2 ? color : color2);
++				bool highlight = false;
++				Color col;
++				int num65;
++				// classic tiers: 0.4 / 1 / 2 x the typical single-bar |delta|; 2.0 (plan A2): the rank of |fast| among the
++				// lookback's bars (Easley et al. 2012 read flow imbalance by its own distribution): < 50 % / 80 % / 95 %
++				double rank = (FlowTiers == FlowTierMode.Percentile) ? _pb[num60].FRank : -1.0;   // 2.3: ranked once per bar in Compute (was O(lookback) per bar per picture)
++				int tier = (rank >= 0.0) ? ((rank < 0.5) ? 0 : ((rank < 0.8) ? 1 : ((rank < 0.95) ? 2 : 3))) : ((num64 < 0.4) ? 0 : ((num64 < 1.0) ? 1 : ((num64 < 2.0) ? 2 : 3)));
++				if (tier == 0)
++				{
++					col = Dark(color5, 0.4);
++					num65 = 130;
++				}
++				else if (tier == 1)
++				{
++					col = color5;
++					num65 = 195;
++				}
++				else if (tier == 2)
++				{
++					col = color5;
++					num65 = 245;
++					highlight = true;
++				}
++				else
++				{
++					col = Bright(color5, 0.22);
++					num65 = 255;
++					highlight = true;
++				}
++				if (Shade == FlowShade.RealPush)
++				{
++					// 2.3: brightness = real push (one-sided AND busy), not the tier: a thin move or a battle stays dark however big
++					// its delta; the tier still picks the colour step and the cap
++					num65 = (int)(255.0 * (0.26 + 0.74 * _pb[num60].Q));
++				}
++				if (num59 == num58 - 1)
++				{
++					num65 = num65 * (LiveReadout ? 9 : 6) / 10;
++				}
++				// 2.3: the acceleration inside the flow lane (its strip off): a slowing bar is hollow, the marks sit at the bar's end
++				bool accelHere = AccelInFlow && !showAccel && LaneStyle == LaneLook.Pro;
++				double accN = (accelHere ? AccNorm(num60) : 0.0);
++				bool accWith = (_pb[num60].AccE >= 0.0) == flag2;
++				bool slowing = accelHere && Math.Abs(accN) >= AccelMin && !accWith;
++				if (CrispCandles)
++				{
++					g.SmoothingMode = SmoothingMode.None;   // 2.0: lane bars on whole pixels (sharper, faster)
++				}
++				bool proLive = LaneStyle == LaneLook.Pro && num59 == num58 - 1;
++				int alphaBar = (proLive ? (num65 * 45 / 100) : (slowing ? Math.Max(40, num65 / 3) : num65));
++				HBarTier(g, num62, num54, num12, num61, flag2, col, alphaBar, _pb[num59].Real, num56, num57, highlight, ((rank >= 0.0) ? (tier == 3) : (num64 >= 2.0)) ? Bright(color5, 0.7) : Bright(color5, 0.45));
++				if (LaneStyle == LaneLook.Pro && num61 > (flag2 ? (num54 - num56) : (num57 - num54)) + 0.5f)
++				{
++					// 2.2: the lane is stretched and its edge cuts this bar: a bright cap says so
++					g.FillRectangle(Brush(Color.FromArgb(255, Bright(color5, 0.6))), num62 - num12 / 2f, flag2 ? num56 : (num57 - 2f), num12, 2f);
++				}
++				bool absorbedBar = Shade == FlowShade.RealPush && _pb[num60].Absorbed && !proLive;
++				if ((proLive || slowing || absorbedBar) && num61 >= 1f)
++				{
++					// 2.1: the bar that is forming is drawn hollow: it is still moving. 2.3: a slowing bar too (hollow = losing speed, as
++					// in the acceleration strip), and a bar whose own reading is ABSORBED / TRAPPED gets the absorption colour's outline
++					float yTop = Math.Max(num56, flag2 ? (num54 - num61) : num54);
++					float yBot = Math.Min(num57, flag2 ? num54 : (num54 + num61));
++					if (yBot > yTop)
++					{
++						Color oc = (absorbedBar ? Color.FromArgb(235, AbsorbColor) : Color.FromArgb(230, Bright(color5, 0.35)));
++						g.DrawRectangle(Pen(oc, 1f), num62 - num12 / 2f, yTop, num12, yBot - yTop);
++					}
++				}
++				if (CrispCandles)
++				{
++					g.SmoothingMode = SmoothingMode.AntiAlias;
++				}
++				if (num59 != num58 - 1 && _pb[num59].Real)
++				{
++					if (ShowFade && _pb[num60].Fade)
++					{
++						// 2.3: the push is dying: the flow is still strong but its one-sidedness is dropping. A dot at half the bar.
++						float fy = (flag2 ? (num54 - num61 * 0.5f) : (num54 + num61 * 0.5f));
++						g.FillEllipse(Brush(Color.FromArgb(255, 10, 12, 16)), num62 - 3.5f, fy - 3.5f, 7f, 7f);
++						g.FillEllipse(Brush(Color.FromArgb(245, ExhaustColor)), num62 - 2.5f, fy - 2.5f, 5f, 5f);
++					}
++					if (accelHere && ShowAccelMarkers && (_pb[num60].Flip || Math.Abs(accN) >= AccelExtreme))
++					{
++						AccelMarkPro(g, num62, num54, num61, Math.Max(2.5f, Math.Min(5f, (float)slot * 0.35f)), flag2, accWith, Math.Abs(accN) >= AccelExtreme, _pb[num60].Flip, color5, flag2, num56, num57, GateThrust && accWith && !_pb[num60].ThrustOk);
++					}
++				}
++				if (num60 > 0 && num59 < num58 - 1 && _pb[num60 - 1].Has)
++				{
++					bool num66 = _pb[num60 - 1].Fast >= _pb[num60 - 1].Slow;
++					bool flag3 = _pb[num60].Fast >= _pb[num60].Slow;
++					if (num66 != flag3)
++					{
++						Color color6 = (flag3 ? color : color2);
++						float val2 = num54 - (float)((double)num55 * _pb[num60].Slow / num51);
++						val2 = Math.Max(num56 + 4f, Math.Min(num57 - 4f, val2));
++						float num67 = Math.Max(3f, Math.Min(5.5f, num12 * 0.55f));
++						g.DrawEllipse(Pen(Color.FromArgb(190, Bright(color6, 0.55)), 1.2f), num62 - num67 - 1f, val2 - num67 - 1f, (num67 + 1f) * 2f, (num67 + 1f) * 2f);
++						g.FillEllipse(Brush(Color.FromArgb(245, color6)), num62 - num67, val2 - num67, num67 * 2f, num67 * 2f);
++					}
++				}
++			}
++			PointF[] array2 = _arrays.Get<PointF>(3, num);
++			int num68 = 0;
++			for (int num69 = vL; num69 <= vR; num69++)
++			{
++				int num70 = ((LaneClosed && num69 == num58 - 1) ? Math.Max(0, num69 - 1) : num69);
++				float num71 = X(num69, x0, i0, slot);
++				if (num71 > num15)
++				{
++					break;
++				}
++				float val3 = num54 - (float)((double)num55 * _pb[num70].Slow / num51);
++				array2[num68++] = new PointF(num71, Math.Max(num56, Math.Min(num57, val3)));
++			}
++			if (num68 >= 2)
++			{
++				if (num68 < num)
++				{
++					PointF[] exact2 = _arrays.Get<PointF>(4, num68);   // P4: the same as Array.Resize (its first points)
++					Array.Copy(array2, exact2, num68);
++					array2 = exact2;
++				}
++				if (LaneStyle == LaneLook.Pro)
++				{
++					// 2.1: the slow flow as a soft area (green above zero, red below) under a solid line
++					PointF[] area = _arrays.Get<PointF>(6, num68 + 2);
++					Array.Copy(array2, area, num68);
++					area[num68] = new PointF(array2[num68 - 1].X, num54);
++					area[num68 + 1] = new PointF(array2[0].X, num54);
++					// the area without smoothing (it is see-through: its edge is drawn by the line), the line smoothed
++					g.SmoothingMode = SmoothingMode.None;
++					g.SetClip(new RectangleF(rect.Left, num56, num15 - rect.Left, Math.Max(0f, num54 - num56)), CombineMode.Intersect);
++					g.FillPolygon(Brush(Color.FromArgb(34, color)), area);
++					LaneClip(g, rect, flowTop, flowBot);
++					g.SetClip(new RectangleF(rect.Left, num54, num15 - rect.Left, Math.Max(0f, num57 - num54)), CombineMode.Intersect);
++					g.FillPolygon(Brush(Color.FromArgb(34, color2)), area);
++					LaneClip(g, rect, flowTop, flowBot);
++					g.SmoothingMode = SmoothingMode.AntiAlias;
++					g.DrawLines(Pen(Color.FromArgb(225, VelocityUseTheme ? Color.FromArgb(235, 238, 245) : VelocityAvg), 1.4f), array2);
++				}
++				else
++				{
++					Pen pen3 = DotPen(Color.FromArgb(210, VelocityUseTheme ? Color.White : VelocityAvg), 1.5f);   // 2.0 (S3): kept, was made every picture
++					g.DrawLines(pen3, array2);
++				}
++			}
++		}
++		if (ShowLaneText)
++		{
++			ref Bar reference2 = ref _pb[num16];
++			if (LaneStyle != LaneLook.Pro)
++			{
++				g.DrawString("FLOW SPEED  " + num2 + " / " + num3, _fb, brush, rect.Left + 8, num11 + 1f);
+ 			}
+-			bool flag2 = fast >= 0.0;
+-			double num63 = ScaleC(_pb, num60);
+-			double num64 = ((num63 > 1E-09) ? (Math.Abs(fast) / num63) : ((num55 > 0f) ? ((double)num61 / (double)num55 * 2.0) : 0.0));
+-			Color color5 = (flag2 ? color : color2);
+-			bool highlight = false;
+-			Color col;
+-			int num65;
+-			// classic tiers: 0.4 / 1 / 2 x the typical single-bar |delta|; 2.0 (plan A2): the rank of |fast| among the
+-			// lookback's bars (Easley et al. 2012 read flow imbalance by its own distribution): < 50 % / 80 % / 95 %
+-			double rank = (FlowTiers == FlowTierMode.Percentile) ? FlowRank(_pb, num60, slow: false) : -1.0;
+-			int tier = (rank >= 0.0) ? ((rank < 0.5) ? 0 : ((rank < 0.8) ? 1 : ((rank < 0.95) ? 2 : 3))) : ((num64 < 0.4) ? 0 : ((num64 < 1.0) ? 1 : ((num64 < 2.0) ? 2 : 3)));
+-			if (tier == 0)
+-			{
+-				col = Dark(color5, 0.4);
+-				num65 = 130;
+-			}
+-			else if (tier == 1)
+-			{
+-				col = color5;
+-				num65 = 195;
+-			}
+-			else if (tier == 2)
+-			{
+-				col = color5;
+-				num65 = 245;
+-				highlight = true;
++			Axis(g, num15, num56, num57, num54, num55, num51, reference2.Fast, (reference2.Fast >= 0.0) ? color : color2, typical: false);
++			double sc = ScaleC(_pb, num16);
++			if (LaneStyle == LaneLook.Pro)
++			{
++				string ft = FlowWords(_pb, num16, sc, slow: false, out Color fc);
++				if (AccelInFlow && !showAccel && ShowAccelText)
++				{
++					ft = ft + "  ·  " + AccelWords(reference2.Fast >= 0.0, reference2.AccE, AccNorm(num16), reference2.ThrustOk, out Color _);   // 2.3: the strip is off: its words live here
++				}
++				double rk = (FlowTiers == FlowTierMode.Percentile) ? _pb[num16].FRank : -1.0;   // 2.3: stored
++				int tr = (rk < 0.0) ? -1 : ((rk < 0.5) ? 0 : ((rk < 0.8) ? 1 : ((rk < 0.95) ? 2 : 3)));
++				_ltFlow = new LaneTitleAsk { On = true, Y = num11 + 2f, Name = "FLOW " + num2 + " / " + num3, Text = ft, Col = fc, Tier = tr, Side = (reference2.Fast >= 0.0) ? color : color2 };   // 2.2: drawn after the card
+ 			}
+ 			else
+ 			{
+-				col = Bright(color5, 0.22);
+-				num65 = 255;
+-				highlight = true;
++				g.DrawString(FlowText(_pb, num16, sc), _fb, Brush((reference2.Fast >= 0.0) ? color : color2), num15 - 4f, num11 + 1f, Right);
+ 			}
+-			if (num59 == num58 - 1)
++		}
++		if (showAccel)
++		{
++			LaneClip(g, rect, num9 - 2f, rect.Bottom);
++			g.FillRectangle(Brush(LaneBack), rect.Left, num9, rect.Width, num8 - num9);
++			AccelStrip(g, rect, vL, vR, x0, i0, slot, num12, color, color2, num9, num8, num13, num15);
++		}
++		PaintClip(g, rect);
++	}
++
++	// 2.3: the flow lane's other looks: the same numbers (fast, slow, tier, real push, fade, acceleration) drawn as a polarized
++	// area, a fast-vs-slow histogram, a ribbon or needles. Points go into reused arrays (slots 7-12); the lane clip stays.
++	private void FlowStyled(Graphics g, Rectangle rect, int vL, int vR, double x0, int i0, double slot, float barW, double scale, float zero, float half, float top, float bot, float xR, Color up, Color down, float flowTop, float flowBot)
++	{
++		int last = Math.Min(base.Count, _pn) - 1;
++		int n = vR - vL + 1;
++		PointF[] pf = _arrays.Get<PointF>(7, n);
++		PointF[] ps = _arrays.Get<PointF>(8, n);
++		int[] bi = _arrays.Get<int>(12, n);
++		int m = 0;
++		for (int i = vL; i <= vR; i++)
++		{
++			float x = X(i, x0, i0, slot);
++			if (x > xR)
+ 			{
+-				num65 = num65 * (LiveReadout ? 9 : 6) / 10;
++				break;
+ 			}
+-			if (CrispCandles)
++			if (!_pb[i].Has)
+ 			{
+-				g.SmoothingMode = SmoothingMode.None;   // 2.0: lane bars on whole pixels (sharper, faster)
++				continue;
+ 			}
+-			bool proLive = LaneStyle == LaneLook.Pro && num59 == num58 - 1;
+-			HBarTier(g, num62, num54, num12, num61, flag2, col, proLive ? (num65 * 45 / 100) : num65, _pb[num59].Real, num56, num57, highlight, ((rank >= 0.0) ? (tier == 3) : (num64 >= 2.0)) ? Bright(color5, 0.7) : Bright(color5, 0.45));
+-			if (LaneStyle == LaneLook.Pro && num61 > (flag2 ? (num54 - num56) : (num57 - num54)) + 0.5f)
++			int idx = ((LaneClosed && i == last) ? Math.Max(0, i - 1) : i);
++			pf[m] = new PointF(x, LaneY(_pb[idx].Fast, zero, half, scale, top, bot));
++			ps[m] = new PointF(x, LaneY(_pb[idx].Slow, zero, half, scale, top, bot));
++			bi[m] = idx;
++			m++;
++		}
++		if (m < 2)
++		{
++			return;
++		}
++		bool accelHere = AccelInFlow && !ShowAccel && LaneStyle == LaneLook.Pro;
++		float r = Math.Max(2.5f, Math.Min(5f, (float)slot * 0.35f));
++		Pen slowPen = Pen(Color.FromArgb(220, VelocityUseTheme ? Color.FromArgb(235, 238, 245) : VelocityAvg), 1.3f);
++		g.SmoothingMode = SmoothingMode.AntiAlias;
++		switch (FlowStyle)
++		{
++		case FlowLook.Area:
++		{
++			// the fast flow as a soft area (green above zero, red below) under a line in the side's colour; EXTREME bars as dots
++			PointF[] area = _arrays.Get<PointF>(9, m + 2);
++			Array.Copy(pf, area, m);
++			area[m] = new PointF(pf[m - 1].X, zero);
++			area[m + 1] = new PointF(pf[0].X, zero);
++			PointF[] exact = ExactPoints(10, area, m + 2);
++			g.SmoothingMode = SmoothingMode.None;
++			g.SetClip(new RectangleF(rect.Left, top, Math.Max(1f, xR - (float)rect.Left), Math.Max(0f, zero - top)), CombineMode.Intersect);
++			g.FillPolygon(Brush(Color.FromArgb(72, up)), exact);
++			LaneClip(g, rect, flowTop, flowBot);
++			g.SetClip(new RectangleF(rect.Left, zero, Math.Max(1f, xR - (float)rect.Left), Math.Max(0f, bot - zero)), CombineMode.Intersect);
++			g.FillPolygon(Brush(Color.FromArgb(72, down)), exact);
++			LaneClip(g, rect, flowTop, flowBot);
++			g.SmoothingMode = SmoothingMode.AntiAlias;
++			for (int k = 1; k < m; k++)
+ 			{
+-				// 2.2: the lane is stretched and its edge cuts this bar: a bright cap says so
+-				g.FillRectangle(Brush(Color.FromArgb(255, Bright(color5, 0.6))), num62 - num12 / 2f, flag2 ? num56 : (num57 - 2f), num12, 2f);
++				Color c = ((_pb[bi[k]].Fast >= 0.0) ? up : down);
++				int a = ((Shade == FlowShade.RealPush) ? (int)(255.0 * (0.35 + 0.65 * _pb[bi[k]].Q)) : 235);
++				g.DrawLine(Pen(Color.FromArgb(a, Bright(c, 0.2)), 1.7f), pf[k - 1], pf[k]);
+ 			}
+-			if (proLive && num61 >= 1f)
++			g.DrawLines(slowPen, ExactPoints(11, ps, m));
++			for (int k = 0; k < m; k++)
+ 			{
+-				// 2.1: the bar that is forming is drawn hollow: it is still moving
+-				float yTop = Math.Max(num56, flag2 ? (num54 - num61) : num54);
+-				float yBot = Math.Min(num57, flag2 ? num54 : (num54 + num61));
+-				if (yBot > yTop)
++				int idx = bi[k];
++				bool forming = idx == last;
++				if (FlowTier(idx) == 3 || forming)
+ 				{
+-					g.DrawRectangle(Pen(Color.FromArgb(230, Bright(color5, 0.35)), 1f), num62 - num12 / 2f, yTop, num12, yBot - yTop);
++					Color c = ((_pb[idx].Fast >= 0.0) ? up : down);
++					g.FillEllipse(Brush(Color.FromArgb(255, 10, 12, 16)), pf[k].X - 4f, pf[k].Y - 4f, 8f, 8f);
++					if (forming)
++					{
++						g.DrawEllipse(Pen(Color.FromArgb(230, Bright(c, 0.35)), 1.2f), pf[k].X - 3f, pf[k].Y - 3f, 6f, 6f);
++					}
++					else
++					{
++						g.FillEllipse(Brush(Color.FromArgb(255, Bright(c, 0.3))), pf[k].X - 3f, pf[k].Y - 3f, 6f, 6f);
++					}
+ 				}
+ 			}
++			break;
++		}
++		case FlowLook.Histogram:
++		{
++			// bars = fast minus slow (bright while the gap grows), both lines on top, a diamond where they cross
+ 			if (CrispCandles)
+ 			{
+-				g.SmoothingMode = SmoothingMode.AntiAlias;
++				g.SmoothingMode = SmoothingMode.None;
+ 			}
+-			if (num60 > 0 && num59 < num58 - 1 && _pb[num60 - 1].Has)
++			double prevH = 0.0;
++			for (int k = 0; k < m; k++)
+ 			{
+-				bool num66 = _pb[num60 - 1].Fast >= _pb[num60 - 1].Slow;
+-				bool flag3 = _pb[num60].Fast >= _pb[num60].Slow;
+-				if (num66 != flag3)
++				int idx = bi[k];
++				double h = _pb[idx].Fast - _pb[idx].Slow;
++				float y = LaneY(h, zero, half, scale, top, bot);
++				Color c = ((h >= 0.0) ? up : down);
++				bool grow = k > 0 && Math.Abs(h) >= Math.Abs(prevH);
++				prevH = h;
++				int a = (grow ? 230 : 120);
++				if (Shade == FlowShade.RealPush)
++				{
++					a = (int)((double)a * (0.4 + 0.6 * _pb[idx].Q));
++				}
++				float y0 = Math.Min(y, zero);
++				float hh = Math.Max(1f, Math.Abs(y - zero));
++				if (idx == last)
+ 				{
+-					Color color6 = (flag3 ? color : color2);
+-					float val2 = num54 - (float)((double)num55 * _pb[num60].Slow / num51);
+-					val2 = Math.Max(num56 + 4f, Math.Min(num57 - 4f, val2));
+-					float num67 = Math.Max(3f, Math.Min(5.5f, num12 * 0.55f));
+-					g.DrawEllipse(Pen(Color.FromArgb(190, Bright(color6, 0.55)), 1.2f), num62 - num67 - 1f, val2 - num67 - 1f, (num67 + 1f) * 2f, (num67 + 1f) * 2f);
+-					g.FillEllipse(Brush(Color.FromArgb(245, color6)), num62 - num67, val2 - num67, num67 * 2f, num67 * 2f);
++					g.DrawRectangle(Pen(Color.FromArgb(220, Bright(c, 0.35)), 1f), pf[k].X - barW / 2f, y0, barW, hh);   // forming: hollow
++				}
++				else
++				{
++					g.FillRectangle(Brush(Color.FromArgb(a, grow ? c : Dark(c, 0.35))), pf[k].X - barW / 2f, y0, barW, hh);
+ 				}
+ 			}
+-		}
+-		PointF[] array2 = _arrays.Get<PointF>(3, num);
+-		int num68 = 0;
+-		for (int num69 = vL; num69 <= vR; num69++)
+-		{
+-			int num70 = ((LaneClosed && num69 == num58 - 1) ? Math.Max(0, num69 - 1) : num69);
+-			float num71 = X(num69, x0, i0, slot);
+-			if (num71 > num15)
++			g.SmoothingMode = SmoothingMode.AntiAlias;
++			for (int k = 1; k < m; k++)
+ 			{
+-				break;
++				Color c = ((_pb[bi[k]].Fast >= 0.0) ? up : down);
++				g.DrawLine(Pen(Color.FromArgb(235, Bright(c, 0.3)), 1.4f), pf[k - 1], pf[k]);
++			}
++			g.DrawLines(Pen(Color.FromArgb(230, SignalColor), 1.3f), ExactPoints(11, ps, m));
++			for (int k = 1; k < m; k++)
++			{
++				bool nowUp = _pb[bi[k]].Fast >= _pb[bi[k]].Slow;
++				if (nowUp != (_pb[bi[k - 1]].Fast >= _pb[bi[k - 1]].Slow))
++				{
++					PointF[] dia = _points0;
++					float x = pf[k].X;
++					float y = pf[k].Y;
++					dia[0] = new PointF(x, y - 4.5f);
++					dia[1] = new PointF(x + 4.5f, y);
++					dia[2] = new PointF(x, y + 4.5f);
++					dia[3] = new PointF(x - 4.5f, y);
++					g.FillPolygon(Brush(Color.FromArgb(255, nowUp ? up : down)), dia);
++					g.DrawPolygon(Pen(Color.FromArgb(255, 245, 247, 250), 1f), dia);
++				}
+ 			}
+-			float val3 = num54 - (float)((double)num55 * _pb[num70].Slow / num51);
+-			array2[num68++] = new PointF(num71, Math.Max(num56, Math.Min(num57, val3)));
++			break;
+ 		}
+-		if (num68 >= 2)
++		case FlowLook.Ribbon:
+ 		{
+-			if (num68 < num)
++			// the band between fast and slow: green while fast leads above, red below; its width is the momentum
++			PointF[] quad = _points0;
++			for (int k = 1; k < m; k++)
+ 			{
+-				PointF[] exact2 = _arrays.Get<PointF>(4, num68);   // P4: the same as Array.Resize (its first points)
+-				Array.Copy(array2, exact2, num68);
+-				array2 = exact2;
++				int idx = bi[k - 1];
++				bool lead = _pb[idx].Fast >= _pb[idx].Slow;
++				int a = ((Shade == FlowShade.RealPush) ? (int)(150.0 * (0.45 + 0.55 * _pb[idx].Q)) : 130);
++				quad[0] = pf[k - 1];
++				quad[1] = pf[k];
++				quad[2] = ps[k];
++				quad[3] = ps[k - 1];
++				g.FillPolygon(Brush(Color.FromArgb(a, lead ? up : down)), quad);
+ 			}
+-			if (LaneStyle == LaneLook.Pro)
++			for (int k = 1; k < m; k++)
+ 			{
+-				// 2.1: the slow flow as a soft area (green above zero, red below) under a solid line
+-				PointF[] area = _arrays.Get<PointF>(6, num68 + 2);
+-				Array.Copy(array2, area, num68);
+-				area[num68] = new PointF(array2[num68 - 1].X, num54);
+-				area[num68 + 1] = new PointF(array2[0].X, num54);
+-				// the area without smoothing (it is see-through: its edge is drawn by the line), the line smoothed
+-				g.SmoothingMode = SmoothingMode.None;
+-				g.SetClip(new RectangleF(rect.Left, num56, num15 - rect.Left, Math.Max(0f, num54 - num56)), CombineMode.Intersect);
+-				g.FillPolygon(Brush(Color.FromArgb(34, color)), area);
+-				LaneClip(g, rect, flowTop, flowBot);
+-				g.SetClip(new RectangleF(rect.Left, num54, num15 - rect.Left, Math.Max(0f, num57 - num54)), CombineMode.Intersect);
+-				g.FillPolygon(Brush(Color.FromArgb(34, color2)), area);
+-				LaneClip(g, rect, flowTop, flowBot);
+-				g.SmoothingMode = SmoothingMode.AntiAlias;
+-				g.DrawLines(Pen(Color.FromArgb(225, VelocityUseTheme ? Color.FromArgb(235, 238, 245) : VelocityAvg), 1.4f), array2);
++				Color c = ((_pb[bi[k]].Fast >= 0.0) ? up : down);
++				g.DrawLine(Pen(Color.FromArgb(230, Bright(c, 0.35)), 1.2f), pf[k - 1], pf[k]);
+ 			}
+-			else
++			g.DrawLines(Pen(Color.FromArgb(235, VelocityUseTheme ? Color.FromArgb(235, 238, 245) : VelocityAvg), 1.5f), ExactPoints(11, ps, m));
++			for (int k = 1; k < m; k++)
+ 			{
+-				Pen pen3 = DotPen(Color.FromArgb(210, VelocityUseTheme ? Color.White : VelocityAvg), 1.5f);   // 2.0 (S3): kept, was made every picture
+-				g.DrawLines(pen3, array2);
++				if ((_pb[bi[k]].Fast >= _pb[bi[k]].Slow) != (_pb[bi[k - 1]].Fast >= _pb[bi[k - 1]].Slow))
++				{
++					g.FillEllipse(Brush(Color.FromArgb(255, 10, 12, 16)), ps[k].X - 4f, ps[k].Y - 4f, 8f, 8f);
++					g.FillEllipse(Brush(Color.FromArgb(255, SignalColor)), ps[k].X - 3f, ps[k].Y - 3f, 6f, 6f);
++				}
+ 			}
++			break;
+ 		}
+-		if (ShowLaneText)
++		default:
+ 		{
+-			ref Bar reference2 = ref _pb[num16];
+-			if (LaneStyle != LaneLook.Pro)
++			// needles: a thin line per bar from zero to the fast flow, a dot on the strong and EXTREME bars, the slow line
++			float w = Math.Max(1f, Math.Min(2.5f, barW * 0.35f));
++			for (int k = 0; k < m; k++)
+ 			{
+-				g.DrawString("FLOW SPEED  " + num2 + " / " + num3, _fb, brush, rect.Left + 8, num11 + 1f);
++				int idx = bi[k];
++				Color c = ((_pb[idx].Fast >= 0.0) ? up : down);
++				int tier = FlowTier(idx);
++				int a = ((Shade == FlowShade.RealPush) ? (int)(255.0 * (0.3 + 0.7 * _pb[idx].Q)) : ((tier == 0) ? 110 : ((tier == 1) ? 170 : 235)));
++				if (idx == last)
++				{
++					a = a * 45 / 100;
++				}
++				g.DrawLine(Pen(Color.FromArgb(a, (tier == 3) ? Bright(c, 0.25) : c), w), pf[k].X, zero, pf[k].X, pf[k].Y);
++				if (tier >= 2 && idx != last)
++				{
++					float dr = ((tier == 3) ? 3.5f : 2.5f);
++					g.FillEllipse(Brush(Color.FromArgb(255, 10, 12, 16)), pf[k].X - dr - 1f, pf[k].Y - dr - 1f, 2f * dr + 2f, 2f * dr + 2f);
++					g.FillEllipse(Brush(Color.FromArgb(255, Bright(c, (tier == 3) ? 0.35 : 0.1))), pf[k].X - dr, pf[k].Y - dr, 2f * dr, 2f * dr);
++				}
+ 			}
+-			Axis(g, num15, num56, num57, num54, num55, num51, reference2.Fast, (reference2.Fast >= 0.0) ? color : color2, typical: false);
+-			double sc = ScaleC(_pb, num16);
+-			if (LaneStyle == LaneLook.Pro)
++			g.DrawLines(slowPen, ExactPoints(11, ps, m));
++			break;
++		}
++		}
++		// the extras every look shares: the early-fade dot and, with the strip off, the acceleration marks at the bar's end
++		for (int k = 0; k < m; k++)
++		{
++			int idx = bi[k];
++			if (idx == last || !_pb[idx].Real)
+ 			{
+-				string ft = FlowWords(_pb, num16, sc, slow: false, out Color fc);
+-				double rk = (FlowTiers == FlowTierMode.Percentile) ? FlowRank(_pb, num16, slow: false) : -1.0;
+-				int tr = (rk < 0.0) ? -1 : ((rk < 0.5) ? 0 : ((rk < 0.8) ? 1 : ((rk < 0.95) ? 2 : 3)));
+-				_ltFlow = new LaneTitleAsk { On = true, Y = num11 + 2f, Name = "FLOW " + num2 + " / " + num3, Text = ft, Col = fc, Tier = tr, Side = (reference2.Fast >= 0.0) ? color : color2 };   // 2.2: drawn after the card
++				continue;
+ 			}
+-			else
++			bool upBar = _pb[idx].Fast >= 0.0;
++			Color c = (upBar ? up : down);
++			float h = Math.Abs(pf[k].Y - zero);
++			if (ShowFade && _pb[idx].Fade)
+ 			{
+-				g.DrawString(FlowText(_pb, num16, sc), _fb, Brush((reference2.Fast >= 0.0) ? color : color2), num15 - 4f, num11 + 1f, Right);
++				float fy = (upBar ? (zero - h * 0.5f) : (zero + h * 0.5f));
++				g.FillEllipse(Brush(Color.FromArgb(255, 10, 12, 16)), pf[k].X - 3.5f, fy - 3.5f, 7f, 7f);
++				g.FillEllipse(Brush(Color.FromArgb(245, ExhaustColor)), pf[k].X - 2.5f, fy - 2.5f, 5f, 5f);
++			}
++			if (accelHere && ShowAccelMarkers)
++			{
++				double an = AccNorm(idx);
++				bool with = (_pb[idx].AccE >= 0.0) == upBar;
++				if (_pb[idx].Flip || Math.Abs(an) >= AccelExtreme)
++				{
++					AccelMarkPro(g, pf[k].X, zero, h, r, upBar, with, Math.Abs(an) >= AccelExtreme, _pb[idx].Flip, c, upBar, top, bot, GateThrust && with && !_pb[idx].ThrustOk);
++				}
+ 			}
+ 		}
+-		if (showAccel)
++	}
++
++	// 2.3: a lane value's y, inside the lane
++	private static float LaneY(double v, float zero, float half, double scale, float top, float bot)
++	{
++		float y = zero - (float)((double)half * v / scale);
++		return Math.Max(top, Math.Min(bot, y));
++	}
++
++	// 2.3: the first count points of src as an array of exactly count points (DrawLines / FillPolygon take the whole array)
++	private PointF[] ExactPoints(int slotId, PointF[] src, int count)
++	{
++		if (src.Length == count)
+ 		{
+-			LaneClip(g, rect, num9 - 2f, rect.Bottom);
+-			g.FillRectangle(Brush(LaneBack), rect.Left, num9, rect.Width, num8 - num9);
+-			AccelStrip(g, rect, vL, vR, x0, i0, slot, num12, color, color2, num9, num8, num13, num15);
++			return src;
+ 		}
+-		PaintClip(g, rect);
++		PointF[] exact = _arrays.Get<PointF>(slotId, count);
++		if (exact.Length != count)
++		{
++			exact = new PointF[count];
++		}
++		Array.Copy(src, exact, count);
++		return exact;
++	}
++
++	// 2.3: the bar's flow tier 0-3 (quiet / building / strong / EXTREME) by rank (stored) or by the classic multiples
++	private int FlowTier(int idx)
++	{
++		double rank = ((FlowTiers == FlowTierMode.Percentile) ? _pb[idx].FRank : (-1.0));
++		if (rank >= 0.0)
++		{
++			return (rank < 0.5) ? 0 : ((rank < 0.8) ? 1 : ((rank < 0.95) ? 2 : 3));
++		}
++		double sc = ScaleC(_pb, idx);
++		double mult = ((sc > 1E-09) ? (Math.Abs(_pb[idx].Fast) / sc) : 0.0);
++		return (mult < 0.4) ? 0 : ((mult < 1.0) ? 1 : ((mult < 2.0) ? 2 : 3));
+ 	}
+ 
+ 	// 2.2 (Pro): the flow and acceleration panes' heights in a window h px high. Each pane keeps a minimum (CVD 28 % / 40 px,
+@@ -3779,7 +4292,7 @@
+ 			{
+ 				if (_pb[num11].Flip || (flag6 && _pb[j].Real))
+ 				{
+-					AccelMarkPro(g, num10, num4, num13, num, flag4, flag3, flag6 && _pb[j].Real, _pb[num11].Flip, color, flag2, num2, bot);
++					AccelMarkPro(g, num10, num4, num13, num, flag4, flag3, flag6 && _pb[j].Real, _pb[num11].Flip, color, flag2, num2, bot, GateThrust && flag3 && !_pb[num11].ThrustOk);   // 2.3: gated
+ 				}
+ 				continue;
+ 			}
+@@ -3807,7 +4320,14 @@
+ 						points[1] = new PointF(num10 - num, val + num * 0.6f);
+ 						points[2] = new PointF(num10 + num, val + num * 0.6f);
+ 					}
+-					g.FillPolygon(Brush(Color.FromArgb(240, color)), points);
++					if (GateThrust && !_pb[num11].ThrustOk)
++					{
++						g.DrawPolygon(Pen(Color.FromArgb(175, 128, 136, 152), 1.2f), points);   // 2.3: a thin thrust: outline only
++					}
++					else
++					{
++						g.FillPolygon(Brush(Color.FromArgb(240, color)), points);
++					}
+ 				}
+ 				else
+ 				{
+@@ -3835,12 +4355,12 @@
+ 				Color col;
+ 				if (pro)
+ 				{
+-					string s2 = AccelWords(reference.Fast >= 0.0, reference.AccE, num17, out col);
++					string s2 = AccelWords(reference.Fast >= 0.0, reference.AccE, num17, reference.ThrustOk, out col);
+ 					_ltAcc = new LaneTitleAsk { On = true, Y = top + 2f, Name = "ACCELERATION", Text = s2, Col = col, Tier = -1, Side = col };   // 2.2: a pill at the top left, drawn after the card
+ 				}
+ 				else
+ 				{
+-					string s = AccelText(reference.Fast >= 0.0, reference.AccE, num17, out col);
++					string s = AccelText(reference.Fast >= 0.0, reference.AccE, num17, reference.ThrustOk, out col);
+ 					g.DrawString(s, _fb, Brush(col), xR - 4f, top + 1f, Right);
+ 				}
+ 			}
+@@ -3873,7 +4393,7 @@
+ 
+ 	// 2.1: the acceleration strip's marks: a thrust (2x or more, with the flow) is a chevron on a dark halo, a stall (2x or
+ 	// more, against the flow) an amber ring with a dot, a change of side a dot on the zero line
+-	private void AccelMarkPro(Graphics g, float x, float yMid, float h, float r, bool upBar, bool with, bool extreme, bool flip, Color side, bool buyers, float top, float bot)
++	private void AccelMarkPro(Graphics g, float x, float yMid, float h, float r, bool upBar, bool with, bool extreme, bool flip, Color side, bool buyers, float top, float bot, bool thin = false)
+ 	{
+ 		SmoothingMode sm = g.SmoothingMode;
+ 		g.SmoothingMode = SmoothingMode.AntiAlias;
+@@ -3891,7 +4411,7 @@
+ 			if (with)
+ 			{
+ 				float d = (buyers ? -1f : 1f);
+-				Pen p = Pen(Color.FromArgb(250, Bright(side, 0.2)), 1.8f);
++				Pen p = (thin ? Pen(Color.FromArgb(175, 128, 136, 152), 1.4f) : Pen(Color.FromArgb(250, Bright(side, 0.2)), 1.8f));   // 2.3: a thin thrust (no busy, one-sided market behind it) is a grey chevron
+ 				g.DrawLine(p, x - r * 0.75f, y - d * r * 0.3f, x, y + d * r * 0.45f);
+ 				g.DrawLine(p, x, y + d * r * 0.45f, x + r * 0.75f, y - d * r * 0.3f);
+ 			}
+@@ -3968,6 +4488,10 @@
+ 			return;
+ 		}
+ 		g.FillRectangle(Brush(Color.FromArgb(alpha, col)), x2, num, w, num2 - num);
++		if (Bars == BarStyle.Gradient && num2 - num >= 3f)
++		{
++			g.FillRectangle(Brush(Color.FromArgb(Math.Min(255, alpha + 50), Bright(col, 0.45))), x2, upBar ? num : (num2 - 1.5f), w, 1.5f);   // 2.3: "Gradient (lit top)" reached only the acceleration strip
++		}
+ 		if (w >= 3.5f)
+ 		{
+ 			g.DrawRectangle(Pen(Color.FromArgb(Math.Min(255, alpha + 35), Dark(col, 0.25)), 0.8f), x2, num, w, num2 - num);
+@@ -4117,12 +4641,12 @@
+ 		}
+ 	}
+ 
+-	private string AccelText(bool buyers, double acc, double norm, out Color col)
++	private string AccelText(bool buyers, double acc, double norm, bool thrustOk, out Color col)
+ 	{
+ 		bool flag = acc >= 0.0 == buyers;
+ 		double num = Math.Abs(norm);
+ 		string text = (buyers ? "buyers" : "sellers");
+-		string text2 = ((num < AccelMin) ? "steady" : ((!flag) ? ((num >= AccelExtreme) ? "STALL - losing speed" : "fading") : ((num >= AccelExtreme) ? "THRUST - accelerating" : "accelerating")));
++		string text2 = ((num < AccelMin) ? "steady" : ((!flag) ? ((num >= AccelExtreme) ? "STALL - losing speed" : "fading") : ((num >= AccelExtreme) ? ((GateThrust && !thrustOk) ? "thin THRUST - no volume behind it" : "THRUST - accelerating") : "accelerating")));   // 2.3: gated
+ 		col = ((num < AccelMin) ? Color.FromArgb(150, 158, 174) : (buyers ? BullColor : BearColor));
+ 		if (!flag && num >= AccelMin)
+ 		{
+@@ -4201,7 +4725,7 @@
+ 			Sig sig = _psigs[j];
+ 			// 2.0 (F2): db = the bar the marker is drawn on (classic: its own bar, when the filter passes it now)
+ 			int db;
+-			if (Math.Max(sig.Abs, sig.Seen) >= vL && sig.Abs <= vR && (sig.Kind != SigKind.Absorption || ShowAbsorption) && (sig.Kind != SigKind.Exhaustion || ShowExhaustion) && (sig.Kind != SigKind.Divergence || ShowDivergence) && (db = DrawBar(sig)) >= vL && db <= vR)
++			if (Math.Max(sig.Abs, sig.Seen) >= vL && sig.Abs <= vR && (sig.Kind != SigKind.Absorption || ShowAbsorption) && (sig.Kind != SigKind.Exhaustion || ShowExhaustion) && (sig.Kind != SigKind.Divergence || ShowDivergence) && (ShowSwingDiv || sig.P1 < 0) && (db = DrawBar(sig)) >= vL && db <= vR)
+ 			{
+ 				ref Bar reference = ref _pb[db];
+ 				float x1 = X(db, x0, i0, slot);
+@@ -4225,10 +4749,7 @@
+ 					float num2 = X(sig.P2, x0, i0, slot);
+ 					float y = CY(conv, sig.V1);
+ 					float num3 = CY(conv, sig.V2);
+-					Pen pen = Pen(Color.FromArgb(200, color), 1.5f);
+-					pen.DashStyle = DashStyle.Dash;
+-					g.DrawLine(pen, x2, y, num2, num3);
+-					pen.DashStyle = DashStyle.Solid;
++					g.DrawLine(DashPen(Color.FromArgb(200, color), 1.5f), x2, y, num2, num3);   // 2.3: its own dashed pen
+ 					if (SwingAtConfirm)
+ 					{
+ 						// 2.0 (plan F3): the second swing is only known SwingBars later; the marker sits on the bar that
+@@ -4336,8 +4857,7 @@
+ 		Color ink = Color.FromArgb(pending ? 150 : 245, 10, 12, 16);
+ 		float d = (bull ? -1f : 1f);   // towards the candle: up for a long badge (it sits under), down for a short one
+ 		Pen halo = Pen(Color.FromArgb(pending ? 80 : 210, 8, 10, 14), 3f);
+-		Pen edge = Pen(Color.FromArgb(a, Bright(col, 0.3)), 1.2f);
+-		edge.DashStyle = (pending ? DashStyle.Dash : DashStyle.Solid);
++		Pen edge = (pending ? DashPen(Color.FromArgb(a, Bright(col, 0.3)), 1.2f) : Pen(Color.FromArgb(a, Bright(col, 0.3)), 1.2f));   // 2.3
+ 		PointF[] tri = _points2;
+ 		tri[0] = new PointF(x, y + d * (r + r * 0.55f));
+ 		tri[1] = new PointF(x - r * 0.42f, y + d * r * 0.8f);
+@@ -4356,7 +4876,6 @@
+ 			float c = r * 0.42f;
+ 			g.FillEllipse(Brush(ink), x - c - 1f, y - c - 1f, 2f * c + 2f, 2f * c + 2f);
+ 			g.FillEllipse(Brush(Color.FromArgb(a, side)), x - c, y - c, 2f * c, 2f * c);
+-			edge.DashStyle = DashStyle.Solid;
+ 			return;
+ 		}
+ 		// a dark disc behind (the halo: readable on any candle) and the badge: two fills, cheaper than wide strokes
+@@ -4366,7 +4885,6 @@
+ 		{
+ 			g.DrawEllipse(edge, x - r, y - r, 2f * r, 2f * r);
+ 		}
+-		edge.DashStyle = DashStyle.Solid;
+ 		Pen p = Pen(ink, Math.Max(1.4f, r * 0.2f));
+ 		float m = r * 0.55f;
+ 		switch (k)
+@@ -4414,8 +4932,7 @@
+ 	private void GlyphClean(Graphics g, SigKind k, float x, float y, float r, Color col, Color side, bool bull, bool pending)
+ 	{
+ 		Pen halo = Pen(Color.FromArgb(pending ? 90 : 200, 10, 12, 16), 3.2f);
+-		Pen pen = Pen(Color.FromArgb(pending ? 160 : 250, col), 1.4f);
+-		pen.DashStyle = (pending ? DashStyle.Dash : DashStyle.Solid);
++		Pen pen = (pending ? DashPen(Color.FromArgb(160, col), 1.4f) : Pen(Color.FromArgb(250, col), 1.4f));   // 2.3
+ 		switch (k)
+ 		{
+ 		case SigKind.Absorption:
+@@ -4467,7 +4984,6 @@
+ 			break;
+ 		}
+ 		}
+-		pen.DashStyle = DashStyle.Solid;
+ 	}
+ 
+ 	// 2.0 (A4): the card of the marker the mouse points at: what it is, what CVD PRO saw, how strong, when it was known
+@@ -4576,8 +5092,7 @@
+ 
+ 	private void Glyph(Graphics g, SigKind k, float x, float y, float r, Color col, Color side, bool bull, bool pending)
+ 	{
+-		Pen pen = Pen(Color.FromArgb(240, col), 1.4f);
+-		pen.DashStyle = (pending ? DashStyle.Dash : DashStyle.Solid);
++		Pen pen = (pending ? DashPen(Color.FromArgb(240, col), 1.4f) : Pen(Color.FromArgb(240, col), 1.4f));   // 2.3
+ 		switch (k)
+ 		{
+ 		case SigKind.Absorption:
+@@ -4624,7 +5139,6 @@
+ 			break;
+ 		}
+ 		}
+-		pen.DashStyle = DashStyle.Solid;
+ 	}
+ 
+ 	private void Panel(Graphics g, Rectangle rect, int last)
+@@ -4648,7 +5162,7 @@
+ 		bool flag2 = num7 >= 50.0;
+ 		bool flag3 = flag2 != flag && Math.Abs(num7 - 50.0) >= 8.0 && Math.Abs(num6 - 50.0) >= 5.0;
+ 		Color col;
+-		string text = AccelText(reference.Fast >= 0.0, reference.AccE, AccNorm(last), out col);
++		string text = AccelText(reference.Fast >= 0.0, reference.AccE, AccNorm(last), reference.ThrustOk, out col);
+ 		Color color = Color.FromArgb(150, 158, 174);
+ 		BarRead(_pb, _pBarHeight, last, out var e, out var r);
+ 		Verdict(reference.Real, e, r, out var text2, out var col2, out var passive);
+@@ -4812,7 +5326,7 @@
+ 		double sc = ScaleC(_pb, last);
+ 		string tFast = FlowWords(_pb, last, sc, slow: false, out var colFast);
+ 		string tSlow = FlowWords(_pb, last, sc, slow: true, out var colSlow);
+-		string tAcc = AccelWords(b.Fast >= 0.0, b.AccE, AccNorm(last), out var colAcc);
++		string tAcc = AccelWords(b.Fast >= 0.0, b.AccE, AccNorm(last), b.ThrustOk, out var colAcc);
+ 		double tick = base.Symbol?.TickSize ?? 0.0;
+ 		string tPush = ((Math.Abs(e) < 0.7) ? "nobody" : (((e >= 0.0) ? "Buyers " : "Sellers ") + Math.Abs(e).ToString("0.0", CultureInfo.InvariantCulture) + "×"));
+ 		Color colPush = ((Math.Abs(e) < 0.7) ? dim : ((e >= 0.0) ? BullColor : BearColor));
+@@ -4852,11 +5366,66 @@
+ 		}
+ 		rows.Add(new CardRow(6, null, cvd, (b.C >= 0.0) ? BullColor : BearColor, b.Delta));
+ 		rows.Add(new CardRow(4));
+-		rows.Add(new CardRow(0, "Flow now", tFast, colFast));
+-		if (!compact)
++		if (CardCompass)
++		{
++			// 2.3: the compass row: who pushes (needle direction), how busy (its length), the acceleration (gold arrow), and the
++			// warning (REAL PUSH / THIN / BATTLE / ABSORBED / FADING). It replaces the three flow text rows; its numbers come from
++			// the same bar. Nothing here is computed in the picture: Compute made every dial.
++			bool ranks = b.BusyRank >= 0.0 && b.ImbRank >= 0.0;
++			Color sideCol = ((b.Fast >= 0.0) ? BullColor : BearColor);
++			string vTxt;
++			Color vCol;
++			if (!b.Real || !ranks)
++			{
++				vTxt = "no data yet";
++				vCol = dim;
++			}
++			else if (b.Absorbed)
++			{
++				vTxt = "ABSORBED ⚠ effort, no result";
++				vCol = AbsorbColor;
++			}
++			else if (b.BusyRank < 0.4 && Math.Abs(b.Imb7) >= 0.2)
++			{
++				vTxt = "THIN ⚠ no real volume";
++				vCol = ExhaustColor;
++			}
++			else if (b.BusyRank >= 0.6 && b.ImbRank < 0.35)
++			{
++				vTxt = "BATTLE ⚠ busy, two-sided";
++				vCol = ExhaustColor;
++			}
++			else if (b.Fade)
++			{
++				vTxt = "FADING · push losing one-sidedness";
++				vCol = ExhaustColor;
++			}
++			else if (b.Q >= 0.5)
++			{
++				vTxt = "REAL PUSH";
++				vCol = sideCol;
++			}
++			else
++			{
++				vTxt = "normal";
++				vCol = dim;
++			}
++			double accN = AccNorm(last);
++			_cmp = new CompassData
++			{
++				Ready = ranks, Buyers = b.Fast >= 0.0, Imb = b.Imb7, Busy = (ranks ? b.BusyRank : 0.5), Tier = ((b.FRank < 0.0) ? -1 : ((b.FRank < 0.5) ? 0 : ((b.FRank < 0.8) ? 1 : ((b.FRank < 0.95) ? 2 : 3)))),
++				AccN = Math.Abs(accN), AccWith = (b.AccE >= 0.0) == (b.Fast >= 0.0), AccWords = tAcc, AccCol = colAcc, Verdict = vTxt, VerdictCol = vCol
++			};
++			rows.Add(new CardRow(7, "Flow", tFast, colFast));
++		}
++		else
+ 		{
+-			rows.Add(new CardRow(0, "Flow trend", tSlow, colSlow));
+-			rows.Add(new CardRow(0, "Speed", tAcc, colAcc));
++			rows.Add(new CardRow(0, "Flow now", tFast, colFast));
++			if (!compact)
++			{
++				rows.Add(new CardRow(0, "Flow trend", tSlow, colSlow));
++				rows.Add(new CardRow(0, "Speed", tAcc, colAcc));
++			}
+ 		}
+ 		rows.Add(new CardRow(4));
+ 		if (!compact)
+@@ -5024,7 +5593,7 @@
+ 				{
+ 					continue;
+ 				}
+-				h += ((rows[i].Kind == 4) ? sepH : ((rows[i].Kind == 6) ? (_cfhLineH + 3f * k) : rowH));
++				h += ((rows[i].Kind == 4) ? sepH : ((rows[i].Kind == 6) ? (_cfhLineH + 3f * k) : ((rows[i].Kind == 7) ? (rowH * CompassRows) : rowH)));   // 2.3: the compass is 3.2 rows tall
+ 			}
+ 			colH = Math.Max(colH, h);
+ 		}
+@@ -5078,6 +5647,10 @@
+ 		val = Math.Max(val, g.MeasureString("▼ 99.9 min · 9.9× slower", _rfb, PointF.Empty, NoWrap).Width);
+ 		val = Math.Max(val, meter + 8f + g.MeasureString("Sellers 100%", _rfb, PointF.Empty, NoWrap).Width + 8f + g.MeasureString("TURNING", _rfs, PointF.Empty, NoWrap).Width + 12f);
+ 		val = Math.Max(val, meter * 1.4f + 8f + g.MeasureString("999 of 999 trades", _rfs, PointF.Empty, NoWrap).Width);
++		// 2.3: the compass row: the gauge (3.2 rows wide at most) and its widest line, measured as the value column
++		float gauge = (_rfLineH + 3f) * CompassRows * 0.95f + 10f;
++		val = Math.Max(val, gauge + g.MeasureString("busy 100% · EXTREME", _rf, PointF.Empty, NoWrap).Width - lab - 12f);
++		val = Math.Max(val, gauge + g.MeasureString("SELLERS 100% one-sided", _rfb, PointF.Empty, NoWrap).Width + 8f + g.MeasureString("ABSORBED ⚠ effort, no result", _rfb, PointF.Empty, NoWrap).Width + 14f - lab - 12f);
+ 		float hero = g.MeasureString("-888.8K", _rfh, PointF.Empty, NoWrap).Width + g.MeasureString("bar -88.8K", _rfb, PointF.Empty, NoWrap).Width + 28f;
+ 		_tplLabelW = lab;
+ 		_tplValueW = Math.Max(val, hero - lab - 12f);
+@@ -5106,7 +5679,7 @@
+ 				}
+ 				continue;
+ 			}
+-			gh[n] += ((rows[i].Kind == 6) ? hero1 : row1);
++			gh[n] += ((rows[i].Kind == 6) ? hero1 : ((rows[i].Kind == 7) ? (row1 * CompassRows) : row1));   // 2.3
+ 		}
+ 		if (gh[n] > 0f)
+ 		{
+@@ -5183,6 +5756,117 @@
+ 		}
+ 	}
+ 
++	// 2.3: the compass row's numbers (made in PanelCard, drawn by DrawCompass in the same picture)
++	private struct CompassData
++	{
++		public bool Ready;
++
++		public bool Buyers;
++
++		public double Imb;
++
++		public double Busy;
++
++		public int Tier;
++
++		public double AccN;
++
++		public bool AccWith;
++
++		public string AccWords;
++
++		public Color AccCol;
++
++		public string Verdict;
++
++		public Color VerdictCol;
++	}
++
++	private CompassData _cmp;
++
++	private const float CompassRows = 3.2f;
++
++	// 2.3: a half-dial. Needle direction = who dominates (buyers right, sellers left; delta / traded volume over the fast window,
++	// full deflection at 60 %). Needle length = how busy (volume per second, rank in the lookback; rings at 50 / 80 %). A gold
++	// arrow at the tip = the acceleration (outward: speeding up, inward: slowing; length by its size). Three lines beside it.
++	private void DrawCompass(Graphics g, float lx, float rx, float cy, float hgt, float rowH, float k, Color dim, Color soft)
++	{
++		CompassData d = _cmp;
++		float R = Math.Min(hgt * 0.95f, (rx - lx) * 0.36f) / 2f;
++		if (R < 6f)
++		{
++			return;
++		}
++		float cx = lx + R + 1f * k;
++		float cyc = cy + 2f * k + R;
++		Color bull = BullColor;
++		Color bear = BearColor;
++		g.FillPie(Brush(Color.FromArgb(30, bull)), cx - R, cyc - R, 2f * R, 2f * R, 270f, 90f);
++		g.FillPie(Brush(Color.FromArgb(30, bear)), cx - R, cyc - R, 2f * R, 2f * R, 180f, 90f);
++		Pen ring = Pen(Color.FromArgb(70, 150, 158, 175), 1f);
++		g.DrawArc(ring, cx - R * 0.5f, cyc - R * 0.5f, R, R, 180f, 180f);
++		g.DrawArc(ring, cx - R * 0.8f, cyc - R * 0.8f, R * 1.6f, R * 1.6f, 180f, 180f);
++		g.DrawArc(Pen(Color.FromArgb(110, 150, 158, 175), 1f), cx - R, cyc - R, 2f * R, 2f * R, 180f, 180f);
++		g.DrawLine(ring, cx - R, cyc, cx + R, cyc);
++		double imb = Math.Max(-1.0, Math.Min(1.0, d.Imb / 0.6));
++		double ang = Math.PI + (imb + 1.0) * Math.PI / 2.0;
++		float len = R * (float)Math.Max(0.15, d.Busy);
++		float tx = cx + (float)(len * Math.Cos(ang));
++		float ty = cyc + (float)(len * Math.Sin(ang));
++		Color side = (d.Buyers ? bull : bear);
++		Color nc = (d.Ready ? TextColor : dim);
++		g.DrawLine(Pen(Color.FromArgb(235, nc), Math.Max(1.5f, 2f * k)), cx, cyc, tx, ty);
++		float hub = 2.5f * k;
++		g.FillEllipse(Brush(Color.FromArgb(255, nc)), cx - hub, cyc - hub, 2f * hub, 2f * hub);
++		float dot = 3.5f * k;
++		g.FillEllipse(Brush(Color.FromArgb(255, 245, 247, 250)), tx - dot - 1f, ty - dot - 1f, 2f * dot + 2f, 2f * dot + 2f);
++		g.FillEllipse(Brush(Color.FromArgb(255, d.Ready ? side : dim)), tx - dot, ty - dot, 2f * dot, 2f * dot);
++		if (d.Ready && d.AccN >= AccelMin)
++		{
++			// the acceleration arrow along the needle: outward = speeding up, inward = slowing
++			float dir = (d.AccWith ? 1f : (-1f));
++			float al = R * 0.38f * (float)Math.Min(1.0, d.AccN / Math.Max(AccelExtreme, 0.5));
++			float ux = (float)Math.Cos(ang);
++			float uy = (float)Math.Sin(ang);
++			float ax0 = tx + ux * dir * (dot + 2f * k);
++			float ay0 = ty + uy * dir * (dot + 2f * k);
++			float ax1 = ax0 + ux * dir * al;
++			float ay1 = ay0 + uy * dir * al;
++			Pen ap = Pen(Color.FromArgb(250, SignalColor), Math.Max(1.4f, 1.8f * k));
++			g.DrawLine(ap, ax0, ay0, ax1, ay1);
++			float hw = 3.2f * k;
++			float px = -uy;
++			float py = ux;
++			g.DrawLine(ap, ax1, ay1, ax1 - ux * dir * hw + px * hw, ay1 - uy * dir * hw + py * hw);
++			g.DrawLine(ap, ax1, ay1, ax1 - ux * dir * hw - px * hw, ay1 - uy * dir * hw - py * hw);
++		}
++		// the words
++		float x0 = cx + R + 8f * k;
++		float ty0 = cy + 1f * k;
++		string who = (d.Ready ? ((d.Imb >= 0.0 ? "BUYERS " : "SELLERS ") + (Math.Abs(d.Imb) * 100.0).ToString("0", CultureInfo.InvariantCulture) + "% one-sided") : "waiting for 20 bars");
++		CellText(g, who, _cfb, d.Ready ? ((d.Imb >= 0.0) ? bull : bear) : dim, x0, ty0, rx, _cfLineH);
++		string tierW = ((d.Tier < 0) ? "" : ((d.Tier == 0) ? " · quiet" : ((d.Tier == 1) ? " · building" : ((d.Tier == 2) ? " · strong" : " · EXTREME"))));
++		string acc = d.AccWords ?? "";
++		if (acc.StartsWith("Buyers ", StringComparison.Ordinal) || acc.StartsWith("Sellers ", StringComparison.Ordinal))
++		{
++			acc = acc.Substring(acc.IndexOf(' ') + 1);   // the first line already says who
++		}
++		string busy = "busy " + (d.Busy * 100.0).ToString("0", CultureInfo.InvariantCulture) + "%" + tierW;
++		CellText(g, busy, _cf, soft, x0, ty0 + rowH, rx, _cfLineH);
++		CellText(g, ((d.AccN >= AccelMin) ? (d.AccWith ? "▲ " : "▼ ") : "") + acc, _cf, d.AccCol, x0, ty0 + 2f * rowH, rx, _cfLineH);
++		// the pill at the right of the first line (the gauge takes the height; the words take three lines)
++		float ph = rowH - 3f * k;
++		float pw = Math.Min(TextW(g, d.Verdict, _cfb) + 14f * k, Math.Max(0f, rx - x0));
++		float whoW = TextW(g, who, _cfb) + 8f * k;
++		if (pw >= 16f * k && x0 + whoW + pw <= rx + 2f * k)
++		{
++			float py0 = ty0 - 1f * k;
++			x0 = x0 + whoW;
++			g.FillPath(Brush(Color.FromArgb(46, d.VerdictCol)), Rounded(_gdi.Path(18), x0 - 4f * k, py0, pw, ph, ph / 2f));
++			CellText(g, d.Verdict, _cfb, d.VerdictCol, x0 + 3f * k, py0 + (ph - _cfLineH) / 2f, x0 + pw - 6f * k, _cfLineH);
++		}
++	}
++
+ 	// 2.1: the classic verdict in the card's short words (the classic table and the signal card keep the long ones)
+ 	private static string CardWords(string verdict)
+ 	{
+@@ -5399,6 +6083,12 @@
+ 						cy += _cfhLineH + 3f * k;
+ 						continue;
+ 					}
++					case 7:
++					{
++						DrawCompass(g, lx, rx, cy, rowH * CompassRows, rowH, k, dim, soft);   // 2.3
++						cy += rowH * CompassRows;
++						continue;
++					}
+ 					}
+ 					CellText(g, row.Label, _cf, dim, lx, ty, vx - 6f * k, _cfLineH);
+ 					switch (row.Kind)
+@@ -5501,7 +6191,7 @@
+ 	{
+ 		double v = (slow ? b[abs].Slow : b[abs].Fast);
+ 		string who = ((v >= 0.0) ? "Buying" : "Selling");
+-		double rank = ((FlowTiers == FlowTierMode.Percentile) ? FlowRank(b, abs, slow) : (-1.0));
++		double rank = ((FlowTiers == FlowTierMode.Percentile) ? (slow ? b[abs].SRank : b[abs].FRank) : (-1.0));   // 2.3: stored
+ 		Color side = ((v >= 0.0) ? BullColor : BearColor);
+ 		if (rank < 0.0)
+ 		{
+@@ -5514,7 +6204,7 @@
+ 	}
+ 
+ 	// 2.1: the acceleration in plain words (the same levels as AccelText), always in the side's colour
+-	private string AccelWords(bool buyers, double acc, double norm, out Color col)
++	private string AccelWords(bool buyers, double acc, double norm, bool thrustOk, out Color col)
+ 	{
+ 		bool with = acc >= 0.0 == buyers;
+ 		double n = Math.Abs(norm);
+@@ -5531,6 +6221,11 @@
+ 			col = side;
+ 			return who + ((n >= AccelExtreme) ? "STALL" : "slowing") + x;
+ 		}
++		if (n >= AccelExtreme && GateThrust && !thrustOk)
++		{
++			col = Color.FromArgb(200, side);
++			return who + "thin thrust" + x;   // 2.3: speeding up with no busy, one-sided market behind it
++		}
+ 		col = side;
+ 		return who + ((n >= AccelExtreme) ? "THRUST" : "speeding up") + x;
+ 	}
+@@ -6328,6 +7023,22 @@
+ 		return value;
+ 	}
+ 
++	// 2.3: a dashed pen of its own. The markers and the swing line used to set DashStyle on a shared pen and set it back;
++	// an exception in between (caught by the picture) left that pen dashed for every later use.
++	private Pen DashPen(Color c, float w)
++	{
++		long key = PenKey(c, w);
++		if (!_dashPens.TryGetValue(key, out var value))
++		{
++			value = new Pen(c, w);
++			value.DashStyle = DashStyle.Dash;
++			_dashPens[key] = value;
++		}
++		return value;
++	}
++
++	private readonly Dictionary<long, Pen> _dashPens = new Dictionary<long, Pen>();
++
+ 	// 2.0: a dotted pen of its own (the shared pens must not have their dash style changed)
+ 	private Pen DotPen(Color c, float w)
+ 	{
+@@ -6416,13 +7127,53 @@
+ 		return ((double)below + 0.5 * (double)equal) / (double)n;
+ 	}
+ 
++	// 2.3: where a bar's volume per second (what = 0) or one-sidedness |Imb7| (what = 1) ranks among the LookbackBars bars
++	// before it, 0..1 (ties count half); -1 while fewer than 20 bars are there. The same rule as FlowRank.
++	private double RankOf(int abs, int what)
++	{
++		int n = Math.Min(Math.Max(5, LookbackBars), abs);
++		if (n < 20)
++		{
++			return -1.0;
++		}
++		double v = ((what == 0) ? _b[abs].Vps : Math.Abs(_b[abs].Imb7));
++		int below = 0;
++		int equal = 0;
++		for (int i = abs - n; i < abs; i++)
++		{
++			double w = ((what == 0) ? _b[i].Vps : Math.Abs(_b[i].Imb7));
++			if (w < v)
++			{
++				below++;
++			}
++			else if (w == v)
++			{
++				equal++;
++			}
++		}
++		return ((double)below + 0.5 * (double)equal) / (double)n;
++	}
++
++	// 2.3: the platform's UTC clock (server-synchronised), the plain clock if the platform has none yet
++	private static long NowTicks()
++	{
++		try
++		{
++			return Core.Instance.TimeUtils.DateTimeUtcNow.Ticks;
++		}
++		catch
++		{
++			return DateTime.UtcNow.Ticks;
++		}
++	}
++
+ 	// the flow-speed words: classic (FlowLabel), or by rank with the rank shown ("fast strong +1.2K · 91%")
+ 	private string FlowText(Bar[] b, int abs, double sc)
+ 	{
+ 		if (FlowTiers == FlowTierMode.Percentile)
+ 		{
+-			double rf = FlowRank(b, abs, slow: false);
+-			double rs = FlowRank(b, abs, slow: true);
++			double rf = b[abs].FRank;   // 2.3: stored
++			double rs = b[abs].SRank;
+ 			if (rf >= 0.0 && rs >= 0.0)
+ 			{
+ 				// 2.0: the text of the last call is kept; a repaint with nothing changed makes no new string
