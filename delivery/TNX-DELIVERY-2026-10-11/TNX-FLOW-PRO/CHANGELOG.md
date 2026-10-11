@@ -1,4 +1,6 @@
-# TNX CVD PRO 2.3 (2026-10-11)
+# TNX FLOW PRO 1.0 (2026-10-11) — TNX CVD PRO 2.2 + the 2.3 changes, under a new name
+
+New class `TNXFlowPro`, new DLL `TNXFlowPro.dll`, listed as "TNX FLOW PRO": it installs next to your old TNX CVD PRO without touching it.
 
 Every new behaviour has its own setting (sort index 87–93). With "2.3 Flow bars brightness = Classic", "THRUST only
 when…" off, "Early fade dot" off, "Acceleration inside the flow lane" off, "Card: flow compass" off and "Signal filter:

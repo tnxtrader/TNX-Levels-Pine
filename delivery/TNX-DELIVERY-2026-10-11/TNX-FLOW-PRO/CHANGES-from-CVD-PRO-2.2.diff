@@ -1,6 +1,22 @@
 --- work/TNXCVDPro.orig.cs	2026-10-11 06:29:29.440257141 +0000
-+++ upload/TNX-CVD-PRO/src/TNXIndicators/TNXCVDPro.cs	2026-10-11 06:54:19.932036538 +0000
-@@ -134,6 +134,21 @@
++++ work/TNX-DELIVERY-2026-10-11/TNX-FLOW-PRO/src/TNXIndicators/TNXFlowPro.cs	2026-10-11 07:14:46.538864580 +0000
+@@ -1,3 +1,6 @@
++// TNX FLOW PRO 1.0 (2026-10-11) = TNX CVD PRO 2.2 + the 2.3 changes, under a new name so it lives next to the old DLL:
++// class TNXFlowPro, assembly TNXFlowPro.dll, listed as "TNX FLOW PRO". The helper classes (GdiCache, PictureArrays,
++// TnxErrors) are in TnxCommon.cs beside this file. Settings are new (the old indicator's saved settings do not carry over).
+ using System;
+ using System.Collections.Generic;
+ using System.Drawing;
+@@ -14,7 +17,7 @@
+ 
+ namespace TNXIndicators;
+ 
+-public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
++public class TNXFlowPro : Indicator, IVolumeAnalysisIndicator
+ {
+ 	public enum Display
+ 	{
+@@ -134,6 +137,21 @@
  		Classic
  	}
  
@@ -22,7 +38,7 @@
  	internal enum SigKind
  	{
  		Absorption,
-@@ -214,6 +229,33 @@
+@@ -214,6 +232,33 @@
  		public long Anchor;
  
  		public int SessIdx;   // 2.0 (F5): bars since the session's first bar (only kept in "every N bars" mode)
@@ -56,7 +72,7 @@
  	}
  
  	private sealed class Sig
-@@ -296,7 +338,8 @@
+@@ -296,7 +341,8 @@
  		Vol,
  		Rej,
  		Delta,
@@ -66,7 +82,7 @@
  	}
  
  	[InputParameter("Display", 0, 0.0, 0.0, 0.0, 0, new object[]
-@@ -546,6 +589,8 @@
+@@ -546,6 +592,8 @@
  	{
  		"Bottom right",
  		Corner.BottomRight,
@@ -75,7 +91,7 @@
  		"Bottom left",
  		Corner.BottomLeft,
  		"Hidden",
-@@ -679,6 +724,48 @@
+@@ -679,6 +727,48 @@
  	})]
  	public LaneLook LaneStyle;
  
@@ -124,7 +140,7 @@
  	private Bar[] _b = new Bar[0];
  
  	private int _n;
-@@ -742,6 +829,8 @@
+@@ -742,6 +832,8 @@
  
  	private int _rangeObsAt = -1;
  
@@ -133,7 +149,7 @@
  	private double _rangeObs;
  
  	private int _pendingVa = -1;
-@@ -1063,6 +1152,7 @@
+@@ -1063,6 +1155,7 @@
  		Theme.MidnightGold => Color.FromArgb(130, 210, 255), 
  		Theme.Solarized => Color.FromArgb(181, 137, 0), 
  		Theme.Matrix => Color.FromArgb(170, 255, 210), 
@@ -141,7 +157,45 @@
  		_ => Color.Orange, 
  	};
  
-@@ -1250,6 +1340,8 @@
+@@ -1130,7 +1223,7 @@
+ 				}
+ 				catch (Exception tnxError)
+ 				{
+-					TnxErrors.Report("TNX CVD PRO", "class#1", tnxError);   // P4 F5: was empty
++					TnxErrors.Report("TNX FLOW PRO", "class#1", tnxError);   // P4 F5: was empty
+ 				}
+ 				continue;
+ 				IL_00f9:
+@@ -1150,16 +1243,16 @@
+ 					}
+ 					catch (Exception tnxError)
+ 					{
+-						TnxErrors.Report("TNX CVD PRO", "class#2", tnxError);   // P4 F5: was empty
++						TnxErrors.Report("TNX FLOW PRO", "class#2", tnxError);   // P4 F5: was empty
+ 					}
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+-	public TNXCVDPro()
++	public TNXFlowPro()
+ 	{
+-		base.Name = "TNX CVD PRO";
++		base.Name = "TNX FLOW PRO";
+ 		base.Description = "Cumulative delta with velocity panel, themes, and measured detectors: velocity divergence, exhaustion (declining push at new extremes), absorption (high delta, no result).";
+ 		base.SeparateWindow = true;
+ 		_line = AddLineSeries("CVD", Color.Transparent, 2);
+@@ -1229,7 +1322,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "CoerceEnum#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "CoerceEnum#1", tnxError);   // P4 F5: was empty
+ 		}
+ 		return null;
+ 	}
+@@ -1250,6 +1343,8 @@
  				_evalUpTo = -1;
  				_sigs.Clear();
  				_sigsVersion++;   // P4 F18
@@ -150,7 +204,25 @@
  				_sessionCache.Clear();
  				_phAbs = (_plAbs = -1);
  				_pendingVa = -1;
-@@ -1321,6 +1413,11 @@
+@@ -1260,7 +1355,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnInit#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnInit#1", tnxError);   // P4 F5: was empty
+ 		}
+ 	}
+ 
+@@ -1288,7 +1383,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnClear#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnClear#1", tnxError);   // P4 F5: was empty
+ 		}
+ 	}
+ 
+@@ -1321,6 +1416,11 @@
  			value3.Dispose();
  		}
  		_dotPens.Clear();
@@ -162,20 +234,41 @@
  		_labelFont = null;
  		_hitList.Clear();
  		_hover = null;
-@@ -1387,6 +1484,29 @@
- 		{
- 			TnxErrors.Report("TNX CVD PRO", "OnSettingsUpdated#1", tnxError);   // P4 F5: was empty
+@@ -1348,7 +1448,7 @@
  		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "VolumeAnalysisData_Loaded#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "VolumeAnalysisData_Loaded#1", tnxError);   // P4 F5: was empty
+ 		}
+ 		try
+ 		{
+@@ -1356,7 +1456,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "VolumeAnalysisData_Loaded#2", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "VolumeAnalysisData_Loaded#2", tnxError);   // P4 F5: was empty
+ 		}
+ 	}
+ 
+@@ -1385,10 +1485,33 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnSettingsUpdated#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnSettingsUpdated#1", tnxError);   // P4 F5: was empty
++		}
 +		try
 +		{
 +			base.CurrentChart?.RedrawBuffer();   // 2.3: a changed setting shows at once, not at the next tick (a quiet market kept the old picture)
 +		}
 +		catch (Exception tnxError)
 +		{
-+			TnxErrors.Report("TNX CVD PRO", "OnSettingsUpdated#2", tnxError);
-+		}
-+	}
-+
++			TnxErrors.Report("TNX FLOW PRO", "OnSettingsUpdated#2", tnxError);
+ 		}
+ 	}
+ 
 +	// 2.3: the platform disposes a removed indicator; the mouse hooks, timer, fonts, pens and brushes go with it even when
 +	// OnClear is not called first (the official mouse example unsubscribes in Dispose)
 +	public override void Dispose()
@@ -186,13 +279,42 @@
 +		}
 +		catch (Exception tnxError)
 +		{
-+			TnxErrors.Report("TNX CVD PRO", "Dispose#1", tnxError);
++			TnxErrors.Report("TNX FLOW PRO", "Dispose#1", tnxError);
 +		}
 +		base.Dispose();
- 	}
- 
++	}
++
  	private void DetectGeometry()
-@@ -1522,6 +1642,8 @@
+ 	{
+ 		_barHeight = 0.0;
+@@ -1434,7 +1557,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "DetectGeometry#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "DetectGeometry#1", tnxError);   // P4 F5: was empty
+ 		}
+ 		_chartTag = ChartTag();   // 2.0: the card's title; the picture gets its copy with the bars (CopyForPaint)
+ 	}
+@@ -1451,7 +1574,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnUpdate#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnUpdate#1", tnxError);   // P4 F5: was empty
+ 		}
+ 		if (flag)
+ 		{
+@@ -1461,7 +1584,7 @@
+ 			}
+ 			catch (Exception tnxError)
+ 			{
+-				TnxErrors.Report("TNX CVD PRO", "OnUpdate#2", tnxError);   // P4 F5: was empty
++				TnxErrors.Report("TNX FLOW PRO", "OnUpdate#2", tnxError);   // P4 F5: was empty
+ 			}
+ 		}
+ 	}
+@@ -1522,6 +1645,8 @@
  				_swingSaved = (_phAbs, _phPx, _phCvd, _plAbs, _plPx, _plCvd);
  				_sigsBefore.Clear();
  				_sigsBefore.AddRange(_sigs);
@@ -201,7 +323,7 @@
  			}
  			else
  			{
-@@ -1567,6 +1689,8 @@
+@@ -1567,6 +1692,8 @@
  			// undone), so the bar is read again exactly as a reload reads it
  			_sigs.Clear();
  			_sigs.AddRange(_sigsBefore);
@@ -210,7 +332,25 @@
  			_sigsVersion++;
  			(_phAbs, _phPx, _phCvd, _plAbs, _plPx, _plCvd) = _swingSaved;
  			Evaluate(abs, pending: false);
-@@ -1646,6 +1770,8 @@
+@@ -1626,7 +1753,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnLiveTimer#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnLiveTimer#1", tnxError);   // P4 F5: was empty
+ 		}
+ 		try
+ 		{
+@@ -1634,7 +1761,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnLiveTimer#2", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnLiveTimer#2", tnxError);   // P4 F5: was empty
+ 		}
+ 	}
+ 
+@@ -1646,6 +1773,8 @@
  		}
  		_sigs.Clear();
  		_sigsVersion++;   // P4 F18
@@ -219,7 +359,7 @@
  		_phAbs = (_plAbs = -1);
  		_pendingVa = -1;
  		_rangeObsAt = -1;
-@@ -1725,6 +1851,9 @@
+@@ -1725,6 +1854,9 @@
  			}
  			ref Bar reference = ref _b[abs];
  			reference.Ticks = Time(num).Ticks;
@@ -229,7 +369,7 @@
  			bool barsFromSession = Reset == ResetMode.Bars && ResetBarsFromSession;
  			reference.Anchor = ((Reset == ResetMode.Session || barsFromSession) ? SessionAnchor(abs) : 0);
  			if (barsFromSession)
-@@ -1776,6 +1905,7 @@
+@@ -1776,6 +1908,7 @@
  				reference.PVol = reference2.PVol + num7;
  				reference.PRej = reference2.PRej + val;
  				reference.PDelta = reference2.PDelta + num2;
@@ -237,7 +377,7 @@
  			}
  			else
  			{
-@@ -1786,6 +1916,7 @@
+@@ -1786,6 +1919,7 @@
  				reference.PVol = num7;
  				reference.PRej = val;
  				reference.PDelta = num2;
@@ -245,7 +385,7 @@
  			}
  			Velocity(abs, out reference.R, out reference.E);
  			int val2 = Math.Max(2, VelocityPeriod / 3);
-@@ -1809,6 +1940,30 @@
+@@ -1809,6 +1943,30 @@
  			bool flag3 = Math.Abs(reference.R) >= DivergeMin && Math.Abs(reference.E) >= DivergeMin && num20 != num21;
  			int num22 = ((abs > 0) ? _b[abs - 1].DivRun : 0);
  			reference.DivRun = (flag3 ? ((num20 <= 0) ? ((num22 < 0) ? (num22 - 1) : (-1)) : ((num22 <= 0) ? 1 : (num22 + 1))) : 0);
@@ -276,7 +416,7 @@
  		}
  	}
  
-@@ -1833,6 +1988,7 @@
+@@ -1833,6 +1991,7 @@
  			Pf.Vol => reference.PVol, 
  			Pf.Rej => reference.PRej, 
  			Pf.Delta => reference.PDelta, 
@@ -284,7 +424,7 @@
  			_ => reference.PAbsAcc, 
  		};
  	}
-@@ -1913,12 +2069,12 @@
+@@ -1913,12 +2072,12 @@
  		int num = Math.Min(21, forming);
  		if (num >= 3)
  		{
@@ -299,7 +439,7 @@
  			if (array[num / 2] > 0.0)
  			{
  				_rangeObs = array[num / 2];
-@@ -2361,7 +2517,12 @@
+@@ -2361,7 +2520,12 @@
  
  	private double AvgScore(Sig g)
  	{
@@ -313,7 +453,7 @@
  	}
  
  	// the average score of the closed signals of one kind (swing divergences apart) in the LookbackBars before bar abs; 0
-@@ -2403,11 +2564,40 @@
+@@ -2403,11 +2567,40 @@
  	private void Freeze(Sig s)
  	{
  		double avg = AvgScoreIn(_sigs, s.Abs, s.Kind, s.P1 >= 0);
@@ -354,7 +494,34 @@
  	// 2.0 (plan F2): the bar a marker is drawn on, or -1 when the signal filter hides it. Classic signals ask the filter at
  	// every picture with the scores as they are now, so a marker could appear late on an older bar or vanish. A 2.0 signal
  	// keeps the answer it got when it was known: drawn from the bar on which it reached its filter's level, never removed
-@@ -2673,6 +2863,23 @@
+@@ -2521,7 +2714,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "ChartTz#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "ChartTz#1", tnxError);   // P4 F5: was empty
+ 		}
+ 		try
+ 		{
+@@ -2587,7 +2780,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "SessionAnchor#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "SessionAnchor#1", tnxError);   // P4 F5: was empty
+ 		}
+ 		return result;
+ 	}
+@@ -2635,7 +2828,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnPaintChart#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnPaintChart#1", tnxError);   // P4 F5: was empty
+ 		}
+ 		finally
+ 		{
+@@ -2673,6 +2866,23 @@
  			_psigs.Clear();
  			_psigs.AddRange(_sigs);
  			_psigsVersion = _sigsVersion;
@@ -378,7 +545,7 @@
  		}
  	}
  
-@@ -2687,6 +2894,7 @@
+@@ -2687,6 +2897,7 @@
  		int num = Math.Min(base.Count, _pn);
  		if (!XMap(conv, base.CurrentChart.BarsWidth, num, out var x, out var i, out var slot))
  		{
@@ -386,7 +553,7 @@
  			if (Table != Corner.Hidden)
  			{
  				DrawTable(g, rectangle, (LaneClosed && num >= 2) ? (num - 2) : (num - 1));
-@@ -3017,6 +3225,11 @@
+@@ -3017,6 +3228,11 @@
  		_reserveFrac = Math.Min(0.8, (num6 + 6f) / num4);
  		_spRect = new RectangleF(rect.Left, num11, rect.Width, num10 - num11);
  		_acRect = (showAccel ? new RectangleF(rect.Left, num9, rect.Width, num8 - num9) : RectangleF.Empty);
@@ -398,7 +565,7 @@
  		Color color = (VelocityUseTheme ? BullColor : VelocityUp);
  		Color color2 = (VelocityUseTheme ? BearColor : VelocityDown);
  		float num12 = (float)Math.Max(1.5, Math.Min(slot - 1.5, slot * 0.66));
-@@ -3306,166 +3519,466 @@
+@@ -3306,166 +3522,466 @@
  		_laneFlowBot = num57;
  		g.DrawLine(Pen(Color.FromArgb(70, 150, 158, 175), 1f), rect.Left, num54, num15, num54);
  		int num58 = Math.Min(base.Count, _pn);
@@ -980,7 +1147,7 @@
  	}
  
  	// 2.2 (Pro): the flow and acceleration panes' heights in a window h px high. Each pane keeps a minimum (CVD 28 % / 40 px,
-@@ -3779,7 +4292,7 @@
+@@ -3779,7 +4295,7 @@
  			{
  				if (_pb[num11].Flip || (flag6 && _pb[j].Real))
  				{
@@ -989,7 +1156,7 @@
  				}
  				continue;
  			}
-@@ -3807,7 +4320,14 @@
+@@ -3807,7 +4323,14 @@
  						points[1] = new PointF(num10 - num, val + num * 0.6f);
  						points[2] = new PointF(num10 + num, val + num * 0.6f);
  					}
@@ -1005,7 +1172,7 @@
  				}
  				else
  				{
-@@ -3835,12 +4355,12 @@
+@@ -3835,12 +4358,12 @@
  				Color col;
  				if (pro)
  				{
@@ -1020,7 +1187,7 @@
  					g.DrawString(s, _fb, Brush(col), xR - 4f, top + 1f, Right);
  				}
  			}
-@@ -3873,7 +4393,7 @@
+@@ -3873,7 +4396,7 @@
  
  	// 2.1: the acceleration strip's marks: a thrust (2x or more, with the flow) is a chevron on a dark halo, a stall (2x or
  	// more, against the flow) an amber ring with a dot, a change of side a dot on the zero line
@@ -1029,7 +1196,7 @@
  	{
  		SmoothingMode sm = g.SmoothingMode;
  		g.SmoothingMode = SmoothingMode.AntiAlias;
-@@ -3891,7 +4411,7 @@
+@@ -3891,7 +4414,7 @@
  			if (with)
  			{
  				float d = (buyers ? -1f : 1f);
@@ -1038,7 +1205,7 @@
  				g.DrawLine(p, x - r * 0.75f, y - d * r * 0.3f, x, y + d * r * 0.45f);
  				g.DrawLine(p, x, y + d * r * 0.45f, x + r * 0.75f, y - d * r * 0.3f);
  			}
-@@ -3968,6 +4488,10 @@
+@@ -3968,6 +4491,10 @@
  			return;
  		}
  		g.FillRectangle(Brush(Color.FromArgb(alpha, col)), x2, num, w, num2 - num);
@@ -1049,7 +1216,7 @@
  		if (w >= 3.5f)
  		{
  			g.DrawRectangle(Pen(Color.FromArgb(Math.Min(255, alpha + 35), Dark(col, 0.25)), 0.8f), x2, num, w, num2 - num);
-@@ -4117,12 +4641,12 @@
+@@ -4117,12 +4644,12 @@
  		}
  	}
  
@@ -1064,7 +1231,7 @@
  		col = ((num < AccelMin) ? Color.FromArgb(150, 158, 174) : (buyers ? BullColor : BearColor));
  		if (!flag && num >= AccelMin)
  		{
-@@ -4201,7 +4725,7 @@
+@@ -4201,7 +4728,7 @@
  			Sig sig = _psigs[j];
  			// 2.0 (F2): db = the bar the marker is drawn on (classic: its own bar, when the filter passes it now)
  			int db;
@@ -1073,7 +1240,7 @@
  			{
  				ref Bar reference = ref _pb[db];
  				float x1 = X(db, x0, i0, slot);
-@@ -4225,10 +4749,7 @@
+@@ -4225,10 +4752,7 @@
  					float num2 = X(sig.P2, x0, i0, slot);
  					float y = CY(conv, sig.V1);
  					float num3 = CY(conv, sig.V2);
@@ -1085,7 +1252,7 @@
  					if (SwingAtConfirm)
  					{
  						// 2.0 (plan F3): the second swing is only known SwingBars later; the marker sits on the bar that
-@@ -4336,8 +4857,7 @@
+@@ -4336,8 +4860,7 @@
  		Color ink = Color.FromArgb(pending ? 150 : 245, 10, 12, 16);
  		float d = (bull ? -1f : 1f);   // towards the candle: up for a long badge (it sits under), down for a short one
  		Pen halo = Pen(Color.FromArgb(pending ? 80 : 210, 8, 10, 14), 3f);
@@ -1095,7 +1262,7 @@
  		PointF[] tri = _points2;
  		tri[0] = new PointF(x, y + d * (r + r * 0.55f));
  		tri[1] = new PointF(x - r * 0.42f, y + d * r * 0.8f);
-@@ -4356,7 +4876,6 @@
+@@ -4356,7 +4879,6 @@
  			float c = r * 0.42f;
  			g.FillEllipse(Brush(ink), x - c - 1f, y - c - 1f, 2f * c + 2f, 2f * c + 2f);
  			g.FillEllipse(Brush(Color.FromArgb(a, side)), x - c, y - c, 2f * c, 2f * c);
@@ -1103,7 +1270,7 @@
  			return;
  		}
  		// a dark disc behind (the halo: readable on any candle) and the badge: two fills, cheaper than wide strokes
-@@ -4366,7 +4885,6 @@
+@@ -4366,7 +4888,6 @@
  		{
  			g.DrawEllipse(edge, x - r, y - r, 2f * r, 2f * r);
  		}
@@ -1111,7 +1278,7 @@
  		Pen p = Pen(ink, Math.Max(1.4f, r * 0.2f));
  		float m = r * 0.55f;
  		switch (k)
-@@ -4414,8 +4932,7 @@
+@@ -4414,8 +4935,7 @@
  	private void GlyphClean(Graphics g, SigKind k, float x, float y, float r, Color col, Color side, bool bull, bool pending)
  	{
  		Pen halo = Pen(Color.FromArgb(pending ? 90 : 200, 10, 12, 16), 3.2f);
@@ -1121,7 +1288,7 @@
  		switch (k)
  		{
  		case SigKind.Absorption:
-@@ -4467,7 +4984,6 @@
+@@ -4467,7 +4987,6 @@
  			break;
  		}
  		}
@@ -1129,7 +1296,16 @@
  	}
  
  	// 2.0 (A4): the card of the marker the mouse points at: what it is, what CVD PRO saw, how strong, when it was known
-@@ -4576,8 +5092,7 @@
+@@ -4567,7 +5086,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "BarClock#1", tnxError);
++			TnxErrors.Report("TNX FLOW PRO", "BarClock#1", tnxError);
+ 			return "?";
+ 		}
+ 	}
+@@ -4576,8 +5095,7 @@
  
  	private void Glyph(Graphics g, SigKind k, float x, float y, float r, Color col, Color side, bool bull, bool pending)
  	{
@@ -1139,7 +1315,7 @@
  		switch (k)
  		{
  		case SigKind.Absorption:
-@@ -4624,7 +5139,6 @@
+@@ -4624,13 +5142,12 @@
  			break;
  		}
  		}
@@ -1147,7 +1323,14 @@
  	}
  
  	private void Panel(Graphics g, Rectangle rect, int last)
-@@ -4648,7 +5162,7 @@
+ 	{
+ 		Graphics g2 = g;
+-		TNXCVDPro tNXCVDPro = this;
++		TNXFlowPro tNXCVDPro = this;
+ 		if (last < 0 || !_pb[last].Has)
+ 		{
+ 			return;
+@@ -4648,7 +5165,7 @@
  		bool flag2 = num7 >= 50.0;
  		bool flag3 = flag2 != flag && Math.Abs(num7 - 50.0) >= 8.0 && Math.Abs(num6 - 50.0) >= 5.0;
  		Color col;
@@ -1156,7 +1339,7 @@
  		Color color = Color.FromArgb(150, 158, 174);
  		BarRead(_pb, _pBarHeight, last, out var e, out var r);
  		Verdict(reference.Real, e, r, out var text2, out var col2, out var passive);
-@@ -4812,7 +5326,7 @@
+@@ -4812,7 +5329,7 @@
  		double sc = ScaleC(_pb, last);
  		string tFast = FlowWords(_pb, last, sc, slow: false, out var colFast);
  		string tSlow = FlowWords(_pb, last, sc, slow: true, out var colSlow);
@@ -1165,7 +1348,7 @@
  		double tick = base.Symbol?.TickSize ?? 0.0;
  		string tPush = ((Math.Abs(e) < 0.7) ? "nobody" : (((e >= 0.0) ? "Buyers " : "Sellers ") + Math.Abs(e).ToString("0.0", CultureInfo.InvariantCulture) + "×"));
  		Color colPush = ((Math.Abs(e) < 0.7) ? dim : ((e >= 0.0) ? BullColor : BearColor));
-@@ -4852,11 +5366,66 @@
+@@ -4852,11 +5369,66 @@
  		}
  		rows.Add(new CardRow(6, null, cvd, (b.C >= 0.0) ? BullColor : BearColor, b.Delta));
  		rows.Add(new CardRow(4));
@@ -1236,7 +1419,7 @@
  		}
  		rows.Add(new CardRow(4));
  		if (!compact)
-@@ -5024,7 +5593,7 @@
+@@ -5024,7 +5596,7 @@
  				{
  					continue;
  				}
@@ -1245,7 +1428,7 @@
  			}
  			colH = Math.Max(colH, h);
  		}
-@@ -5078,6 +5647,10 @@
+@@ -5078,10 +5650,14 @@
  		val = Math.Max(val, g.MeasureString("▼ 99.9 min · 9.9× slower", _rfb, PointF.Empty, NoWrap).Width);
  		val = Math.Max(val, meter + 8f + g.MeasureString("Sellers 100%", _rfb, PointF.Empty, NoWrap).Width + 8f + g.MeasureString("TURNING", _rfs, PointF.Empty, NoWrap).Width + 12f);
  		val = Math.Max(val, meter * 1.4f + 8f + g.MeasureString("999 of 999 trades", _rfs, PointF.Empty, NoWrap).Width);
@@ -1256,7 +1439,12 @@
  		float hero = g.MeasureString("-888.8K", _rfh, PointF.Empty, NoWrap).Width + g.MeasureString("bar -88.8K", _rfb, PointF.Empty, NoWrap).Width + 28f;
  		_tplLabelW = lab;
  		_tplValueW = Math.Max(val, hero - lab - 12f);
-@@ -5106,7 +5679,7 @@
+-		_tplTitleW = g.MeasureString("CVD PRO", _rfb, PointF.Empty, NoWrap).Width + g.MeasureString("range 99t", _rfs, PointF.Empty, NoWrap).Width + g.MeasureString("LOADING", _rfs, PointF.Empty, NoWrap).Width + 54f;
++		_tplTitleW = g.MeasureString("FLOW PRO", _rfb, PointF.Empty, NoWrap).Width + g.MeasureString("range 99t", _rfs, PointF.Empty, NoWrap).Width + g.MeasureString("LOADING", _rfs, PointF.Empty, NoWrap).Width + 54f;
+ 		_tplFont = _rf;
+ 		_tplDpi = g.DpiX;
+ 	}
+@@ -5106,7 +5682,7 @@
  				}
  				continue;
  			}
@@ -1265,7 +1453,7 @@
  		}
  		if (gh[n] > 0f)
  		{
-@@ -5183,6 +5756,117 @@
+@@ -5183,6 +5759,117 @@
  		}
  	}
  
@@ -1383,7 +1571,18 @@
  	// 2.1: the classic verdict in the card's short words (the classic table and the signal card keep the long ones)
  	private static string CardWords(string verdict)
  	{
-@@ -5399,6 +6083,12 @@
+@@ -5345,8 +6032,8 @@
+ 					limit = ex - 6f * k;
+ 				}
+ 			}
+-			CellText(g, "CVD PRO", _cfb, TextColor, hx, cy, limit, th);
+-			float tagX = hx + TextW(g, "CVD PRO", _cfb) + 10f * k;
++			CellText(g, "FLOW PRO", _cfb, TextColor, hx, cy, limit, th);
++			float tagX = hx + TextW(g, "FLOW PRO", _cfb) + 10f * k;
+ 			float tw = TextW(g, tag, _cfs) + 12f * k;
+ 			if (tag.Length > 0 && tagX + tw < limit)
+ 			{
+@@ -5399,6 +6086,12 @@
  						cy += _cfhLineH + 3f * k;
  						continue;
  					}
@@ -1396,7 +1595,7 @@
  					}
  					CellText(g, row.Label, _cf, dim, lx, ty, vx - 6f * k, _cfLineH);
  					switch (row.Kind)
-@@ -5501,7 +6191,7 @@
+@@ -5501,7 +6194,7 @@
  	{
  		double v = (slow ? b[abs].Slow : b[abs].Fast);
  		string who = ((v >= 0.0) ? "Buying" : "Selling");
@@ -1405,7 +1604,7 @@
  		Color side = ((v >= 0.0) ? BullColor : BearColor);
  		if (rank < 0.0)
  		{
-@@ -5514,7 +6204,7 @@
+@@ -5514,7 +6207,7 @@
  	}
  
  	// 2.1: the acceleration in plain words (the same levels as AccelText), always in the side's colour
@@ -1414,7 +1613,7 @@
  	{
  		bool with = acc >= 0.0 == buyers;
  		double n = Math.Abs(norm);
-@@ -5531,6 +6221,11 @@
+@@ -5531,6 +6224,11 @@
  			col = side;
  			return who + ((n >= AccelExtreme) ? "STALL" : "slowing") + x;
  		}
@@ -1426,7 +1625,61 @@
  		col = side;
  		return who + ((n >= AccelExtreme) ? "THRUST" : "speeding up") + x;
  	}
-@@ -6328,6 +7023,22 @@
+@@ -5769,7 +6467,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "HookMouse#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "HookMouse#1", tnxError);   // P4 F5: was empty
+ 		}
+ 	}
+ 
+@@ -5787,7 +6485,7 @@
+ 			}
+ 			catch (Exception tnxError)
+ 			{
+-				TnxErrors.Report("TNX CVD PRO", "UnhookMouse#1", tnxError);   // P4 F5: was empty
++				TnxErrors.Report("TNX FLOW PRO", "UnhookMouse#1", tnxError);   // P4 F5: was empty
+ 			}
+ 			_mouseChart = null;
+ 		}
+@@ -5888,7 +6586,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnWheel#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnWheel#1", tnxError);   // P4 F5: was empty
+ 		}
+ 	}
+ 
+@@ -6017,7 +6715,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnDown#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnDown#1", tnxError);   // P4 F5: was empty
+ 		}
+ 	}
+ 
+@@ -6145,7 +6843,7 @@
+ 		}
+ 		catch (Exception tnxError)
+ 		{
+-			TnxErrors.Report("TNX CVD PRO", "OnMove#1", tnxError);   // P4 F5: was empty
++			TnxErrors.Report("TNX FLOW PRO", "OnMove#1", tnxError);   // P4 F5: was empty
+ 		}
+ 	}
+ 
+@@ -6229,7 +6927,7 @@
+ 			}
+ 			catch (Exception tnxError)
+ 			{
+-				TnxErrors.Report("TNX CVD PRO", "OnUp#1", tnxError);   // P4 F5: was empty
++				TnxErrors.Report("TNX FLOW PRO", "OnUp#1", tnxError);   // P4 F5: was empty
+ 			}
+ 		}
+ 	}
+@@ -6328,6 +7026,22 @@
  		return value;
  	}
  
@@ -1449,7 +1702,7 @@
  	// 2.0: a dotted pen of its own (the shared pens must not have their dash style changed)
  	private Pen DotPen(Color c, float w)
  	{
-@@ -6416,13 +7127,53 @@
+@@ -6416,13 +7130,53 @@
  		return ((double)below + 0.5 * (double)equal) / (double)n;
  	}
  

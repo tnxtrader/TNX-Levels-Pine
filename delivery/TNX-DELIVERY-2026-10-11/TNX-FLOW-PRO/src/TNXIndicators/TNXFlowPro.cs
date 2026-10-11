@@ -1,3 +1,6 @@
+// TNX FLOW PRO 1.0 (2026-10-11) = TNX CVD PRO 2.2 + the 2.3 changes, under a new name so it lives next to the old DLL:
+// class TNXFlowPro, assembly TNXFlowPro.dll, listed as "TNX FLOW PRO". The helper classes (GdiCache, PictureArrays,
+// TnxErrors) are in TnxCommon.cs beside this file. Settings are new (the old indicator's saved settings do not carry over).
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,7 +17,7 @@ using TradingPlatform.BusinessLayer.Utils;
 
 namespace TNXIndicators;
 
-public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
+public class TNXFlowPro : Indicator, IVolumeAnalysisIndicator
 {
 	public enum Display
 	{
@@ -1220,7 +1223,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 				}
 				catch (Exception tnxError)
 				{
-					TnxErrors.Report("TNX CVD PRO", "class#1", tnxError);   // P4 F5: was empty
+					TnxErrors.Report("TNX FLOW PRO", "class#1", tnxError);   // P4 F5: was empty
 				}
 				continue;
 				IL_00f9:
@@ -1240,16 +1243,16 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 					}
 					catch (Exception tnxError)
 					{
-						TnxErrors.Report("TNX CVD PRO", "class#2", tnxError);   // P4 F5: was empty
+						TnxErrors.Report("TNX FLOW PRO", "class#2", tnxError);   // P4 F5: was empty
 					}
 				}
 			}
 		}
 	}
 
-	public TNXCVDPro()
+	public TNXFlowPro()
 	{
-		base.Name = "TNX CVD PRO";
+		base.Name = "TNX FLOW PRO";
 		base.Description = "Cumulative delta with velocity panel, themes, and measured detectors: velocity divergence, exhaustion (declining push at new extremes), absorption (high delta, no result).";
 		base.SeparateWindow = true;
 		_line = AddLineSeries("CVD", Color.Transparent, 2);
@@ -1319,7 +1322,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "CoerceEnum#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "CoerceEnum#1", tnxError);   // P4 F5: was empty
 		}
 		return null;
 	}
@@ -1352,7 +1355,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnInit#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnInit#1", tnxError);   // P4 F5: was empty
 		}
 	}
 
@@ -1380,7 +1383,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnClear#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnClear#1", tnxError);   // P4 F5: was empty
 		}
 	}
 
@@ -1445,7 +1448,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "VolumeAnalysisData_Loaded#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "VolumeAnalysisData_Loaded#1", tnxError);   // P4 F5: was empty
 		}
 		try
 		{
@@ -1453,7 +1456,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "VolumeAnalysisData_Loaded#2", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "VolumeAnalysisData_Loaded#2", tnxError);   // P4 F5: was empty
 		}
 	}
 
@@ -1482,7 +1485,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnSettingsUpdated#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnSettingsUpdated#1", tnxError);   // P4 F5: was empty
 		}
 		try
 		{
@@ -1490,7 +1493,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnSettingsUpdated#2", tnxError);
+			TnxErrors.Report("TNX FLOW PRO", "OnSettingsUpdated#2", tnxError);
 		}
 	}
 
@@ -1504,7 +1507,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "Dispose#1", tnxError);
+			TnxErrors.Report("TNX FLOW PRO", "Dispose#1", tnxError);
 		}
 		base.Dispose();
 	}
@@ -1554,7 +1557,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "DetectGeometry#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "DetectGeometry#1", tnxError);   // P4 F5: was empty
 		}
 		_chartTag = ChartTag();   // 2.0: the card's title; the picture gets its copy with the bars (CopyForPaint)
 	}
@@ -1571,7 +1574,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnUpdate#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnUpdate#1", tnxError);   // P4 F5: was empty
 		}
 		if (flag)
 		{
@@ -1581,7 +1584,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 			}
 			catch (Exception tnxError)
 			{
-				TnxErrors.Report("TNX CVD PRO", "OnUpdate#2", tnxError);   // P4 F5: was empty
+				TnxErrors.Report("TNX FLOW PRO", "OnUpdate#2", tnxError);   // P4 F5: was empty
 			}
 		}
 	}
@@ -1750,7 +1753,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnLiveTimer#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnLiveTimer#1", tnxError);   // P4 F5: was empty
 		}
 		try
 		{
@@ -1758,7 +1761,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnLiveTimer#2", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnLiveTimer#2", tnxError);   // P4 F5: was empty
 		}
 	}
 
@@ -2711,7 +2714,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "ChartTz#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "ChartTz#1", tnxError);   // P4 F5: was empty
 		}
 		try
 		{
@@ -2777,7 +2780,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "SessionAnchor#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "SessionAnchor#1", tnxError);   // P4 F5: was empty
 		}
 		return result;
 	}
@@ -2825,7 +2828,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnPaintChart#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnPaintChart#1", tnxError);   // P4 F5: was empty
 		}
 		finally
 		{
@@ -5083,7 +5086,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "BarClock#1", tnxError);
+			TnxErrors.Report("TNX FLOW PRO", "BarClock#1", tnxError);
 			return "?";
 		}
 	}
@@ -5144,7 +5147,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 	private void Panel(Graphics g, Rectangle rect, int last)
 	{
 		Graphics g2 = g;
-		TNXCVDPro tNXCVDPro = this;
+		TNXFlowPro tNXCVDPro = this;
 		if (last < 0 || !_pb[last].Has)
 		{
 			return;
@@ -5654,7 +5657,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		float hero = g.MeasureString("-888.8K", _rfh, PointF.Empty, NoWrap).Width + g.MeasureString("bar -88.8K", _rfb, PointF.Empty, NoWrap).Width + 28f;
 		_tplLabelW = lab;
 		_tplValueW = Math.Max(val, hero - lab - 12f);
-		_tplTitleW = g.MeasureString("CVD PRO", _rfb, PointF.Empty, NoWrap).Width + g.MeasureString("range 99t", _rfs, PointF.Empty, NoWrap).Width + g.MeasureString("LOADING", _rfs, PointF.Empty, NoWrap).Width + 54f;
+		_tplTitleW = g.MeasureString("FLOW PRO", _rfb, PointF.Empty, NoWrap).Width + g.MeasureString("range 99t", _rfs, PointF.Empty, NoWrap).Width + g.MeasureString("LOADING", _rfs, PointF.Empty, NoWrap).Width + 54f;
 		_tplFont = _rf;
 		_tplDpi = g.DpiX;
 	}
@@ -6029,8 +6032,8 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 					limit = ex - 6f * k;
 				}
 			}
-			CellText(g, "CVD PRO", _cfb, TextColor, hx, cy, limit, th);
-			float tagX = hx + TextW(g, "CVD PRO", _cfb) + 10f * k;
+			CellText(g, "FLOW PRO", _cfb, TextColor, hx, cy, limit, th);
+			float tagX = hx + TextW(g, "FLOW PRO", _cfb) + 10f * k;
 			float tw = TextW(g, tag, _cfs) + 12f * k;
 			if (tag.Length > 0 && tagX + tw < limit)
 			{
@@ -6464,7 +6467,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "HookMouse#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "HookMouse#1", tnxError);   // P4 F5: was empty
 		}
 	}
 
@@ -6482,7 +6485,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 			}
 			catch (Exception tnxError)
 			{
-				TnxErrors.Report("TNX CVD PRO", "UnhookMouse#1", tnxError);   // P4 F5: was empty
+				TnxErrors.Report("TNX FLOW PRO", "UnhookMouse#1", tnxError);   // P4 F5: was empty
 			}
 			_mouseChart = null;
 		}
@@ -6583,7 +6586,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnWheel#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnWheel#1", tnxError);   // P4 F5: was empty
 		}
 	}
 
@@ -6712,7 +6715,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnDown#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnDown#1", tnxError);   // P4 F5: was empty
 		}
 	}
 
@@ -6840,7 +6843,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 		}
 		catch (Exception tnxError)
 		{
-			TnxErrors.Report("TNX CVD PRO", "OnMove#1", tnxError);   // P4 F5: was empty
+			TnxErrors.Report("TNX FLOW PRO", "OnMove#1", tnxError);   // P4 F5: was empty
 		}
 	}
 
@@ -6924,7 +6927,7 @@ public class TNXCVDPro : Indicator, IVolumeAnalysisIndicator
 			}
 			catch (Exception tnxError)
 			{
-				TnxErrors.Report("TNX CVD PRO", "OnUp#1", tnxError);   // P4 F5: was empty
+				TnxErrors.Report("TNX FLOW PRO", "OnUp#1", tnxError);   // P4 F5: was empty
 			}
 		}
 	}

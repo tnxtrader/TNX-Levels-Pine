@@ -1,19 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- TNX IMBALANCE STRENGTH 1.0 - the same build as TNX CVD PRO (2026-10-11):
+  <!-- TNX IMBALANCE STRENGTH 1.0 - self-contained: TNXIndicators\TNXImbalanceStrength.cs only.
        .NET 10 Windows, Release (optimized), TradingPlatform.BusinessLayer 1.146.7.0, System.Drawing.Common 9.0.0.0.
-       Build: dotnet build -c Release   (QuantowerApi_1_146_7 = the path of Quantower's TradingPlatform.BusinessLayer.dll)
-       Self-contained: no TNX-COMMON files needed. -->
+       Output: bin\Release\net10.0-windows\TNXImbalanceStrength.dll -> copy to Quantower\Settings\Scripts\Indicators\TNXImbalanceStrength\ -->
   <PropertyGroup>
     <AssemblyName>TNXImbalanceStrength</AssemblyName>
+    <RootNamespace>TNXIndicators</RootNamespace>
     <TargetFramework>net10.0-windows</TargetFramework>
     <Optimize>true</Optimize>
     <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="TradingPlatform.BusinessLayer">
-      <HintPath>$(QuantowerApi_1_146_7)</HintPath>
-      <Private>false</Private>
-    </Reference>
     <PackageReference Include="System.Drawing.Common" Version="9.0.0" ExcludeAssets="runtime" />
   </ItemGroup>
+  <!-- Finds Quantower's TradingPlatform.BusinessLayer.dll by itself: the QuantowerApi_1_146_7 variable if set, else the usual
+       Quantower folders (C:\Quantower\TradingPlatform\v*\bin, %LocalAppData%, %AppData%, Program Files). Build: dotnet build -c Release -->
+  <Target Name="TnxQuantowerApi" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <_QtApi Include="$(QuantowerApi_1_146_7)" Condition="'$(QuantowerApi_1_146_7)' != '' and Exists('$(QuantowerApi_1_146_7)')" />
+      <_QtApi Include="C:\Quantower\TradingPlatform\v*\bin\TradingPlatform.BusinessLayer.dll;$(LocalAppData)\Quantower\TradingPlatform\v*\bin\TradingPlatform.BusinessLayer.dll;$(AppData)\Quantower\TradingPlatform\v*\bin\TradingPlatform.BusinessLayer.dll;$(ProgramFiles)\Quantower\TradingPlatform\v*\bin\TradingPlatform.BusinessLayer.dll;$(UserProfile)\Quantower\TradingPlatform\v*\bin\TradingPlatform.BusinessLayer.dll;$(UserProfile)\Desktop\Quantower\TradingPlatform\v*\bin\TradingPlatform.BusinessLayer.dll" Condition="'@(_QtApi)' == ''" />
+    </ItemGroup>
+    <Error Condition="'@(_QtApi)' == ''" Text="TradingPlatform.BusinessLayer.dll was not found. It is in your Quantower folder under TradingPlatform\v1.146.x\bin. Run first:  set QuantowerApi_1_146_7=C:\full\path\TradingPlatform.BusinessLayer.dll" />
+    <PropertyGroup>
+      <_QtApiPath>%(_QtApi.FullPath)</_QtApiPath>
+    </PropertyGroup>
+    <Message Importance="high" Text="Quantower API: $(_QtApiPath)" />
+    <ItemGroup>
+      <Reference Include="TradingPlatform.BusinessLayer">
+        <HintPath>$(_QtApiPath)</HintPath>
+        <Private>false</Private>
+      </Reference>
+    </ItemGroup>
+  </Target>
 </Project>
