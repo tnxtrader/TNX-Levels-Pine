@@ -6,19 +6,62 @@ out_dir: out
 registry: registry/candidates.csv
 seed: 42
 
-# tick size, dollars per point, round-trip cost in ticks (commission + 1 tick slippage each side), extra ticks on stop fills
-instruments:
-  CL: {file: CL_30min_continuous_backadjusted.csv, tick: 0.01,  point_value: 1000, cost_ticks_rt: 3, stop_slip_ticks: 1}
-  GC: {file: GC_30min_continuous_backadjusted.csv, tick: 0.10,  point_value: 100,  cost_ticks_rt: 3, stop_slip_ticks: 1}
-  NQ: {file: NQ_30min_continuous_backadjusted.csv, tick: 0.25,  point_value: 20,   cost_ticks_rt: 3, stop_slip_ticks: 1}
-  SI: {file: SI_30min_continuous_backadjusted.csv, tick: 0.005, point_value: 5000, cost_ticks_rt: 3, stop_slip_ticks: 1}
-  YM: {file: YM_30min_continuous_backadjusted.csv, tick: 1.0,   point_value: 5,    cost_ticks_rt: 3, stop_slip_ticks: 1}
+# ----------------------------------------------------------------------------- broker: TopstepX
+# Fees per round turn (USD) = Topstep commission + CME exchange fee + NFA fee, from Topstep's
+# "TopstepX - Commissions and Fees" table (help.topstep.com/en/articles/8284213), CME fees as of 1 Oct 2026.
+# Topstep commission: $0.50 per side on minis ($1.00 round turn), $0.25 per side on micros ($0.50 round turn).
+# Contract specifications: CME Group.
+# The research data is the mini contract price series; the micro contract trades the same price with the same
+# tick size, so every rule and every R_ATR result is identical; only the cost in ticks differs.
+broker: TopstepX
+slippage_ticks_per_side: 1         # market entry and market exit: 1 tick each side
+stop_slip_ticks: 1                 # stop fills: 1 more tick
+flat_by: "15:08"                   # Topstep: flat by 15:10 CT, risk desk flattens from 15:08 CT -> last bar must close by 15:08
 
+instruments:
+  CL:
+    file: CL_30min_continuous_backadjusted.csv
+    name: Crude Oil (NYMEX)
+    tick: 0.01
+    trade: micro                   # micro | mini: the contract whose costs every phase uses
+    mini:  {symbol: CL,  units: 1000 barrels, point_value: 1000, tick_value: 10.00, fees_rt_usd: 4.04}
+    micro: {symbol: MCL, units: 100 barrels,  point_value: 100,  tick_value: 1.00,  fees_rt_usd: 1.72}
+  GC:
+    file: GC_30min_continuous_backadjusted.csv
+    name: Gold (COMEX)
+    tick: 0.10
+    trade: micro
+    mini:  {symbol: GC,  units: 100 troy oz, point_value: 100, tick_value: 10.00, fees_rt_usd: 4.32}
+    micro: {symbol: MGC, units: 10 troy oz,  point_value: 10,  tick_value: 1.00,  fees_rt_usd: 1.92}
+  NQ:
+    file: NQ_30min_continuous_backadjusted.csv
+    name: E-mini Nasdaq-100 (CME)
+    tick: 0.25
+    trade: micro
+    mini:  {symbol: NQ,  units: 20 x index, point_value: 20, tick_value: 5.00, fees_rt_usd: 3.78}
+    micro: {symbol: MNQ, units: 2 x index,  point_value: 2,  tick_value: 0.50, fees_rt_usd: 1.22}
+  SI:
+    file: SI_30min_continuous_backadjusted.csv
+    name: Silver (COMEX)
+    tick: 0.005
+    trade: micro                   # full-size SI is not permitted in standard Topstep Trading Combines; SIL is
+    mini:  {symbol: SI,  units: 5000 troy oz, point_value: 5000, tick_value: 25.00, fees_rt_usd: 4.32}
+    micro: {symbol: SIL, units: 1000 troy oz, point_value: 1000, tick_value: 5.00,  fees_rt_usd: 2.72}
+  YM:
+    file: YM_30min_continuous_backadjusted.csv
+    name: E-mini Dow (CBOT)
+    tick: 1.0
+    trade: micro
+    mini:  {symbol: YM,  units: 5 x index,   point_value: 5,   tick_value: 5.00, fees_rt_usd: 3.78}
+    micro: {symbol: MYM, units: 0.5 x index, point_value: 0.5, tick_value: 0.50, fees_rt_usd: 1.22}
+
+# ----------------------------------------------------------------------------- sessions
 session:
-  start_hour: 17                 # CME Globex day starts 17:00 CT
-  gap_minutes: 120               # any larger gap also starts a new session
+  start_hour: 17                   # CME Globex day starts 17:00 CT
+  gap_minutes: 120                 # any larger gap also starts a new session
+  bar_minutes: 30
   buckets: {ASIA: [17, 2], EUROPE: [2, 8.5], US: [8.5, 17]}   # CT hours
-intrabar: pessimistic            # pessimistic: stop wins when stop and target are inside one bar | tv: TradingView path
+intrabar: pessimistic              # pessimistic: stop wins when stop and target are inside one bar | tv: TradingView path
 atr_len: 14
 
 split:
@@ -29,7 +72,7 @@ split:
   dev_blocks: 6
 
 p2_screen:
-  horizon: 8                     # screen exit: pure time exit after 8 bars
+  horizon: 8                       # screen exit: pure time exit after 8 bars
   horizons: [1, 2, 4, 8, 16]
   min_trades: 100
   t_min: 2.0
@@ -43,7 +86,7 @@ p2_screen:
   pbo_blocks: 16
 
 p3_refine:
-  search: grid                   # grid | optuna
+  search: grid                     # grid | optuna
   optuna_trials: 200
   t3_length: [2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 30]
   t3_vf: [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]

@@ -274,6 +274,15 @@ def run_all():
     tr = m.trades(core.trigger(b, "PREVBAR_BREAK", 1), 1, 1.0, 1.5, 40)
     ok = np.all(d["sess"].to_numpy()[tr["entry_bar"]] == d["sess"].to_numpy()[tr["exit_bar"]]) and np.all(tr["exit_bar"] <= rl[tr["entry_bar"]])
     check("no trade crosses a session end or a roll", ok)
+    tm = core.tradable_mask(d, 17, 30, "15:08")
+    slf, _ = core.last_index_arrays(d, tm)
+    mf = Market(b, slf, rl, 0.01, 3, 1)
+    trf = mf.trades(core.trigger(b, "PREVBAR_BREAK", 1), 1, 1.0, 1.5, 40)
+    tod = (d["ts"].dt.hour * 60 + d["ts"].dt.minute).to_numpy()
+    held_ok = all(tm[trf["entry_bar"][k]:trf["exit_bar"][k] + 1].all() or (trf["exit_type"][k] == 2 and tm[trf["entry_bar"][k]:trf["exit_bar"][k]].all())
+                  for k in range(len(trf["entry_bar"])))
+    check("flat-by 15:08 CT: no trade is open in a bar that closes after 15:08", held_ok and len(trf["entry_bar"]) > 0
+          and not ((tod[trf["exit_bar"]] >= 15 * 60) & (tod[trf["exit_bar"]] < 17 * 60) & (trf["exit_type"] != 2)).any())
     check("sessions: one session per synthetic trading day, rolls detected",
           d["sess"].nunique() == 160 and int(d["roll"].sum()) == 2)
 

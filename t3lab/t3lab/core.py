@@ -41,15 +41,27 @@ def add_sessions(df: pd.DataFrame, session_start_hour: int, gap_minutes: int, bu
         df.loc[m, "bucket"] = name
     return df
 
-def last_index_arrays(df: pd.DataFrame):
-    """Per bar: index of the last bar of its session, and of the last bar before the next contract roll."""
+def tradable_mask(df: pd.DataFrame, start_hour: int, bar_minutes: int, flat_by: str | None) -> np.ndarray:
+    """Bars that may hold a position: with a flat-by time (e.g. Topstep 15:08 CT), a bar that closes after it and opens
+    before the next session start (17:00 CT) is not tradable."""
+    if not flat_by:
+        return np.ones(len(df), bool)
+    hh, mm = (int(x) for x in flat_by.split(":"))
+    tod = (df["ts"].dt.hour * 60 + df["ts"].dt.minute).to_numpy()
+    return ~((tod < start_hour * 60) & (tod + bar_minutes > hh * 60 + mm))
+
+def last_index_arrays(df: pd.DataFrame, tradable: np.ndarray | None = None):
+    """Per bar: index of the last TRADABLE bar of its session (entries need e <= it, positions close at its close),
+    and of the last bar before the next contract roll."""
     n = len(df)
     s = df["sess"].to_numpy()
+    tr = np.ones(n, bool) if tradable is None else np.asarray(tradable, bool)
     sess_last = np.empty(n, np.int64)
     ends = np.r_[np.nonzero(np.diff(s))[0], n - 1]
     starts = np.r_[0, ends[:-1] + 1]
     for a, b in zip(starts, ends):
-        sess_last[a:b + 1] = b
+        idx = np.nonzero(tr[a:b + 1])[0]
+        sess_last[a:b + 1] = a + idx[-1] if len(idx) else a - 1
     roll = df["roll"].to_numpy()
     roll_last = np.empty(n, np.int64)
     nxt = n - 1

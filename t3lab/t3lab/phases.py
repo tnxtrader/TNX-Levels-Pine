@@ -22,7 +22,14 @@ class Ctx:
         self.syms = list(self.cfg["instruments"])
 
     def ins(self, s):
-        return self.cfg["instruments"][s]
+        """Instrument settings with the traded contract's costs converted to ticks:
+        cost_ticks_rt = fees_rt_usd / tick_value + 2 x slippage_ticks_per_side."""
+        i = dict(self.cfg["instruments"][s])
+        k = i[i.get("trade", "micro")]
+        i.update(contract=k["symbol"], point_value=k["point_value"], tick_value=k["tick_value"], fees_rt_usd=k["fees_rt_usd"],
+                 cost_ticks_rt=k["fees_rt_usd"] / k["tick_value"] + 2 * self.cfg["slippage_ticks_per_side"],
+                 stop_slip_ticks=self.cfg["stop_slip_ticks"])
+        return i
 
 def require(ctx, phase):
     _require(ctx.out, phase)
@@ -32,7 +39,8 @@ def market(ctx, sym, upto="val"):
     df = pd.read_pickle(ctx.out / "cache" / f"{sym}.pkl")
     if upto == "val":
         df = df[df["seg"] != "test"].reset_index(drop=True)
-    sl, rl = core.last_index_arrays(df)
+    cs = ctx.cfg["session"]
+    sl, rl = core.last_index_arrays(df, core.tradable_mask(df, cs["start_hour"], cs["bar_minutes"], ctx.cfg.get("flat_by")))
     b = core.Bars(df, ctx.cfg["atr_len"])
     i = ctx.ins(sym)
     m = Market(b, sl, rl, i["tick"], i["cost_ticks_rt"], i["stop_slip_ticks"], ctx.cfg["intrabar"] == "pessimistic")
@@ -157,6 +165,12 @@ def P0(ctx):
     r.table("changed", Q[["symbol", "dup_removed", "ohlc_repaired"]], "repairs")
     r.table("found", Q, "data_qa")
     r.table("found", SP, "splits")
+    r.table("found", pd.DataFrame([dict(symbol=s_, contract=ctx.ins(s_)["contract"], tick=ctx.ins(s_)["tick"],
+                                        tick_value=ctx.ins(s_)["tick_value"], fees_rt_usd=ctx.ins(s_)["fees_rt_usd"],
+                                        cost_ticks_rt=round(ctx.ins(s_)["cost_ticks_rt"], 3),
+                                        cost_rt_usd=round(ctx.ins(s_)["cost_ticks_rt"] * ctx.ins(s_)["tick_value"], 2),
+                                        stop_slip_ticks=ctx.ins(s_)["stop_slip_ticks"], flat_by=ctx.cfg.get("flat_by"))
+                                   for s_ in ctx.syms]), "costs")
     r.gate("OHLC repairs", f"{(Q.ohlc_repaired / Q.bars).max():.4%}", "<= 0.1% of bars", (Q.ohlc_repaired / Q.bars).max() <= 0.001)
     r.gate("timestamps on the 30-minute grid", f"{1 - Q.offgrid_ts.max():.3%}", ">= 99%", Q.offgrid_ts.max() <= 0.01)
     r.gate("prices on the tick grid", f"{1 - Q.offtick.max():.3%}", ">= 99%", Q.offtick.max() <= 0.01)
@@ -682,7 +696,8 @@ def P6(ctx, force=False):
         cards.append(dict(candidate_id=u.candidate_id, symbol=u.symbol, Trigger=rec.trigger, Filter=rec["filter"], Side=rec.side.capitalize(),
                           T3_length=int(u.t3_length) if rec.uses_t3 else "-", T3_vf=u.t3_vf if rec.uses_t3 else "-",
                           ATR_length=ctx.cfg["atr_len"], SL_ATR=u.sl_atr, TP_R=u.tp_r, Max_bars=int(u.max_bars),
-                          Cost_ticks_round_trip=i["cost_ticks_rt"], Stop_slip_ticks=i["stop_slip_ticks"],
+                          Contract=i["contract"], Fees_round_trip_usd=i["fees_rt_usd"], Slippage_ticks_per_side=ctx.cfg["slippage_ticks_per_side"],
+                          Cost_ticks_round_trip=round(i["cost_ticks_rt"], 3), Stop_slip_ticks=i["stop_slip_ticks"], Flat_by_CT=ctx.cfg.get("flat_by"),
                           Test_CI_low=u.ci_lo, Test_CI_high=u.ci_hi))
     if cards:
         r.table("found", pd.DataFrame(cards), "deployment_cards")

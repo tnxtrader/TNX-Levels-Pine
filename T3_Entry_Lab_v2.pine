@@ -2,7 +2,7 @@
 // T3 Entry Lab v2 — executes one registry candidate (trigger + filter + side + T3) with the framework's exit rules.
 // Rules and execution are identical to t3lab/t3lab/core.py and t3lab/t3lab/engine.py (FRAMEWORK.html B.2, B.3, B.7, B.8).
 // Chart: the instrument's continuous contract, 30-minute bars, full electronic (ETH) session.
-// Properties: set commission per contract and slippage ticks to the deployment card's costs.
+// Properties: commission per contract = the card's Fees_round_trip_usd / 2 (cash per contract, per side); slippage = 1 tick.
 strategy("T3 Entry Lab v2", shorttitle = "T3Lab v2", overlay = true, pyramiding = 0, calc_on_every_tick = false,
      process_orders_on_close = false, default_qty_type = strategy.fixed, default_qty_value = 1,
      initial_capital = 1000000, margin_long = 0, margin_short = 0,
@@ -31,6 +31,11 @@ gX = "Exit (deployment card)"
 slATR   = input.float(1.0, "Stop loss (x ATR of the signal bar, 0 = none)", minval = 0.0, step = 0.25, group = gX)
 tpR     = input.float(1.5, "Take profit (x stop distance, 0 = none)", minval = 0.0, step = 0.25, group = gX)
 maxBars = input.int(8, "Max bars in trade", minval = 1, group = gX)
+
+gS = "Session (TopstepX)"
+useFlat = input.bool(true, "Flat by time (CT)", group = gS)
+flatHH  = input.int(15, "Flat by hour (CT)", minval = 0, maxval = 23, group = gS)
+flatMM  = input.int(8, "Flat by minute (CT)", minval = 0, maxval = 59, group = gS)
 
 gW = "Window"
 fromT = input.time(timestamp("2008-01-01T00:00:00"), "Trade from", group = gW)
@@ -186,7 +191,13 @@ if strategy.closedtrades > seen
 
 // ───────────────────────────── execution (FRAMEWORK.html B.2 / B.3)
 inWindow = time >= fromT and time <= toT
-lastOfSession = session.islastbar or time_close >= time_close("D")
+// a bar that closes after the flat-by time and opens before 17:00 CT may not hold a position (FRAMEWORK.html B.2)
+openMin  = hour(time, "America/Chicago") * 60 + minute(time, "America/Chicago")
+barMin   = timeframe.in_seconds() / 60
+flatMin  = flatHH * 60 + flatMM
+afterFlat = useFlat and openMin < 17 * 60 and openMin + barMin > flatMin
+lastTradable = useFlat and not afterFlat and openMin < 17 * 60 and openMin + 2 * barMin > flatMin
+lastOfSession = session.islastbar or time_close >= time_close("D") or lastTradable or afterFlat
 signal = trig and filt
 canEnter = signal and inWindow and strategy.position_size == 0 and not lastOfSession and atrNow > 0
 

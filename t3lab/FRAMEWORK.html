@@ -210,8 +210,9 @@
     <li><b>One position at a time</b>: signals while a trade is open are ignored; a signal on the exit bar is allowed.</li>
     <li><b>Shorts</b> run on mirrored prices (o, h, l, c) → (−o, −l, −h, −c) and −T3, so every long rule has an exact short twin.</li>
     <li><b>Sessions</b>: a CME session starts 17:00 CT (session date = timestamp + 7 h); a gap ≥ 120 minutes also starts a session. A <b>roll</b> is a change of the contract column.</li>
+    <li><b>Flat by 15:08 CT</b> (TopstepX): a bar that closes after 15:08 CT and opens before 17:00 CT may not hold a position. The last tradable bar of a session is the last bar closing at or before 15:08 CT; no entry is made from it and an open trade is closed at its close.</li>
   </ol>
-  <div class="basis"><b>Basis:</b> next-bar execution removes look-ahead [R10]; CME Globex trading day [R22].</div></div>
+  <div class="basis"><b>Basis:</b> next-bar execution removes look-ahead [R10]; CME Globex trading day [R22]; Topstep trading hours and 15:08 / 15:10 CT flattening [R26].</div></div>
 
   <h3 class="h">B.3 — The barrier law (stop, target, time, session end)</h3>
   <div class="box">
@@ -239,18 +240,23 @@ MAE_ATR     = max over held bars of (entry − max(low, stop)) / ATR</pre>
     <div class="basis"><b>Basis:</b> ATR [R18]; ATR-scaled stops and R-multiples, MFE / MAE [R13, R14]; stop-first tie rule and gap fills are the conservative bar-data convention; TradingView path [R21].</div>
   </div>
 
-  <h3 class="h">B.4 — The cost law</h3>
+  <h3 class="h">B.4 — The cost law (TopstepX)</h3>
   <div class="box">
+    <p>The research uses the mini contract price series. The micro contract trades the same price with the same tick size, so every rule and every R<sub>ATR</sub> result is identical; only the cost in ticks differs. Each instrument's <code>trade</code> setting chooses the contract whose costs every phase uses (default: micro).</p>
     <div class="tw"><table>
-      <tr><th>instrument</th><th>tick</th><th>$ per point</th><th>round-trip cost (ticks)</th><th>extra on stop fills (ticks)</th></tr>
-      <tr><td>CL</td><td>0.01</td><td>1000</td><td>3</td><td>1</td></tr>
-      <tr><td>GC</td><td>0.10</td><td>100</td><td>3</td><td>1</td></tr>
-      <tr><td>NQ</td><td>0.25</td><td>20</td><td>3</td><td>1</td></tr>
-      <tr><td>SI</td><td>0.005</td><td>5000</td><td>3</td><td>1</td></tr>
-      <tr><td>YM</td><td>1.0</td><td>5</td><td>3</td><td>1</td></tr>
+      <tr><th>instrument</th><th>tick</th><th>mini · tick value · fees RT</th><th>micro · tick value · fees RT</th></tr>
+      <tr><td>Crude Oil</td><td>0.01</td><td>CL · $10.00 · $4.04</td><td>MCL · $1.00 · $1.72</td></tr>
+      <tr><td>Gold</td><td>0.10</td><td>GC · $10.00 · $4.32</td><td>MGC · $1.00 · $1.92</td></tr>
+      <tr><td>Nasdaq-100</td><td>0.25</td><td>NQ · $5.00 · $3.78</td><td>MNQ · $0.50 · $1.22</td></tr>
+      <tr><td>Silver</td><td>0.005</td><td>SI · $25.00 · $4.32</td><td>SIL · $5.00 · $2.72</td></tr>
+      <tr><td>Dow</td><td>1.0</td><td>YM · $5.00 · $3.78</td><td>MYM · $0.50 · $1.22</td></tr>
     </table></div>
-    <p>Round trip = commission + one tick of slippage on each side; set it to the broker's real figures before P2. Stress levels: cost × 1.5; +1 tick per side (+2 round trip, +1 on stop fills); one-bar entry delay.</p>
-    <div class="basis"><b>Basis:</b> contract specifications [R22]; stress levels [R23].</div>
+    <pre class="f">fees RT        = Topstep commission ($1.00 mini, $0.50 micro) + CME exchange fee + NFA fee, per round turn
+cost_ticks_rt  = fees RT / tick value + 2 × 1 tick slippage
+stop fills     = +1 tick
+stress levels  = cost × 1.5;  +1 tick per side (+2 round trip, +1 on stop fills);  entry one bar later</pre>
+    <p>Examples: MNQ = 1.22 / 0.50 + 2 = 4.44 ticks; NQ = 3.78 / 5.00 + 2 = 2.76 ticks; MCL = 1.72 / 1.00 + 2 = 3.72 ticks. Full-size SI is not permitted in standard Topstep Trading Combines; SIL is. P0 prints the cost table actually used.</p>
+    <div class="basis"><b>Basis:</b> TopstepX commissions and fees [R26]; CME contract specifications [R22]; stress levels [R23].</div>
   </div>
 
   <h3 class="h">B.5 — The T3 law</h3>
@@ -469,7 +475,7 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
       <li>Prices on the tick grid ≥ 99%.</li>
       <li>Every window of every instrument has ≥ 250 sessions.</li>
     </ol></div>
-    <div class="out"><b>Outputs</b> — <code>data_qa.csv</code>, <code>repairs.csv</code>, <code>splits.csv</code>; <code>split_timeline.png</code> (price with Validation and Test shaded); <code>sessions.png</code> (bars per session; time-of-day coverage).</div>
+    <div class="out"><b>Outputs</b> — <code>data_qa.csv</code>, <code>repairs.csv</code>, <code>splits.csv</code>, <code>costs.csv</code> (contract, tick value, fees, cost in ticks, flat-by); <code>split_timeline.png</code> (price with Validation and Test shaded); <code>sessions.png</code> (bars per session; time-of-day coverage).</div>
     <div class="closeout"><b>Closeout</b> — Forwards the cached, split data. <code>python run.py P0</code></div>
   </div>
 </section>
@@ -645,7 +651,7 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
       <li>Stationary bootstrap (10,000 draws): mean and 95% CI.</li>
       <li>DSR on the Test series with N = number of P6 units (PSR against 0 when N = 1).</li>
       <li>Cost × 1.5 on Test.</li>
-      <li>Deployment card per passing unit: instrument, trigger, filter, side, T3 length and vf, ATR length, SL_ATR, TP_R, max bars, round-trip cost, stop slippage, Test CI.</li>
+      <li>Deployment card per passing unit: instrument, contract (mini or micro symbol), trigger, filter, side, T3 length and vf, ATR length, SL_ATR, TP_R, max bars, fees per round trip, slippage, cost in ticks, flat-by time, Test CI.</li>
     </ol>
     <div class="gate"><b>Gates — per unit (hard, all required)</b><ol>
       <li><code>g_trades</code>: ≥ 30 Test trades.</li>
@@ -669,7 +675,7 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
     <ol>
       <li><b>Chart</b>: the instrument's continuous contract, 30-minute bars, full electronic session.</li>
       <li><b>Card</b>: Trigger, Filter, Side, T3 length, T3 volume factor, ATR length, Stop loss (× ATR), Take profit (× stop), Max bars in trade.</li>
-      <li><b>Costs</b>: Properties → commission per contract and slippage ticks equal to the card's costs.</li>
+      <li><b>Costs</b>: Properties → commission "cash per contract" = the card's Fees_round_trip_usd ÷ 2 (per side), slippage = 1 tick; Session inputs: flat by 15:08 CT.</li>
       <li><b>Parity replay</b>: "Trade from / Trade until" = the Test dates of <code>P0/splits.csv</code>; compare the strategy table (trades, win rate, net mean R, MFE / MAE, bars held, exits SL / TP / TIME / EOS) with the unit's row of <code>P6/test.csv</code>.</li>
       <li><b>Incubation</b>: paper or simulated trading from today until ≥ 30 trades.</li>
       <li><b>Kill switch</b>, checked after every trade from the 30th: stop when the live mean R<sub>ATR</sub> is below the Test CI lower bound, or the live drawdown exceeds the worst drawdown of the unit's Dev + Validation + Test history.</li>
@@ -714,6 +720,7 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
     <li>[R22] CME Group. Globex trading hours and contract specifications for CL, GC, NQ, SI, YM.</li>
     <li>[R23] Owner's specification: <i>T3 Entry Lab — Complete Backtesting Framework</i> (windows 60/20/20, 5 walk-forward folds, 8-bar endpoint, 100-event floor, 25th-percentile objective, exit grid, BH levels, PBO and DSR levels, bootstrap draws, walk-forward and CI gates, cost / slippage / delay stresses, neighbours, concentration).</li>
     <li>[R24] Owner's specification: earlier build framework (K<sub>eff</sub> cutoff 0.70, Jaccard 0.30, 30-trade buckets with a 97.5% bound and at most one negative bucket, per-session Sharpe with zeros, 30-trade incubation, kill switch).</li>
+    <li>[R26] Topstep. Help Center: "TopstepX — Commissions and Fees" (fees per round turn, CME fee changes of 1 Oct 2026) and "When and What Products Can I Trade?" (flat by 15:10 CT, flattening from 15:08 CT, permitted products).</li>
     <li>[R25] Akiba, T., Sano, S., Yanase, T., Ohta, T. &amp; Koyama, M. (2019). Optuna: A Next-generation Hyperparameter Optimization Framework. <i>KDD 2019</i>.</li>
   </ol></div>
 </section>
