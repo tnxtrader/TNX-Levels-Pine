@@ -249,6 +249,8 @@
   <h3 class="h">B.4 — The barrier law</h3>
   <div class="box">
     <pre class="f">ATR       = Wilder ATR(14) of the signal bar t
+            TR[i] = max(h − l, |h − c[1]|, |l − c[1]|) (first bar: h − l); ATR[13] = mean of the first 14 TR;
+            ATR[i] = (ATR[i−1] × 13 + TR[i]) / 14 after that (identical to TradingView ta.atr)
 SL ticks  = max(1, round(SL_ATR × ATR / tick))      stop   = entry − SL ticks × tick
 TP ticks  = max(1, round(TP_R × SL ticks))          target = entry + TP ticks × tick      (TP_R = none → no target)
 last bar  = min(e + max_bars − 1, last tradable bar of the session, last bar before a roll)
@@ -296,6 +298,7 @@ stresses         = cost × 1.5 and × 2;  +1 tick per side</pre>
   <h3 class="h">B.7 — The T3 law</h3>
   <div class="box">
     <pre class="f">e1 = EMA(close, L), e2 = EMA(e1, L), … , e6 = EMA(e5, L)        α = 2/(L+1)
+EMA[0] = its input on the first bar;  EMA[i] = α × input[i] + (1 − α) × EMA[i−1]
 c1 = −v³   c2 = 3v² + 3v³   c3 = −6v² − 3v − 3v³   c4 = 1 + 3v + v³ + 3v²       (c1 + c2 + c3 + c4 = 1)
 T3 = c1·e6 + c2·e5 + c3·e4 + c4·e3
 Pool N speeds: FAST = (L 5, v 0.7), Tillson's published setting;  SLOW = (L 13, v 0.7)
@@ -386,7 +389,7 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
   </div>
 
   <h3 class="h">B.14 — The Sharpe convention</h3>
-  <div class="box"><p>SR is the mean divided by the standard deviation of the per-session series (zeros on sessions without a trade), measured per session and not annualised. Stage I uses gross excess; from Stage II on, net R.</p></div>
+  <div class="box"><p>SR is the mean divided by the standard deviation (divided by n − 1) of the per-session series (zeros on sessions without a trade), measured per session and not annualised. Stage I uses gross excess; from Stage II on, net R.</p></div>
 
   <h3 class="h">B.15 — The stability law</h3>
   <div class="box">
@@ -554,7 +557,7 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
     <tr><td>GAP_FADE</td><td><code>bar = OB, O_day − S_prev ≤ −0.25·R_prev and c &gt; o</code></td></tr>
     <tr><td rowspan="2">VWAP_TREND<br>400</td><td>VWAP_RECLAIM</td><td><code>OB &lt; bar &lt; SB, c[1] ≤ VWAP[1] and c &gt; VWAP</code></td><td rowspan="2">VWAP is the execution benchmark of institutional orders, so acceptance above it marks buy-side control [R35, R44].</td></tr>
     <tr><td>VWAP_PULLBACK</td><td><code>OB &lt; bar &lt; SB, c[1] &gt; VWAP[1], l ≤ VWAP, c &gt; VWAP and c &gt; o</code></td></tr>
-    <tr><td rowspan="2">SAME_SLOT_CONTINUATION<br>400</td><td>SLOT_20</td><td>bar t + 1 in DAY, and z of the return (c − o) of bar t + 1's time slot over the previous 20 sessions ≥ 2, where z = mean / sd × √n</td><td rowspan="2">Half-hour returns continue at the same time of day over the following days and weeks (shown for stocks; untested on futures and tested here as a new hypothesis). The excess over the Dev slot mean removes the fixed seasonal part [R47].</td></tr>
+    <tr><td rowspan="2">SAME_SLOT_CONTINUATION<br>400</td><td>SLOT_20</td><td>bar t + 1 in DAY, and z of the return (c − o) of bar t + 1's time slot over the previous 20 sessions ≥ 2, where z = mean / sd × √n and sd divides by n − 1</td><td rowspan="2">Half-hour returns continue at the same time of day over the following days and weeks (shown for stocks; untested on futures and tested here as a new hypothesis). The excess over the Dev slot mean removes the fixed seasonal part [R47].</td></tr>
     <tr><td>SLOT_40</td><td>as SLOT_20 over the previous 40 sessions</td></tr>
     <tr><td rowspan="2">COMPRESSION_DAY<br>400</td><td>NR4_DAY_BREAK</td><td><code>R_prev = min of the last 4 day ranges and first(DAY and c &gt; H_prev)</code></td><td rowspan="2">Narrow-range days are followed by expansion days (NR4 / NR7); the idea of COMPRESSION_EXPANSION at day scale [R19].</td></tr>
     <tr><td>NR7_DAY_BREAK</td><td><code>R_prev = min of the last 7 day ranges and first(DAY and c &gt; H_prev)</code></td></tr>
