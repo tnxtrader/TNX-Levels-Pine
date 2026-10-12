@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>T3 Entry Lab Framework</title>
+<title>T3 Edge Lab Framework</title>
 <style>
-  :root{ --bg:#0f1115; --panel:#161a22; --panel2:#1b2029; --border:#2a3040; --text:#e7ebf3; --muted:#9aa5b8; --accent:#4fb3ff; --accent2:#ffb454; --red:#ff6b6b; --green:#5fd18c; --code-bg:#0b0d12; }
+  :root{ --bg:#0f1115; --panel:#161a22; --panel2:#1b2029; --border:#2a3040; --text:#e7ebf3; --muted:#9aa5b8; --accent:#4fb3ff; --accent2:#ffb454; --red:#ff6b6b; --green:#5fd18c; --violet:#b48cff; --code-bg:#0b0d12; }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{ margin:0; background:var(--bg); color:var(--text); font-family:-apple-system, Segoe UI, Roboto, Arial, sans-serif; display:flex; min-height:100vh; }
-  nav{ width:270px; flex:0 0 270px; background:var(--panel); border-right:1px solid var(--border); padding:20px 14px; position:sticky; top:0; height:100vh; overflow-y:auto; }
+  nav{ width:280px; flex:0 0 280px; background:var(--panel); border-right:1px solid var(--border); padding:20px 14px; position:sticky; top:0; height:100vh; overflow-y:auto; }
   nav h1{font-size:14px; letter-spacing:.06em; color:var(--accent); margin:0 0 4px;}
   nav .sub{font-size:11px; color:var(--muted); margin-bottom:18px; line-height:1.5;}
-  nav a{ display:block; padding:7px 10px; border-radius:6px; color:var(--text); text-decoration:none; font-size:13px; margin-bottom:2px; }
+  nav a{ display:block; padding:6px 10px; border-radius:6px; color:var(--text); text-decoration:none; font-size:13px; margin-bottom:2px; }
   nav a:hover{background:var(--panel2);}
   nav .group-label{font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:16px 0 6px 10px;}
-  main{flex:1; padding:40px 56px; max-width:1060px; min-width:0;}
+  main{flex:1; padding:40px 56px; max-width:1100px; min-width:0;}
   section{margin-bottom:56px;}
   h2.section-title{font-size:26px; margin:0 0 18px; border-bottom:1px solid var(--border); padding-bottom:10px;}
   h3.h{font-size:17px; color:var(--accent2); margin:26px 0 8px;}
@@ -37,6 +37,8 @@
   th,td{border:1px solid var(--border); padding:7px 10px; text-align:left; vertical-align:top;}
   th{background:var(--panel2); color:var(--accent2);}
   td code{white-space:nowrap;}
+  .plain{font-size:13.5px; color:var(--text); background:var(--panel2); border-left:3px solid var(--accent); padding:10px 14px; border-radius:6px; margin:10px 0;}
+  .plain b{color:var(--accent);}
   .basis{font-size:12.5px; color:var(--muted); margin-top:10px;}
   .basis b{color:var(--accent2); font-weight:600;}
   .gate{margin-top:14px; padding:12px 16px; border-radius:8px; background:rgba(255,107,107,.08); border:1px solid rgba(255,107,107,.3); font-size:13.5px;}
@@ -46,6 +48,8 @@
   .closeout b{color:var(--accent);}
   .out{margin-top:14px; padding:12px 16px; border-radius:8px; background:rgba(95,209,140,.06); border:1px solid rgba(95,209,140,.3); font-size:13.5px;}
   .out b{color:var(--green);}
+  .stage{margin:34px 0 14px; padding:10px 16px; border-left:4px solid var(--violet); background:rgba(180,140,255,.06); border-radius:6px; font-size:15px; color:var(--violet); font-weight:600; letter-spacing:.03em;}
+  .star{color:var(--accent2); font-weight:700;}
   @media (max-width: 860px){
     body{display:block;}
     nav{position:static; width:auto; height:auto; border-right:none; border-bottom:1px solid var(--border);}
@@ -55,138 +59,159 @@
 </head>
 <body>
 <nav>
-  <h1>T3 ENTRY LAB</h1>
-  <div class="sub">Build framework · CL · GC · NQ · SI · YM · 30-min<br>engine <code>t3lab/</code> · strategy <code>T3_Entry_Lab_v2.pine</code></div>
+  <h1>T3 EDGE LAB</h1>
+  <div class="sub">Build framework · CL · GC · NQ · SI · YM · 30-minute bars · TopstepX · micro and mini</div>
   <a href="#pillars">Locked Pillars</a>
   <a href="#arch">Part A — Architecture</a>
   <a href="#laws">Part B — Standing Laws</a>
-  <div class="group-label">Data &amp; Engine</div>
-  <a href="#p0">P0 — Data, Sessions &amp; Windows</a>
-  <a href="#p1">P1 — Registry &amp; Engine Acceptance</a>
-  <div class="group-label">Discovery</div>
-  <a href="#p2">P2 — Screen: Edge Before Costs, Then After</a>
-  <div class="group-label">Construction</div>
-  <a href="#p3">P3 — T3 Settings, Stop, Target, Hold</a>
-  <div class="group-label">Evidence</div>
-  <a href="#p4">P4 — Timing, Selection Bias, Robustness, Power</a>
-  <div class="group-label">Exams</div>
-  <a href="#p5">P5 — Validation (one look)</a>
-  <a href="#p6">P6 — Sealed Test (one look)</a>
-  <div class="group-label">Live</div>
-  <a href="#p7">P7 — Pine Parity, Incubation &amp; Kill Switch</a>
-  <div class="group-label">Programs</div>
-  <a href="#programs">Part D — Program 1 and Program 2</a>
+  <a href="#universe">Part C — Candidate Universe</a>
+  <div class="group-label">Foundation</div>
+  <a href="#f0">F0 — Data, Sessions &amp; Windows</a>
+  <a href="#f1">F1 — Engine Acceptance &amp; Calibration</a>
+  <a href="#f2">F2 — Pre-registration &amp; Trial Ledger</a>
+  <div class="group-label">Stage I — Edge before costs</div>
+  <a href="#p1">P1 — Event Study</a>
+  <a href="#p2">P2 — Family Test</a>
+  <a href="#p3">P3 — Member Selection</a>
+  <a href="#p4">P4 — Luck Elimination &amp; Edge Certificate</a>
+  <div class="group-label">Stage II — Costs</div>
+  <a href="#p5">P5 — Cost Hurdle (micro and mini)</a>
+  <div class="group-label">Stage III — Construction</div>
+  <a href="#p6">P6 — Exits &amp; Parameters</a>
+  <a href="#p7">P7 — Net Evidence &amp; Account Fit</a>
+  <div class="group-label">Stage IV — Exams</div>
+  <a href="#p8">P8 — Validation (one look)</a>
+  <a href="#p9">P9 — Sealed Test (one look)</a>
+  <div class="group-label">Stage V — Live</div>
+  <a href="#p10">P10 — Pine Parity, Incubation &amp; Kill Switch</a>
   <div class="group-label">Sources</div>
-  <a href="#refs">Part C — References</a>
+  <a href="#refs">Part D — References</a>
 </nav>
 
 <main>
 <div class="hero">
-  <h1>T3 ENTRY LAB — BUILD FRAMEWORK</h1>
-  <div class="sub">Every candidate of the program's registry, on every instrument, through one fixed sequence of phases. A candidate must first show a real timing edge before costs, then prove it is not luck and not time in the market, then survive costs, stress and time, and only then face the Validation and the sealed Test windows, each opened once. A phase starts only when the previous phase closed with PASS; a phase that closes with STOP ends the program, and that is a valid result.</div>
+  <h1>T3 EDGE LAB — BUILD FRAMEWORK</h1>
+  <div class="sub">10,046 pre-registered candidates in 21 families, run on five futures markets through five stages. The first pool keeps every earlier candidate (5,046). The second pool adds 5,000 new candidates built on new session-anchored entry logic, with the T3 engine as their trend context. Stage I proves that an edge exists before any cost is applied. To pass, it must beat the drift of simply being in the market at that time of day, survive multiple testing at the family and member level, and beat its own luck in every randomization test, 999 draws each, with the selection of the best member reproduced inside the randomization. It must also hold on many out-of-sample paths after deflation by every trial ever run on these data. Only certified edges move on: they meet their costs on the micro and the mini contract (Stage II), receive exits chosen walk-forward (Stage III), face the Validation and the sealed Test windows once each (Stage IV), and go live under a kill switch (Stage V). A stage that ends with no survivor ends the program, and that is a valid result.</div>
 </div>
 
 <!-- ============================================================ PILLARS -->
 <section id="pillars">
   <h2 class="section-title">THE LOCKED PILLARS</h2>
-  <div class="pillar"><h3><span class="num">1</span>EDGE FIRST, THEN COSTS</h3>
-    <p>A unit is first judged before costs: its gross result must beat the drift of simply being in the market, significantly, after the multiple-testing correction, with favourable excursions larger than adverse ones and persistence across time; its timing must beat the same signals placed at random times. Only an edge that exists before costs is then required to survive costs, cost stress and slippage stress. Every acceptance decision after P2 is made on net results.</p></div>
-  <div class="pillar"><h3><span class="num">2</span>NEXT-OPEN EXECUTION, CONSERVATIVE FILLS, FLAT BY SESSION END</h3>
-    <p>A signal is known at the close of bar t and filled at the open of bar t+1. When stop and target are both inside one bar, the stop wins. A gap through a level fills at the open. No position is held across a session end or a contract roll.</p></div>
-  <div class="pillar"><h3><span class="num">3</span>INSTRUMENTS ARE INDEPENDENT</h3>
-    <p>The unit of research is <b>candidate × instrument</b> (Program 1: 5000 × 5 = 25,000 units; Program 2: 46 × 5 = 230 units). Evidence is never pooled across instruments.</p></div>
-  <div class="pillar"><h3><span class="num">4</span>EVERY TRIAL COUNTED, EVERY WINDOW OPENED ONCE, POWER CHECKED FIRST</h3>
-    <p>Every unit of every program and every parameter set tried enter the effective-trial count behind the deflation statistics. Validation is opened once (P5) and Test once (P6), each only after the minimum track record length shows the window is long enough to confirm the edge. Nothing seen in them changes any choice.</p></div>
-  <div class="pillar"><h3><span class="num">5</span>ATR AND TICKS, NEVER PERCENT</h3>
-    <p>Results are in ticks and in R<sub>ATR</sub> = result ÷ ATR(14) of the signal bar. The data is back-adjusted additively and can be negative, so percentage returns are never used.</p></div>
+  <div class="pillar"><h3><span class="num">1</span>LUCK IS THE DEFAULT HYPOTHESIS</h3>
+    <p>Every result is assumed to be luck until it beats its own luck distribution in each randomization test of B.13. Those tests reshuffle the same prices, place the same trades at random times and shift the same signals in time. The selection of the best of many candidates is repeated inside every randomization.</p></div>
+  <div class="pillar"><h3><span class="num">2</span>EDGE BEFORE COSTS, PROVEN FIRST</h3>
+    <p>Stage I works on gross results only and asks one question: is there a real timing edge? Costs cannot create an edge, only remove one. No candidate sees its costs before it holds an Edge Certificate.</p></div>
+  <div class="pillar"><h3><span class="num">3</span>NO LEAKAGE, NO PEEKING</h3>
+    <p>Every rule reads only bars up to and including t. The universe, the configuration and every threshold are frozen and hashed before any statistic exists (F2). Validation is opened once (P8) and Test once (P9). Every candidate whose idea was already measured on Dev carries the ★ flag and faces stricter exams.</p></div>
+  <div class="pillar"><h3><span class="num">4</span>EVERY TRIAL COUNTED, FOREVER</h3>
+    <p>Every unit, every parameter set and every earlier program on the same Dev data enters the trial ledger. Their effective number drives every Deflated Sharpe Ratio.</p></div>
+  <div class="pillar"><h3><span class="num">5</span>CONSERVATIVE EXECUTION UNDER TOPSTEP RULES</h3>
+    <p>The signal is taken at the bar close and filled at the next open. When stop and target fall in the same bar, the stop wins, and a gap fills at the open. Every position is flat by 15:08 CT. No position is held across a session end or a contract roll.</p></div>
+  <div class="pillar"><h3><span class="num">6</span>BOTH CONTRACTS, REAL COSTS</h3>
+    <p>Every certified edge is priced for both the micro and the mini contract with TopstepX fees and slippage. A contract is deployed only where its net result is significant and its dollar risk fits the account.</p></div>
+  <div class="pillar"><h3><span class="num">7</span>PRICE DIFFERENCES IN ATR, NEVER PERCENT</h3>
+    <p>The files are back-adjusted by addition, and CL even has negative prices. Every rule, stop, target and result therefore uses price differences measured in ATR or ticks. Ratios and percentages of price are never used.</p></div>
 </section>
 
 <!-- ============================================================ PART A -->
 <section id="arch">
   <h2 class="section-title">PART A — THE ARCHITECTURE</h2>
 
-  <h3 class="h">A.1 — The governing principle</h3>
+  <h3 class="h">A.1 — The funnel</h3>
   <div class="box">
-    <p>A unit earns trust only by surviving every gate in order. One failed hard gate removes it from every later phase. The program narrows: all units → shortlist (≤ 50) → refined → evidence survivors → validation survivors → test survivors → live. Parameters are chosen only in P3, on Dev training blocks; everywhere else they are frozen.</p>
+    <div class="tw"><table>
+      <tr><th>stage</th><th>phases</th><th>question</th><th>money</th><th>output</th></tr>
+      <tr><td>Foundation</td><td>F0, F1, F2</td><td>Are the data clean, is the machine correct, are the tests calibrated, is the universe frozen?</td><td>—</td><td>sealed data, calibrated tests, hashed universe</td></tr>
+      <tr><td><b>I — Edge before costs</b></td><td>P1, P2, P3, P4</td><td>Does a timing edge exist that is not luck, not drift, not one period, not one setting and not one path?</td><td>gross</td><td>Edge Certificates</td></tr>
+      <tr><td><b>II — Costs</b></td><td>P5</td><td>Is the certified edge large enough to pay micro or mini costs with a margin?</td><td>net</td><td>member × contract pairs</td></tr>
+      <tr><td><b>III — Construction</b></td><td>P6, P7</td><td>Which exit, chosen without seeing the data it is scored on? Does the net result survive the search, stress and the account?</td><td>net</td><td>frozen strategies</td></tr>
+      <tr><td><b>IV — Exams</b></td><td>P8, P9</td><td>Does it hold on unseen data, looked at once?</td><td>gross + net</td><td>deployment cards</td></tr>
+      <tr><td><b>V — Live</b></td><td>P10</td><td>Does TradingView reproduce it, and does real time confirm it?</td><td>net</td><td>live or killed</td></tr>
+    </table></div>
   </div>
 
-  <h3 class="h">A.2 — The gate law</h3>
+  <h3 class="h">A.2 — The program in plain words</h3>
   <div class="box"><ol>
-    <li>Every gate is a fixed rule with a fixed threshold written in <code>config.yaml</code> before P2 runs.</li>
-    <li>Unit gates are columns <code>g_*</code> in the phase table; a unit continues only if all of them are true.</li>
-    <li>Each phase writes <code>gates.json</code> and closes <b>PASS</b> (its phase gate holds) or <b>STOP</b>. The next phase refuses to start on STOP.</li>
+    <li><b>F0–F2.</b> Clean the data and lock away the last 40% of the history. Prove that the machine and every test work: on fake markets with no edge, the tests must almost never certify anything, and on fake markets with a planted edge, they must find it. Then write down and freeze all 10,046 candidates.</li>
+    <li><b>P1.</b> For every candidate on every market, look at what price did after the signal compared with any ordinary moment at the same time of day. Nothing is selected yet.</li>
+    <li><b>P2.</b> Ask each family as a whole whether it has an edge on a market, one test per family, so that thousands of weak members cannot hide a real family.</li>
+    <li><b>P3.</b> Inside the families that passed, find the members that carry the edge, with a correction for having picked those families.</li>
+    <li><b>P4.</b> Try to destroy every survivor. Shuffle the market 999 times and rerun the whole selection each time, place the same trades at random times 999 times, and shift the signals in time 999 times. Add noise to prices, remove drift, change neighbouring settings, split by years and regimes, and test many out-of-sample paths. Finally deflate by every trial ever run. A survivor of all of this is certified as not luck.</li>
+    <li><b>P5.</b> Only now apply costs, for micro and for mini, and keep only edges that pay their costs at least twice over.</li>
+    <li><b>P6–P7.</b> Choose stops, targets and holding time on past blocks only, then prove again that the net result is not luck and that the risk fits the Topstep account.</li>
+    <li><b>P8–P9.</b> Open the locked Validation years once, then the locked Test years once.</li>
+    <li><b>P10.</b> Rebuild it in Pine, check that it matches, trade it in simulation for 30 trades, and stop it at once if it breaks.</li>
   </ol></div>
 
-  <h3 class="h">A.3 — The three windows</h3>
+  <h3 class="h">A.3 — The gate law</h3>
+  <div class="box"><ol>
+    <li>Every gate is a fixed rule whose fixed threshold is written into the configuration before F2 freezes the universe.</li>
+    <li>Unit gates are columns <code>g_*</code>, and a unit continues only if all its hard gates are true. Report figures are printed but decide nothing.</li>
+    <li>A phase closes <b>PASS</b> when at least one unit continues and <b>STOP</b> otherwise. The next phase refuses to start after a STOP.</li>
+    <li>Selection and testing never use the same statistic twice on the same data. P1 measures without selecting, P2 selects families, P3 selects members, and P4 attacks the members with tests that P2 and P3 did not use.</li>
+  </ol></div>
+
+  <h3 class="h">A.4 — The windows</h3>
   <div class="box">
     <div class="tw"><table>
-      <tr><th>window</th><th>share of sessions</th><th>used by</th><th>what may happen in it</th></tr>
-      <tr><td><b>Dev</b> (6 equal blocks B0…B5)</td><td>first 60%</td><td>P1 (no returns), P2, P3, P4</td><td>screening; parameter choice on walk-forward training blocks; evidence on walk-forward out-of-sample blocks</td></tr>
+      <tr><th>window</th><th>share of sessions</th><th>used by</th><th>use</th></tr>
+      <tr><td><b>Dev</b>: 6 blocks B0…B5 (walk-forward), 10 groups G0…G9 (CPCV), 16 blocks (CSCV)</td><td>first 60%</td><td>F1, P1–P7</td><td>calibration, discovery, luck elimination, costs, exit choice</td></tr>
       <tr><td>embargo</td><td>1 session</td><td>—</td><td>nothing</td></tr>
-      <tr><td><b>Validation</b></td><td>next 20%</td><td>P5</td><td>one run with frozen parameters</td></tr>
+      <tr><td><b>Validation</b></td><td>next 20%</td><td>P8</td><td>one run with frozen strategies</td></tr>
       <tr><td>embargo</td><td>1 session</td><td>—</td><td>nothing</td></tr>
-      <tr><td><b>Test</b> (sealed)</td><td>last 20%</td><td>P6</td><td>one run with frozen parameters; its rows are not loaded before P6</td></tr>
+      <tr><td><b>Test</b> (sealed)</td><td>last 20%</td><td>P9</td><td>one run with frozen strategies; its rows are not loaded before P9</td></tr>
     </table></div>
-    <p>Trades are closed by their session end, so no trade overlaps a window boundary or a walk-forward block boundary.</p>
-    <div class="basis"><b>Basis:</b> chronological split and walk-forward [R10, R20]; embargo between windows [R10].</div>
+    <p>Every trade closes by its session end (flat by 15:08 CT), so no trade spans a block, a group or a window boundary. The embargo session adds a further margin against serial dependence.</p>
+    <div class="basis"><b>Basis:</b> chronological split, purging, embargo, walk-forward, CPCV [R10]; CSCV [R3].</div>
   </div>
 
-  <h3 class="h">A.4 — The three questions every unit must answer</h3>
-  <div class="box">
-    <div class="tw"><table>
-      <tr><th>question</th><th>answered by</th><th>where</th></tr>
-      <tr><td><b>1. Is there an edge before costs?</b></td><td>drift-adjusted gross excess &gt; 0 with Newey-West t ≥ 2 and BH q ≤ 0.10 over all units; edge ratio &gt; 1; positive in ≥ 4 of 6 Dev blocks</td><td>P2 layer A</td></tr>
-      <tr><td><b>2. Is it real — not luck, not time in the market?</b></td><td>random-timing null on gross R; Deflated Sharpe on effective trials; PBO; Hansen SPA; walk-forward out-of-sample; fold dispersion; neighbours; stability; Validation with BH and null</td><td>P2 layer A, P3, P4, P5</td></tr>
-      <tr><td><b>3. Does it survive costs, stress and time?</b></td><td>net mean and t after costs; cost × 1.5, +1 tick per side, one-bar delay; top-trade and best-year removal; positive years; Validation and Test after costs</td><td>P2 layer B, P4, P5, P6</td></tr>
-    </table></div>
-  </div>
+  <h3 class="h">A.5 — The three questions</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>question</th><th>answered in</th><th>main evidence</th></tr>
+    <tr><td><b>1. Is there an edge before costs?</b></td><td>P1–P3</td><td>excess over the time-of-day drift; family test (Simes and pooled); member selection (Benjamini–Bogomolov); edge ratio; persistence across blocks</td></tr>
+    <tr><td><b>2. Is it real: not luck, not drift, not fragile?</b></td><td>P4, and again in P7–P9</td><td>selection-aware permutation test, random-entry and circular-shift nulls (999 each); bootstrap CI; detrended data; horizon coherence; price-noise perturbation; neighbours; stability; concentration; CPCV paths; PBO; Deflated Sharpe; MinTRL</td></tr>
+    <tr><td><b>3. Does it pay its costs and survive construction and time?</b></td><td>P5–P9</td><td>net significance per contract; break-even cost multiple; cost stress; walk-forward exits; PBO of the exit search; net DSR; account fit; Validation; Test</td></tr>
+  </table></div></div>
 
-  <h3 class="h">A.5 — The evidence framework</h3>
+  <h3 class="h">A.6 — The statistic catalogue</h3>
   <div class="box">
-    <p><b>Per-session series.</b> For a unit, x<sub>s</sub> = sum of R<sub>ATR</sub> of the trades entered in session s, and 0 for a session without a trade. Every mean, t-statistic, Sharpe ratio, bootstrap and deflation figure is computed on this series (B.14).</p>
+    <p><b>Per-session series.</b> x<sub>s</sub> is the sum of the per-trade values of the trades the unit entered in session s, and 0 for a session without a trade. Every mean, t-statistic, Sharpe ratio, bootstrap and deflation uses this series (B.14).</p>
     <div class="tw"><table>
       <tr><th>statistic</th><th>definition</th><th>basis</th></tr>
-      <tr><td>Drift baseline, excess</td><td>baseline(time of day) = mean gross R<sub>ATR</sub> of the screen exit entered after every eligible Dev bar with the same bar time, same side; excess = gross R<sub>ATR</sub> − baseline of the signal bar's time</td><td>[R11, R31]</td></tr>
-      <tr><td>Edge ratio</td><td>mean MFE<sub>ATR</sub> ÷ mean MAE<sub>ATR</sub> over the screen holding period; random entries ≈ 1</td><td>[R13, R14]</td></tr>
-      <tr><td>Newey-West t</td><td>t = x̄ / √(Ω/T); Ω = γ<sub>0</sub> + 2 Σ<sub>k=1..L</sub> (1 − k/(L+1)) γ<sub>k</sub>; L = ⌊4 (T/100)<sup>2/9</sup>⌋; one-sided p = 1 − Φ(t)</td><td>[R7, R8]</td></tr>
-      <tr><td>Benjamini-Hochberg</td><td>q<sub>(i)</sub> = min<sub>j ≥ i</sub> p<sub>(j)</sub> · m / j; discovery if q ≤ level</td><td>[R5, R6]</td></tr>
-      <tr><td>Stationary bootstrap</td><td>block length by Politis-White; percentile CI of the mean; p = (1 + #{x̄*<sub>b</sub> − x̄ ≥ x̄}) / (B + 1)</td><td>[R9]</td></tr>
-      <tr><td>K<sub>eff</sub></td><td>average-linkage clusters of per-session series on distance 1 − |ρ|, cut at 0.70</td><td>[R4]</td></tr>
-      <tr><td>PSR</td><td>Φ[ (SR − SR*) √(T − 1) / √(1 − γ<sub>3</sub>·SR + (γ<sub>4</sub> − 1)/4 · SR²) ], γ<sub>4</sub> = kurtosis (not excess)</td><td>[R1]</td></tr>
-      <tr><td>DSR</td><td>PSR with SR* = √V · [ (1 − γ) Φ<sup>−1</sup>(1 − 1/N) + γ Φ<sup>−1</sup>(1 − 1/(N e)) ], γ = 0.5772, V = 1/(T − 1) (variance of an estimated SR whose true value is 0), N = effective independent trials (B.11)</td><td>[R2, R15, R16]</td></tr>
-      <tr><td>MinTRL</td><td>1 + (1 − γ<sub>3</sub>·SR + (γ<sub>4</sub> − 1)/4 · SR²) · (Φ<sup>−1</sup>(0.95) / SR)²: sessions needed to confirm SR &gt; 0 at 95%</td><td>[R1]</td></tr>
-      <tr><td>PBO (CSCV)</td><td>sessions × configs cut into 16 blocks; all C(16,8) = 12,870 halves; in-sample best config, its out-of-sample relative rank ω = rank/(N+1), λ = ln(ω/(1 − ω)); PBO = share of λ ≤ 0</td><td>[R3]</td></tr>
-      <tr><td>Hansen SPA</td><td>consistent p-value of "no unit of the instrument beats zero"; losses = −x, benchmark 0, studentized, stationary bootstrap</td><td>[R6a, R6b]</td></tr>
-      <tr><td>Random-timing null</td><td>the unit's signal series rolled inside the window by k × (median bars per session), k uniform in [5, S − 5]; same parameters and prices; p = (1 + #{null ≥ observed}) / (B + 1)</td><td>[R11, R12]</td></tr>
+      <tr><td>Excess (gross)</td><td>gross R<sub>ATR</sub> of a trade minus the drift baseline of its signal-bar time of day. The baseline is the mean gross R<sub>ATR</sub> of the same exit entered after every eligible Dev bar with that bar time, on the same side.</td><td>[R11, R28]</td></tr>
+      <tr><td>Edge ratio</td><td>mean MFE<sub>ATR</sub> ÷ mean MAE<sub>ATR</sub> over the screen hold; about 1 for random entries</td><td>[R13, R14]</td></tr>
+      <tr><td>Newey-West t</td><td>x̄ / √(Ω/T); Ω = γ<sub>0</sub> + 2 Σ<sub>k≤L</sub>(1 − k/(L+1))γ<sub>k</sub>; L = ⌊4(T/100)<sup>2/9</sup>⌋; one-sided p = 1 − Φ(t)</td><td>[R7, R8]</td></tr>
+      <tr><td>Simes family p</td><td>p<sub>S</sub> = min<sub>i</sub> m·p<sub>(i)</sub>/i over the m member p-values; strong when a few members carry the edge</td><td>[R30]</td></tr>
+      <tr><td>Pooled family p</td><td>Newey-West p of the equal-weight average of the members' per-session excess series; strong when many members carry a weak edge</td><td>[R7, R30]</td></tr>
+      <tr><td>Family p</td><td>p<sub>F</sub> = min(1, 2·min(p<sub>S</sub>, p<sub>pooled</sub>))</td><td>Bonferroni over the two views</td></tr>
+      <tr><td>Benjamini-Hochberg</td><td>q<sub>(i)</sub> = min<sub>j≥i</sub> p<sub>(j)</sub>·m/j</td><td>[R5]</td></tr>
+      <tr><td>Benjamini–Bogomolov</td><td>within each of the R families selected out of M, BH at level q·R/M</td><td>[R31]</td></tr>
+      <tr><td>Romano-Wolf StepM</td><td>step-down max-t over members with a joint stationary bootstrap; controls the family-wise error under dependence</td><td>[R32]</td></tr>
+      <tr><td>Stationary bootstrap</td><td>Politis-Romano resampling with the Politis-White block length; percentile CI; p = (1 + #{x̄* − x̄ ≥ x̄})/(B + 1)</td><td>[R9]</td></tr>
+      <tr><td>Randomization p</td><td>p = (1 + #{null ≥ observed}) / (B + 1); with B = 999 the smallest p is 0.001, and p ≤ 0.01 means the real result beat at least 990 of the 999 luck draws</td><td>[R12, R33]</td></tr>
+      <tr><td>K<sub>eff</sub></td><td>average-linkage clusters of the per-session series on the distance 1 − |ρ|, cut at 0.70</td><td>[R4]</td></tr>
+      <tr><td>PSR</td><td>Φ[(SR − SR*)√(T−1) / √(1 − γ<sub>3</sub>SR + (γ<sub>4</sub>−1)/4·SR²)]</td><td>[R1]</td></tr>
+      <tr><td>DSR</td><td>PSR with SR* = √V·[(1−γ)Φ<sup>−1</sup>(1−1/N) + γΦ<sup>−1</sup>(1−1/(Ne))], γ = 0.5772, V = 1/(T−1) (null variance of SR), N = ledger N (B.11)</td><td>[R2, R15, R16]</td></tr>
+      <tr><td>MinTRL</td><td>1 + (1 − γ<sub>3</sub>SR + (γ<sub>4</sub>−1)/4·SR²)·(Φ<sup>−1</sup>(0.95)/SR)² sessions</td><td>[R1]</td></tr>
+      <tr><td>PBO (CSCV)</td><td>16 blocks, all C(16,8) = 12,870 halves; for the in-sample best, the out-of-sample relative rank ω and λ = ln(ω/(1−ω)); PBO = share of λ ≤ 0</td><td>[R3]</td></tr>
+      <tr><td>CPCV</td><td>10 groups, all C(10,2) = 45 train/test splits, reassembled into 9 out-of-sample paths</td><td>[R10]</td></tr>
+      <tr><td>Hansen SPA</td><td>consistent p of "no unit beats zero", studentized, stationary bootstrap</td><td>[R6a, R6b]</td></tr>
+      <tr><td>Break-even cost multiple</td><td>BCM = mean gross excess per trade ÷ mean cost per trade, both in ATR</td><td>[R34]</td></tr>
     </table></div>
   </div>
 
-  <h3 class="h">A.6 — The deflation law (correct where the search happens)</h3>
-  <div class="box">
-    <div class="tw"><table>
-      <tr><th>search</th><th>size</th><th>correction</th></tr>
-      <tr><td>P2 — which units of the program</td><td>all units; K<sub>eff</sub> per instrument; earlier programs' K<sub>eff</sub></td><td>BH over all gross p-values of the program; Hansen SPA of each instrument's universe; PBO of picking the Dev winner; K<sub>eff</sub> carried to the DSR</td></tr>
-      <tr><td>P3 — T3 setting and stop / target / hold</td><td>every config evaluated per unit</td><td>walk-forward out-of-sample scoring; PBO over all evaluated configs; K<sub>eff</sub> of the configs carried to the DSR</td></tr>
-      <tr><td>P4 — which refined units are real</td><td>N = K<sub>eff</sub>(universe) + K<sub>eff</sub>(configs) + prior trials</td><td>DSR ≥ 0.95; random-timing null</td></tr>
-      <tr><td>P5 — which evidence survivors hold</td><td>number of P5 units</td><td>BH q ≤ 0.05 across P5 units; random-timing null</td></tr>
-      <tr><td>P6 — which validation survivors hold</td><td>number of P6 units</td><td>DSR ≥ 0.95 with N = number of P6 units</td></tr>
-    </table></div>
-  </div>
-
-  <h3 class="h">A.7 — The phase map</h3>
-  <div class="box">
-    <div class="tw"><table>
-      <tr><th>phase</th><th>window</th><th>question</th><th>forwards</th></tr>
-      <tr><td>P0</td><td>all (quality only)</td><td>Is the data clean, and where are the windows?</td><td>cached, split data</td></tr>
-      <tr><td>P1</td><td>Dev bars, no returns</td><td>Does the code do exactly what the laws say, and is every candidate executable?</td><td>executable registry</td></tr>
-      <tr><td>P2</td><td>Dev</td><td>Which entries have an edge before costs, and keep it after costs?</td><td>shortlist ≤ 50</td></tr>
-      <tr><td>P3</td><td>Dev, walk-forward</td><td>Which T3 setting and exit, chosen without seeing the block scored?</td><td>refined units + walk-forward series</td></tr>
-      <tr><td>P4</td><td>Dev, walk-forward out-of-sample</td><td>Is the edge real after random timing, selection bias, stress and time, and can Validation confirm it?</td><td>evidence survivors</td></tr>
-      <tr><td>P5</td><td>Validation</td><td>Does it hold on unseen data, and can Test confirm it?</td><td>validation survivors</td></tr>
-      <tr><td>P6</td><td>Test</td><td>Does it hold on the sealed window?</td><td>deployment cards</td></tr>
-      <tr><td>P7</td><td>live</td><td>Does Pine reproduce it, and does it hold in real time?</td><td>live strategy or kill</td></tr>
-    </table></div>
-  </div>
+  <h3 class="h">A.7 — The multiplicity map (each search is corrected where it happens)</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>search</th><th>size</th><th>correction</th></tr>
+    <tr><td>P1 — the whole universe</td><td>about 75,000 units</td><td>none applied (measurement only); Hansen SPA and PBO reported per market</td></tr>
+    <tr><td>P2 — which families</td><td>21 families × 2 sides × 5 markets = 210 family tests</td><td>family p (Simes and pooled), then BH at q ≤ 0.05 across all 210</td></tr>
+    <tr><td>P3 — which members</td><td>members of the R selected family tests</td><td>Benjamini–Bogomolov BH at 0.10·R/210; StepM reported</td></tr>
+    <tr><td>P4 — is the best member luck?</td><td>the whole family selection</td><td>selection-aware permutation test (best-of-family null, 999 draws); DSR with the ledger N; PBO; CPCV</td></tr>
+    <tr><td>P6 — which exit</td><td>every configuration evaluated</td><td>walk-forward; PBO of the search; K<sub>eff</sub> of the configurations added to N</td></tr>
+    <tr><td>P8 — which strategies hold</td><td>strategies entering P8</td><td>BH across strategies; randomization null</td></tr>
+    <tr><td>P9 — which strategies hold</td><td>strategies entering P9</td><td>DSR with N = strategies tested</td></tr>
+  </table></div>
+  <div class="basis"><b>Basis:</b> selective inference over families [R30, R31]; data snooping [R6a, R6b, R32]; hurdles under multiple testing [R43].</div></div>
 </section>
 
 <!-- ============================================================ PART B -->
@@ -195,584 +220,766 @@
 
   <h3 class="h">B.1 — Never changes</h3>
   <div class="box"><ol>
-    <li>Raw files are never modified; repairs are made on the loaded copy and counted in P0.</li>
-    <li><code>config.yaml</code> and the registry are frozen once P2 has run (B.20).</li>
-    <li>Validation and Test results never change a parameter, a gate or a candidate list.</li>
-    <li>Ranking is never on win rate or profit factor; it is on t-statistics of the per-session series.</li>
-    <li>No filter, session or date restriction is added after seeing a losing period; a different rule is a different candidate and goes through P2.</li>
-    <li>The in-sample equity of the final parameters on Dev is never evidence; evidence is walk-forward out-of-sample (P4), Validation (P5) and Test (P6).</li>
-    <li>A single best grid cell is never chosen: choices are plateau-smoothed (B.12) and neighbours must work (B.16).</li>
+    <li>Raw files are never modified. Repairs happen on the loaded copy and are counted.</li>
+    <li>The configuration, the universe and every threshold are frozen at F2. Any later change opens a new program (B.20).</li>
+    <li>No gate is loosened after a result is seen, and no candidate is added because of a result.</li>
+    <li>Validation and Test results never change any choice.</li>
+    <li>Nothing is ranked on win rate, profit factor or in-sample equity.</li>
+    <li>A single grid peak is never chosen. Plateaus and neighbours decide (B.16, B.18).</li>
   </ol></div>
 
-  <h3 class="h">B.2 — The execution law</h3>
+  <h3 class="h">B.2 — The data law</h3>
   <div class="box"><ol>
-    <li><b>Signal</b>: computed from bars ≤ t, evaluated at the close of bar t.</li>
-    <li><b>Entry</b>: market order at the open of bar e = t + 1 (t + 2 in the delay stress).</li>
-    <li><b>No entry</b> when bar e is in another session or contract than bar t, beyond the window, or when ATR[t] is not positive.</li>
-    <li><b>One position at a time</b>: signals while a trade is open are ignored; a signal on the exit bar is allowed.</li>
-    <li><b>Shorts</b> run on mirrored prices (o, h, l, c) → (−o, −l, −h, −c) and −T3, so every long rule has an exact short twin.</li>
-    <li><b>Sessions</b>: a CME session starts 17:00 CT (session date = timestamp + 7 h); a gap ≥ 120 minutes also starts a session. A <b>roll</b> is a change of the contract column.</li>
-    <li><b>Flat by 15:08 CT</b> (TopstepX): a bar that closes after 15:08 CT and opens before 17:00 CT may not hold a position. The last tradable bar of a session is the last bar closing at or before 15:08 CT; no entry is made from it and an open trade is closed at its close.</li>
+    <li>The input is one 30-minute file per market with <code>timestamp, open, high, low, close, volume, contract</code> in CT. The prices are continuous and back-adjusted by addition.</li>
+    <li>Back-adjustment by addition keeps price differences and destroys price ratios. All rules and results therefore use differences in ATR or ticks (Pillar 7).</li>
+    <li>A roll is a change in the contract column. No trade, rule window or session anchor mixes two contracts without the adjustment, and no position crosses a roll.</li>
+  </ol></div>
+
+  <h3 class="h">B.3 — The execution law</h3>
+  <div class="box"><ol>
+    <li>The signal comes from bars up to t at the close of bar t. The market entry is at the open of bar t + 1, or later in the delay test.</li>
+    <li>There is no entry when bar t + 1 is in another session or another contract, outside the window, after the last tradable bar, or when ATR[t] ≤ 0.</li>
+    <li>One position at a time. A new signal on the exit bar is allowed.</li>
+    <li>Shorts run on mirrored prices: (o, h, l, c) → (−o, −l, −h, −c). Every line built from price (T3, VWAP, session levels, σ<sub>τ</sub>) is mirrored, and volume is unchanged.</li>
+    <li>Sessions: the CME day starts at 17:00 CT (session date = timestamp + 7 h), and a gap of 120 minutes or more also starts a new session.</li>
+    <li><b>Flat by 15:08 CT</b> (TopstepX). A bar that closes after 15:08 and opens before 17:00 cannot hold a position. The last tradable bar of a session is the last bar closing at or before 15:08. No entry is made from it, and open trades close at its close.</li>
   </ol>
-  <div class="basis"><b>Basis:</b> next-bar execution removes look-ahead [R10]; CME Globex trading day [R22]; Topstep trading hours and 15:08 / 15:10 CT flattening [R26].</div></div>
+  <div class="basis"><b>Basis:</b> next-bar execution [R10]; CME Globex trading day [R22]; Topstep flat by 15:10 CT with the platform flattening from 15:08 CT [R23].</div></div>
 
-  <h3 class="h">B.3 — The barrier law (stop, target, time, session end)</h3>
+  <h3 class="h">B.4 — The barrier law</h3>
   <div class="box">
-    <pre class="f">ATR      = Wilder ATR(14) of the signal bar t
-SL ticks = max(1, round(SL_ATR × ATR / tick))        stop   = entry − SL ticks × tick
-TP ticks = max(1, round(TP_R × SL ticks))            target = entry + TP ticks × tick
-last bar = min(e + max_bars − 1, last bar of the session, last bar before a roll)</pre>
-    <ol>
-      <li>Stop and target are fixed at the fill.</li>
-      <li>For each bar j from e to the last bar:
-        <ul>
-          <li>j &gt; e and open ≤ stop → <b>SL</b> at the open; j &gt; e and open ≥ target → <b>TP</b> at the open.</li>
-          <li>low ≤ stop and high ≥ target in one bar → <b>SL</b> at the stop (<code>intrabar: pessimistic</code>); with <code>intrabar: tv</code> the TradingView path decides (open nearer the high → high first → TP).</li>
-          <li>only low ≤ stop → <b>SL</b> at the stop; only high ≥ target → <b>TP</b> at the target.</li>
-        </ul></li>
-      <li>No barrier by bar e + max_bars − 1 → <b>TIME</b> at the open of bar e + max_bars, if it is in the same session and contract.</li>
-      <li>Session or contract ends first → <b>EOS</b> at the close of its last bar.</li>
-      <li>SL_ATR = 0: no stop, no target. With max_bars = 8 this is the <b>screen exit</b> of P2.</li>
-    </ol>
-    <pre class="f">gross R_ATR = (exit − entry) / ATR
-net ticks   = (exit − entry) / tick − cost_ticks_rt − (stop_slip_ticks if SL)
-net R_ATR   = net ticks × tick / ATR
-MFE_ATR     = max over held bars of (min(high, target) − entry) / ATR
-MAE_ATR     = max over held bars of (entry − max(low, stop)) / ATR</pre>
-    <div class="basis"><b>Basis:</b> ATR [R18]; ATR-scaled stops and R-multiples, MFE / MAE [R13, R14]; stop-first tie rule and gap fills are the conservative bar-data convention; TradingView path [R21].</div>
+    <pre class="f">ATR       = Wilder ATR(14) of the signal bar t
+SL ticks  = max(1, round(SL_ATR × ATR / tick))      stop   = entry − SL ticks × tick
+TP ticks  = max(1, round(TP_R × SL ticks))          target = entry + TP ticks × tick      (TP_R = none → no target)
+last bar  = min(e + max_bars − 1, last tradable bar of the session, last bar before a roll)
+gap through a level → fill at the open;  stop and target in one bar → stop
+no barrier hit → TIME exit at the open of e + max_bars if tradable, else EOS at the close of the last bar
+Stage I screen exits: no stop, no target, exit after the screen hold (C.10)
+gross R_ATR = (exit − entry)/ATR        net ticks = gross ticks − cost_ticks_rt − (stop_slip if the exit is a stop)
+MFE_ATR = max over the hold of (min(high, target) − entry)/ATR      MAE_ATR = max of (entry − max(low, stop))/ATR</pre>
+    <div class="basis"><b>Basis:</b> [R13, R14, R18, R21].</div>
   </div>
 
-  <h3 class="h">B.4 — The cost law (TopstepX)</h3>
+  <h3 class="h">B.5 — The cost law (TopstepX, micro and mini)</h3>
   <div class="box">
-    <p>The research uses the mini contract price series. The micro contract trades the same price with the same tick size, so every rule and every R<sub>ATR</sub> result is identical; only the cost in ticks differs. Each instrument's <code>trade</code> setting chooses the contract whose costs every phase uses (default: micro).</p>
     <div class="tw"><table>
-      <tr><th>instrument</th><th>tick</th><th>mini · tick value · fees RT</th><th>micro · tick value · fees RT</th></tr>
-      <tr><td>Crude Oil</td><td>0.01</td><td>CL · $10.00 · $4.04</td><td>MCL · $1.00 · $1.72</td></tr>
-      <tr><td>Gold</td><td>0.10</td><td>GC · $10.00 · $4.32</td><td>MGC · $1.00 · $1.92</td></tr>
-      <tr><td>Nasdaq-100</td><td>0.25</td><td>NQ · $5.00 · $3.78</td><td>MNQ · $0.50 · $1.22</td></tr>
-      <tr><td>Silver</td><td>0.005</td><td>SI · $25.00 · $4.32</td><td>SIL · $5.00 · $2.72</td></tr>
-      <tr><td>Dow</td><td>1.0</td><td>YM · $5.00 · $3.78</td><td>MYM · $0.50 · $1.22</td></tr>
+      <tr><th>market</th><th>tick</th><th>mini · tick value · fees RT · cost RT</th><th>micro · tick value · fees RT · cost RT</th></tr>
+      <tr><td>Crude Oil</td><td>0.01</td><td>CL · $10.00 · $4.04 · 2.404 ticks = $24.04</td><td>MCL · $1.00 · $1.72 · 3.720 ticks = $3.72</td></tr>
+      <tr><td>Gold</td><td>0.10</td><td>GC · $10.00 · $4.32 · 2.432 ticks = $24.32</td><td>MGC · $1.00 · $1.92 · 3.920 ticks = $3.92</td></tr>
+      <tr><td>Nasdaq-100</td><td>0.25</td><td>NQ · $5.00 · $3.78 · 2.756 ticks = $13.78</td><td>MNQ · $0.50 · $1.22 · 4.440 ticks = $2.22</td></tr>
+      <tr><td>Silver</td><td>0.005</td><td>SI · $25.00 · $4.32 · 2.173 ticks = $54.32</td><td>SIL · $5.00 · $2.72 · 2.544 ticks = $12.72</td></tr>
+      <tr><td>Dow</td><td>1.0</td><td>YM · $5.00 · $3.78 · 2.756 ticks = $13.78</td><td>MYM · $0.50 · $1.22 · 4.440 ticks = $2.22</td></tr>
     </table></div>
-    <pre class="f">fees RT        = Topstep commission ($1.00 mini, $0.50 micro) + CME exchange fee + NFA fee, per round turn
-cost_ticks_rt  = fees RT / tick value + 2 × 1 tick slippage
-stop fills     = +1 tick
-stress levels  = cost × 1.5;  +1 tick per side (+2 round trip, +1 on stop fills);  entry one bar later</pre>
-    <p>Examples: MNQ = 1.22 / 0.50 + 2 = 4.44 ticks; NQ = 3.78 / 5.00 + 2 = 2.76 ticks; MCL = 1.72 / 1.00 + 2 = 3.72 ticks. Full-size SI is not permitted in standard Topstep Trading Combines; SIL is. P0 prints the cost table actually used.</p>
-    <div class="basis"><b>Basis:</b> TopstepX commissions and fees [R26]; CME contract specifications [R22]; stress levels [R23].</div>
+    <pre class="f">fees RT          = Topstep commission ($1.00 mini, $0.50 micro, round turn) + CME exchange fee + NFA fee
+cost_ticks_rt    = fees RT / tick value + 2 × slippage (1 tick per side)          stop fills: +1 tick
+cost_ATR(trade)  = cost_ticks_rt × tick / ATR[t]        (the cost in the edge's own unit)
+stresses         = cost × 1.5 and × 2;  +1 tick per side</pre>
+    <p>A mini costs 35–38% fewer ticks per round trip than its micro (15% fewer for SI), but carries ten times the dollar risk per contract (five times for SI against SIL). P5 tests both, and P7 checks the dollar risk against the account. Full-size SI is not permitted in standard Topstep Trading Combines; SIL is.</p>
+    <div class="basis"><b>Basis:</b> [R22, R23, R34].</div>
   </div>
 
-  <h3 class="h">B.5 — The T3 law</h3>
+  <h3 class="h">B.6 — The Topstep account law</h3>
   <div class="box">
-    <pre class="f">EMA(x), α = 2 / (L + 1);  e1 = EMA(close), e2 = EMA(e1), … , e6 = EMA(e5)
-c1 = −v³   c2 = 3v² + 3v³   c3 = −6v² − 3v − 3v³   c4 = 1 + 3v + v³ + 3v²      (c1 + c2 + c3 + c4 = 1)
+    <div class="tw"><table>
+      <tr><th>account</th><th>profit target</th><th>maximum loss limit (trailing, end of day)</th><th>maximum position</th></tr>
+      <tr><td>50K</td><td>$3,000</td><td>$2,000</td><td>5 minis</td></tr>
+      <tr><td>100K</td><td>$6,000</td><td>$3,000</td><td>10 minis</td></tr>
+      <tr><td>150K</td><td>$9,000</td><td>$4,500</td><td>15 minis</td></tr>
+    </table></div>
+    <ol>
+      <li>The account size, its maximum loss limit, the daily loss limit (optional on the Combine), the micro-to-mini counting of the platform, the permitted contracts, the maximum loss per trade and the drawdown budget are read from the trader's Topstep dashboard. They are written into the configuration before F2.</li>
+      <li>Strategies trade one contract. A contract is deployable only if the account fit gates of P7 hold.</li>
+    </ol>
+    <div class="basis"><b>Basis:</b> Topstep Help Center and published Combine parameters [R23, R45].</div>
+  </div>
+
+  <h3 class="h">B.7 — The T3 law</h3>
+  <div class="box">
+    <pre class="f">e1 = EMA(close, L), e2 = EMA(e1, L), … , e6 = EMA(e5, L)        α = 2/(L+1)
+c1 = −v³   c2 = 3v² + 3v³   c3 = −6v² − 3v − 3v³   c4 = 1 + 3v + v³ + 3v²       (c1 + c2 + c3 + c4 = 1)
 T3 = c1·e6 + c2·e5 + c3·e4 + c4·e3
-L ∈ {2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 30}      v ∈ {0.5, 0.6, 0.7, 0.8, 0.9, 1.0}</pre>
-    <p>P2 uses each row's own T3 setting; P3 chooses the T3 setting of every T3 unit again inside walk-forward.</p>
+Pool N speeds: FAST = (L 5, v 0.7), Tillson's published setting;  SLOW = (L 13, v 0.7)
+Pool L: each row's registered (L, v)
+P6 grid: L ∈ {2,3,4,5,6,8,10,12,16,20,24,30} × v ∈ {0.5, 0.6, 0.7, 0.8, 0.9, 1.0}</pre>
     <div class="basis"><b>Basis:</b> [R17].</div>
   </div>
 
-  <h3 class="h">B.6 — The element vocabulary</h3>
+  <h3 class="h">B.8 — Vocabulary and the session clock</h3>
   <div class="box">
-    <pre class="f">o, h, l, c      open, high, low, close of the signal bar         x[k]   value k bars ago
-T               T3(close, L, v)                                   d      = c − T
-atr1            ATR(14) of the previous bar (sizes every threshold)
-rng             h − l                                             CLV    = (c − l) / rng
-HH(N)           max(h[1] … h[N])
-Short side: the same rule on (−o, −l, −h, −c) and −T.</pre>
+    <pre class="f">o, h, l, c, vol   signal-bar values       x[k] = value k bars ago      atr1 = ATR(14)[1]      rng = h − l
+HH(N), LL(N)      max(h[1..N]), min(l[1..N])                               CLV = (c − l)/rng
+T                 T3 of the row's speed    d = c − T                       SMA20 = 20-bar mean of c
+OB                opening bar: the first 30-minute bar starting at or after the day-session open
+OB2               the bar after OB
+SB                settlement bar: the 30-minute bar ending at or after the settlement time
+IB                the bar before SB
+DAY               OB ≤ bar &lt; SB
+O_day             open of OB                       S_prev   close of the previous session's SB
+H_prev, L_prev    high and low of the previous session's OB…SB       R_prev = H_prev − L_prev
+VWAP_t            Σ (h+l+c)/3 · vol / Σ vol over the session's bars from OB to t
+σ_τ               mean over the previous 14 sessions of |close of the bar ending at time τ − O_day of that session|
+first(cond)       cond true for the first time in the current session</pre>
+    <div class="tw"><table>
+      <tr><th>market</th><th>day session · settlement (CT)</th><th>OB</th><th>IB</th><th>SB</th></tr>
+      <tr><td>CL</td><td>08:00 · 13:30</td><td>08:00</td><td>12:30</td><td>13:00</td></tr>
+      <tr><td>GC</td><td>07:20 · 12:30</td><td>07:30</td><td>11:30</td><td>12:00</td></tr>
+      <tr><td>SI</td><td>07:25 · 12:25</td><td>07:30</td><td>11:30</td><td>12:00</td></tr>
+      <tr><td>NQ, YM</td><td>08:30 · 15:00</td><td>08:30</td><td>14:00</td><td>14:30</td></tr>
+    </table></div>
+    <div class="basis"><b>Basis:</b> CME day-session hours and settlement windows [R22, R29]; VWAP [R35, R44]; noise area [R36].</div>
   </div>
 
-  <h3 class="h">B.7 — The trigger roster (long form)</h3>
-  <div class="box"><div class="tw"><table>
-    <tr><th>trigger</th><th>family</th><th>rule</th></tr>
-    <tr><td>T3_BODY_CROSS</td><td>T3 cross / reclaim</td><td><code>o ≤ T and c &gt; T</code></td></tr>
-    <tr><td>T3_CLOSE_CROSS</td><td>T3 cross / reclaim</td><td><code>c[1] ≤ T[1] and c &gt; T</code></td></tr>
-    <tr><td>T3_TWO_CLOSE</td><td>T3 cross / reclaim</td><td><code>c &gt; T, c[1] &gt; T[1], c[2] ≤ T[2]</code></td></tr>
-    <tr><td>T3_WICK_RECLAIM</td><td>T3 cross / reclaim</td><td><code>o &gt; T, l ≤ T, c &gt; T</code></td></tr>
-    <tr><td>T3_CLEAN_RECLAIM</td><td>T3 cross / reclaim</td><td><code>l &gt; T and l[1] ≤ T[1] ≤ h[1]</code></td></tr>
-    <tr><td>T3_THREE_CLOSE</td><td>T3 pullback / continuation</td><td><code>c &gt; T, c[1] &gt; T[1], c[2] &gt; T[2], c[3] ≤ T[3]</code></td></tr>
-    <tr><td>T3_CROSS_RANGE_BREAK</td><td>T3 pullback / continuation</td><td><code>c[1] &gt; T[1], c[2] ≤ T[2], c &gt; h[1]</code></td></tr>
-    <tr><td>T3_PULLBACK_BREAK</td><td>T3 pullback / continuation</td><td><code>T &gt; T[1], l[1] ≤ T[1] &lt; c[1], c &gt; h[1]</code></td></tr>
-    <tr><td>T3_TOUCH_3BAR_TREND</td><td>T3 pullback / continuation</td><td><code>T &gt; T[1], l[k] ≤ T[k] for some k = 1…3, c &gt; T</code></td></tr>
-    <tr><td>T3_SLOPE_TURN</td><td>T3 turn / distance</td><td><code>T &gt; T[1], T[1] ≤ T[2], c &gt; T</code></td></tr>
-    <tr><td>T3_DISTANCE_RELEASE</td><td>T3 turn / distance</td><td><code>d &gt; 0 and d &gt; d[1]</code></td></tr>
-    <tr><td>DONCHIAN_3 / 5 / 8 / 12 / 20</td><td>structure breakout</td><td><code>c &gt; HH(N)</code></td></tr>
-    <tr><td>PREVBAR_BREAK</td><td>structure breakout</td><td><code>c &gt; h[1]</code></td></tr>
-    <tr><td>INSIDE_BAR_BREAK</td><td>structure breakout</td><td><code>h[1] ≤ h[2], l[1] ≥ l[2], c &gt; h[1]</code></td></tr>
-    <tr><td>COMPRESSION_BREAK_3 / 5 / 8</td><td>compression / expansion</td><td><code>rng[1] = min(rng[1] … rng[N]) and c &gt; HH(N)</code></td></tr>
-    <tr><td>RANGE_EXPANSION_CLOSE</td><td>compression / expansion</td><td><code>rng &gt; atr1 and CLV ≥ 0.75</code></td></tr>
-    <tr><td>MOMENTUM_3 / 6</td><td>momentum continuation</td><td><code>c &gt; c[N]</code></td></tr>
-    <tr><td>THREE_BAR_CONTINUATION</td><td>momentum continuation</td><td><code>c[1] &gt; c[2] &gt; c[3] and c &gt; h[1]</code></td></tr>
-    <tr><td>GAP_CONTINUATION</td><td>momentum continuation</td><td><code>o &gt; c[1] and c &gt; o</code></td></tr>
-    <tr><td>TWO_BAR_REVERSAL</td><td>candle reversal</td><td><code>c[1] &lt; o[1] and c &gt; h[1]</code></td></tr>
-    <tr><td>OUTSIDE_BAR_REVERSAL</td><td>candle reversal</td><td><code>h &gt; h[1], l &lt; l[1], rng &gt; 0, CLV ≥ 0.75</code></td></tr>
-    <tr><td>SWEEP_RECLAIM_5 / 10</td><td>structure reclaim</td><td><code>lvl = min(l[2] … l[N+1]); l[1] &lt; lvl and c &gt; lvl</code></td></tr>
-    <tr><td>MEAN_REVERSION_2 / 3</td><td>volatility mean reversion</td><td><code>l ≤ SMA20(c)[1] − k·atr1 and c &gt; o</code></td></tr>
-    <tr><td>ORB_OPEN_BAR</td><td>opening range</td><td><code>bar = opening bar of the day session and c &gt; o</code></td></tr>
-    <tr><td>ORB_BREAK</td><td>opening range</td><td><code>opening bar &lt; bar &lt; settlement bar, c &gt; high of the opening bar, first such close of the session</code></td></tr>
-    <tr><td>IMOM_DAY</td><td>intraday momentum</td><td><code>bar = bar before the last half-hour and c &gt; previous settlement close</code></td></tr>
-    <tr><td>IMOM_FIRST</td><td>intraday momentum</td><td><code>bar = bar before the last half-hour and close of the opening bar &gt; previous settlement close</code></td></tr>
-  </table></div>
-  <p><b>Session clock</b> (CT, per instrument): opening bar = first 30-minute bar starting at or after the day-session open; settlement bar = the 30-minute bar ending at or after the daily settlement; previous settlement close = close of the previous session's settlement bar.</p>
-  <div class="tw"><table>
-    <tr><th>instrument</th><th>day-session open</th><th>settlement</th><th>opening bar</th><th>bar before the last half-hour</th><th>settlement bar</th></tr>
-    <tr><td>CL</td><td>08:00</td><td>13:30</td><td>08:00</td><td>12:30</td><td>13:00</td></tr>
-    <tr><td>GC</td><td>07:20</td><td>12:30</td><td>07:30</td><td>11:30</td><td>12:00</td></tr>
-    <tr><td>SI</td><td>07:25</td><td>12:25</td><td>07:30</td><td>11:30</td><td>12:00</td></tr>
-    <tr><td>NQ, YM</td><td>08:30</td><td>15:00</td><td>08:30</td><td>14:00</td><td>14:30</td></tr>
-  </table></div>
-  <div class="basis"><b>Basis:</b> each rule is the literal reading of the registry definition; "close near the extreme" uses the registry's own CLV 0.75 level; compression = narrow-range bar NR-N [R19]; opening range [R19, R29, R30]; intraday momentum [R27, R28]; settlement times [R32].</div></div>
-
-  <h3 class="h">B.8 — The filter roster (long form)</h3>
-  <div class="box"><div class="tw"><table>
-    <tr><th>filter</th><th>rule</th></tr>
-    <tr><td>NONE</td><td>always true</td></tr>
-    <tr><td>BODY_35 / 55 / 70</td><td><code>rng &gt; 0 and |c − o| ≥ x%·rng</code></td></tr>
-    <tr><td>CLV_55 / 65 / 75</td><td><code>rng &gt; 0 and CLV ≥ x%</code></td></tr>
-    <tr><td>DIRECTIONAL_BODY</td><td><code>c &gt; o</code></td></tr>
-    <tr><td>FAVOURABLE_WICK_30</td><td><code>rng &gt; 0 and min(o, c) − l ≥ 0.30·rng</code></td></tr>
-    <tr><td>NO_ADVERSE_WICK_20</td><td><code>rng &gt; 0 and h − max(o, c) ≤ 0.20·rng</code></td></tr>
-    <tr><td>GAP_ALIGNED_010</td><td><code>o − c[1] ≥ 0.10·atr1</code></td></tr>
-    <tr><td>MOMENTUM_2</td><td><code>c &gt; c[2]</code></td></tr>
-    <tr><td>PREV_OPPOSITE_CANDLE</td><td><code>c[1] &lt; o[1]</code></td></tr>
-    <tr><td>RANGE_COMPRESS_060</td><td><code>rng ≤ 0.60 × median(rng[1] … rng[20])</code></td></tr>
-    <tr><td>RANGE_EXPAND_125 / 150</td><td><code>rng ≥ 1.25·atr1</code> / <code>rng ≥ 1.50·atr1</code></td></tr>
-    <tr><td>STRUCTURE_STEP</td><td><code>l &gt; l[1]</code></td></tr>
-    <tr><td>T3_DIST_FAR_025 / 050</td><td><code>d ≥ x·atr1</code></td></tr>
-    <tr><td>T3_DIST_NEAR_025 / 050 / 100</td><td><code>0 &lt; d ≤ x·atr1</code></td></tr>
-    <tr><td>T3_NOT_EXTENDED_075</td><td><code>d ≤ 0.75·atr1</code></td></tr>
-    <tr><td>T3_SLOPE_NONNEG</td><td><code>T − T[3] ≥ 0</code></td></tr>
-    <tr><td>T3_SLOPE_STRONG_015 / 030</td><td><code>T − T[3] ≥ x·atr1</code></td></tr>
-    <tr><td>VOL_HIGH_120</td><td><code>atr1 ≥ 1.20 × median(atr1 over the last 50 bars)</code></td></tr>
-    <tr><td>VOL_LOW_080</td><td><code>atr1 ≤ 0.80 × median(atr1 over the last 50 bars)</code></td></tr>
-    <tr><td>ABOVE_PREV_SETTLE</td><td><code>c &gt; previous settlement close</code></td></tr>
-    <tr><td>RTH_OPEN_90</td><td><code>bar starts within 90 minutes after the start of the opening bar</code></td></tr>
-  </table></div>
-  <p>Candidate signal = trigger ∧ filter on the row's side.</p></div>
-
-  <h3 class="h">B.9 — The registry law</h3>
+  <h3 class="h">B.9 — The leakage law</h3>
   <div class="box"><ol>
-    <li>A program's candidate file: <code>candidate_id, family, trigger, filter, side, t3_length, t3_vf</code> and optionally <code>screen_bars</code> (the bars held by that row's P2 screen exit; 48 = until the flat-by time; default 8). T3 settings are present exactly when the trigger or the filter uses T3.</li>
-    <li>P1 writes the executable registry: <code>uses_t3</code>, <code>cell_id</code> = trigger | filter | side, <code>trigger_def</code>, <code>filter_def</code> (B.7, B.8) and <code>spec_hash</code> = sha1 of (trigger, filter, side, T3 length, T3 vf, rules version).</li>
-    <li>The registry is frozen in P1. A new idea is a new row and a new program from P2.</li>
+    <li><b>Causality.</b> Every trigger and context reads only bars up to t. The acceptance test perturbs every bar after t and requires identical signals up to t (F1).</li>
+    <li><b>Session anchors.</b> OB, S_prev, H_prev, L_prev, R_prev, σ<sub>τ</sub>, VWAP and the volatility terciles use completed bars only. A value exists only from the bar at which it is known.</li>
+    <li><b>Sealing.</b> Test rows are hashed in F0 and dropped from every load before P9. Validation rows are not touched before P8.</li>
+    <li><b>Pre-registration.</b> The universe, the configuration, this framework and every threshold are hashed in F2 before any Stage I statistic exists.</li>
+    <li><b>The ★ flag.</b> A candidate whose idea was already measured on Dev by an earlier program carries ★. This covers every Pool L candidate and the Pool N families OPENING_RANGE, INTRADAY_MOMENTUM, T3_DAY_TREND and EXTREME_REVERSION. A ★ candidate passes every Dev gate unchanged and then faces stricter exams (P8).</li>
+    <li><b>No cross-window figures.</b> Normalisers (terciles, medians, σ<sub>τ</sub>, drift baselines) are computed causally or within the window in use. Validation and Test never feed a Dev figure.</li>
+  </ol>
+  <div class="basis"><b>Basis:</b> [R10, R12, R20].</div></div>
+
+  <h3 class="h">B.10 — The overfitting law</h3>
+  <div class="box"><ol>
+    <li>No parameter is fitted in Stage I. The universe is fixed, and only the selection is a search, which P4 reproduces inside every randomization.</li>
+    <li>Exits and T3 settings are chosen only in P6, inside walk-forward training blocks, by a plateau rule.</li>
+    <li>Every selection is followed by a test on data the selection did not use: CPCV, walk-forward, Validation, Test.</li>
+    <li>Every search is measured: PBO for the universe (P1 report), each selected family (P4) and the exit search (P6–P7).</li>
+    <li>Every deciding Sharpe ratio is deflated by the ledger N (B.11).</li>
+    <li>Robustness is asked of the idea, not of one setting: neighbours, price noise, horizons, sub-periods and regimes.</li>
   </ol></div>
 
-  <h3 class="h">B.10 — The sample-floor law</h3>
+  <h3 class="h">B.11 — The trial ledger and the effective N</h3>
+  <div class="box">
+    <pre class="f">N(unit, market) = K_eff(Program 1) + K_eff(Program 2) + K_eff(Program 3 new series) + K_eff(the unit's P6 configurations)
+Program 1 (Dev): CL 498, GC 458, NQ 460, SI 490, YM 485          Program 2 (Dev): CL 6, GC 5, NQ 6, SI 4, YM 6
+Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at its registered hold repeats Program 1/2 and is not counted twice)</pre>
+    <p>The ledger records every unit and configuration evaluated, passed or not, with its spec hash, on every market.</p>
+    <div class="basis"><b>Basis:</b> [R2, R4, R43].</div>
+  </div>
+
+  <h3 class="h">B.12 — Sample floors</h3>
   <div class="box"><div class="tw"><table>
     <tr><th>where</th><th>floor</th></tr>
-    <tr><td>P2, per unit on Dev</td><td>≥ 100 trades</td></tr>
-    <tr><td>P3, training blocks of a fold</td><td>≥ 30 trades, else the config scores −∞</td></tr>
-    <tr><td>P3, walk-forward out-of-sample per unit</td><td>≥ 50 trades</td></tr>
-    <tr><td>P4, stability bucket</td><td>≥ 30 trades to be judged</td></tr>
-    <tr><td>P5 Validation, P6 Test, per unit</td><td>≥ 30 trades</td></tr>
-    <tr><td>P7 incubation</td><td>≥ 30 trades</td></tr>
-  </table></div>
-  <div class="basis"><b>Basis:</b> [R23, R24].</div></div>
+    <tr><td>P1 unit on Dev</td><td>≥ 100 trades</td></tr>
+    <tr><td>stability bucket judged</td><td>≥ 30 trades</td></tr>
+    <tr><td>P6 training blocks</td><td>≥ 30 trades</td></tr>
+    <tr><td>P6 walk-forward out-of-sample</td><td>≥ 50 trades</td></tr>
+    <tr><td>P8, P9 per strategy</td><td>≥ 30 trades</td></tr>
+    <tr><td>P10 incubation</td><td>≥ 30 trades</td></tr>
+  </table></div></div>
 
-  <h3 class="h">B.11 — The ledger and the effective-trial law</h3>
-  <div class="box"><ol>
-    <li>P2 records every unit in <code>P2/units.csv</code>, passed or not.</li>
-    <li>P3 records per unit the number of configs evaluated, their effective number K<sub>eff</sub>(configs), and their Dev series for the PBO.</li>
-    <li>The DSR of a unit uses N = K<sub>eff</sub>(instrument universe) + K<sub>eff</sub>(the unit's configs) + <code>prior_trials</code>(instrument): the effective number of independent trials behind its figure, including every earlier program run on the same Dev data.</li>
-  </ol>
-  <div class="basis"><b>Basis:</b> effective number of trials by clustering [R4]; DSR [R2].</div></div>
-
-  <h3 class="h">B.12 — The search law (T3, stop, target, hold)</h3>
-  <div class="box"><ol>
-    <li><b>Objective</b>: 25th percentile, over the training blocks, of the block's mean net R<sub>ATR</sub> per session; one training block → its mean; fewer than 30 training trades → −∞.</li>
-    <li><b>Stage A — T3</b> (T3 units only): L × v = 12 × 6 = 72, each with the row's screen exit.</li>
-    <li><b>Stage B — exits</b> on the Stage-A setting: SL_ATR {0.5, 0.75, 1.0, 1.25, 1.5, 2.0} × TP_R {0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0} × max bars {4, 8, 12, 16, 24, 32, 48} = 294 (48 = hold until the flat-by time).</li>
-    <li><b>Plateau rule</b>: each grid score is replaced by the mean of the finite scores in its 3 × 3 (A) or 3 × 3 × 3 (B) neighbourhood; the highest smoothed score wins.</li>
-    <li><b>Optuna</b> (<code>search: optuna</code>): TPE sampler, 200 trials on the joint space, same objective; all trials enter the PBO and K<sub>eff</sub>(configs).</li>
-    <li>No machine-learning model is fitted in this program.</li>
-  </ol>
-  <div class="basis"><b>Basis:</b> walk-forward selection [R10, R20]; robust (lower-quantile) objective and plateau selection against overfitting [R3, R23]; Optuna TPE [R25].</div></div>
-
-  <h3 class="h">B.13 — The edge-before-costs law</h3>
-  <div class="box"><ol>
-    <li><b>Drift</b>: each trade's gross result is compared with the mean gross result of the same exit entered after every eligible bar of the same window, same side and <b>same time of day</b>. Only the excess is edge; the rest is time in the market.</li>
-    <li><b>Timing</b>: the unit's gross per-session mean must beat its random-timing null (same signals rolled by whole sessions, same parameters, same prices; keeps signal count, clustering and time of day).</li>
-    <li><b>Entry quality</b>: edge ratio &gt; 1.</li>
-    <li><b>Persistence</b>: positive excess in ≥ 4 of 6 Dev blocks.</li>
-    <li>Costs are applied after these questions are answered; a unit needs both.</li>
-  </ol>
-  <div class="basis"><b>Basis:</b> detrending and randomization testing of rules [R11, R12]; edge ratio [R13, R14].</div></div>
+  <h3 class="h">B.13 — The null-model law (how luck is generated)</h3>
+  <div class="box">
+    <div class="tw"><table>
+      <tr><th>null</th><th>what is randomized</th><th>what is kept</th><th>what it rules out</th></tr>
+      <tr><td><b>N1 Bar permutation (MCPT)</b></td><td>Whole bars are shuffled within the same time-of-day slot and the same Dev block. Each bar is shuffled as its changes in price points (open − previous close, high − open, low − open, close − open) together with its volume. Prices are rebuilt by addition and rounded to the tick, and every indicator and anchor is recomputed.</td><td>the distribution of moves at each time of day, the intraday volatility profile, slow regime changes between blocks, session and roll positions</td><td>any bar-to-bar and day-to-day predictability; what the rule earns on structureless data</td></tr>
+      <tr><td><b>N1-S Selection-aware MCPT</b></td><td>As N1, but on each permuted market <b>the whole family test and member selection of P2–P3 is rerun</b> for the member's family, and the best member's statistic is kept.</td><td>as N1</td><td>"the best of many looks good by luck"</td></tr>
+      <tr><td><b>N2 Random entry</b></td><td>For each real trade, a random eligible Dev session is drawn.</td><td>number of trades, each trade's bar time, side, hold, real prices</td><td>edges that come from time of day or drift, not from the signal</td></tr>
+      <tr><td><b>N3 Circular shift</b></td><td>The signal series is rolled by a random whole number of sessions, at least 5 from either end.</td><td>signal count, clustering, bar times, real prices</td><td>edges that come from signal clustering or a regime coincidence</td></tr>
+      <tr><td><b>N4 Stationary bootstrap</b></td><td>The per-session excess series is resampled in blocks and centred under H0.</td><td>the serial dependence of the result</td><td>a positive mean inside sampling noise</td></tr>
+      <tr><td><b>N5 Detrended data</b></td><td>Each bar's close-to-close change has its slot's Dev mean change subtracted, and prices are rebuilt.</td><td>everything except drift</td><td>edges that only ride the drift</td></tr>
+    </table></div>
+    <p>Statistics: N1 and N1-S use the Newey-West t of the per-session excess; N2 and N3 use the mean gross R<sub>ATR</sub> per trade; N4 uses the mean per-session excess. B = 999 for N1, N1-S, N2 and N3; 2,000 for N4 in P4 and P7; 10,000 in P8 and P9.</p>
+    <div class="basis"><b>Basis:</b> Monte Carlo permutation tests and the removal of selection bias [R12, R33]; randomization tests and detrending of rules [R11]; stationary bootstrap [R9]; testing the best of many [R6a, R6b, R32].</div>
+  </div>
 
   <h3 class="h">B.14 — The Sharpe convention</h3>
-  <div class="box"><p>SR = mean ÷ standard deviation of the per-session series (zeros on no-trade sessions), per session, not annualised. The same definition is used in P2, P4, P5 and P6.</p>
-  <div class="basis"><b>Basis:</b> [R15, R1].</div></div>
+  <div class="box"><p>SR is the mean divided by the standard deviation of the per-session series (zeros on sessions without a trade), measured per session and not annualised. Stage I uses gross excess; from Stage II on, net R.</p></div>
 
   <h3 class="h">B.15 — The stability law</h3>
   <div class="box">
     <div class="tw"><table>
       <tr><th>dimension</th><th>buckets</th></tr>
+      <tr><td>Dev block</td><td>B0…B5</td></tr>
       <tr><td>year</td><td>calendar year of the entry</td></tr>
-      <tr><td>volatility regime</td><td>ratio = atr1 / median(atr1, last 500 bars) at the signal bar, cut at its Dev terciles: lowvol / midvol / highvol</td></tr>
-      <tr><td>session bucket (CT)</td><td>ASIA 17:00–02:00 · EUROPE 02:00–08:30 · US 08:30–17:00</td></tr>
+      <tr><td>volatility regime</td><td>R_prev ÷ median(R over the previous 250 sessions), cut at the terciles of the previous 250 sessions</td></tr>
+      <tr><td>session bucket</td><td>ASIA 17:00–02:00 · EUROPE 02:00–08:30 · US 08:30–15:08 CT</td></tr>
+      <tr><td>day of week</td><td>Mon … Fri (session date)</td></tr>
     </table></div>
-    <ol>
-      <li>Only buckets with ≥ 30 trades are judged.</li>
-      <li>No judged bucket may be significantly negative: the 97.5% stationary-bootstrap upper bound of its mean trade must be ≥ 0.</li>
-      <li>At most one regime bucket and at most one session bucket may have a negative mean.</li>
-      <li>At least 60% of calendar years are positive; the result without the best year is positive.</li>
-    </ol>
-    <div class="basis"><b>Basis:</b> [R24, R9].</div>
+    <p>A bucket with at least 30 trades is judged. None may be significantly negative, meaning the 97.5% stationary-bootstrap upper bound of its mean is below 0.</p>
+    <div class="basis"><b>Basis:</b> [R9, R37].</div>
   </div>
 
   <h3 class="h">B.16 — The robustness law</h3>
   <div class="box"><div class="tw"><table>
-    <tr><th>test</th><th>change</th><th>must stay</th></tr>
-    <tr><td>cost stress</td><td>round-trip cost × 1.5</td><td>mean &gt; 0</td></tr>
-    <tr><td>slippage stress</td><td>+1 tick each side, +1 on stop fills</td><td>mean &gt; 0</td></tr>
-    <tr><td>delay stress</td><td>entry at the open of t + 2</td><td>mean &gt; 0</td></tr>
-    <tr><td>neighbours</td><td>each grid axis one step down and up (SL, TP, hold; L and v for T3 units)</td><td>median of the neighbours' means &gt; 0</td></tr>
-    <tr><td>concentration</td><td>best 5% of trades removed</td><td>mean trade &gt; 0</td></tr>
+    <tr><th>test</th><th>change</th><th>stage</th></tr>
+    <tr><td>horizon coherence</td><td>the next shorter and next longer step on the ladder 1, 2, 4, 8, 16 bars, flat-by</td><td>P4</td></tr>
+    <tr><td>delay profile</td><td>entry at t + 2 and t + 3 (shows how fast the edge decays)</td><td>P4 report, P7</td></tr>
+    <tr><td>price-noise perturbation</td><td>100 copies of Dev in which each open, high, low and close moves by a uniform −1, 0 or +1 tick (bar order kept, OHLC containment restored), with all indicators recomputed</td><td>P4</td></tr>
+    <tr><td>neighbours</td><td>Pool N: the other T3 speed, the adjacent T3 context, the adjacent market context and the family's adjacent threshold. Pool L: the T3 grid points next to (L, v) and the filter's adjacent threshold.</td><td>P4 (gross), P7 (net)</td></tr>
+    <tr><td>concentration</td><td>the best 5% of trades removed; the best year removed</td><td>P4, P7</td></tr>
+    <tr><td>clock placebo</td><td>for session-anchored triggers: OB, IB and SB shifted 2 bars earlier and 2 bars later</td><td>P4 report</td></tr>
+    <tr><td>cost and slippage</td><td>cost × 1.5 and × 2; +1 tick per side</td><td>P5, P7, P8, P9</td></tr>
   </table></div>
-  <div class="basis"><b>Basis:</b> [R23, R3].</div></div>
+  <div class="basis"><b>Basis:</b> robust parameter regions and stress testing [R20, R33]; randomization and perturbation [R12].</div></div>
 
-  <h3 class="h">B.17 — The power law (no window is opened that cannot confirm)</h3>
+  <h3 class="h">B.17 — The calibration and power law</h3>
   <div class="box"><ol>
-    <li>Before Validation: the MinTRL of the unit's walk-forward out-of-sample series must not exceed the number of Validation sessions (P4).</li>
-    <li>Before Test: the MinTRL of the unit's Validation series must not exceed the number of Test sessions (P5).</li>
+    <li><b>False certificates.</b> Before any real result exists, Stage I (P1–P4, with every gate) runs on <b>100 null markets per instrument</b> built by N1 from that instrument's Dev data. It uses a stratified 10% sample of the universe: 1,005 candidates covering every family in proportion. The number of null markets that yield at least one Edge Certificate is the measured false-certificate count.</li>
+    <li><b>Power.</b> The same Stage I runs on null markets in which a known member carries a planted edge: an extra drift spread evenly over the bars of its screen hold after each of its signals. The sizes are 0.10, 0.20 and 0.30 ATR per trade, with 20 runs per size and the instruments taken in rotation. Inside the power runs, the randomization tests use B = 199.</li>
+    <li><b>Minimum detectable edge (MDE).</b> The MDE is the smallest planted size that is certified in at least 80% of the runs. P5 compares it with each contract's cost per trade in ATR.</li>
   </ol>
-  <div class="basis"><b>Basis:</b> minimum track record length [R1].</div></div>
+  <div class="basis"><b>Basis:</b> size and power by simulation [R12, R32, R33].</div></div>
 
-  <h3 class="h">B.18 — The closeout and visual evidence law</h3>
+  <h3 class="h">B.18 — The exit search law</h3>
   <div class="box"><ol>
-    <li>Each phase writes <code>out/&lt;phase&gt;/report.md</code> with five sections: <b>What this phase did · What was tried · What was changed · What was found · Gates</b>, followed by its plots.</li>
-    <li>It writes <code>gates.json</code>, its tables as CSV and the plots listed in its Outputs box.</li>
-    <li>The report is read before the next phase starts.</li>
-  </ol></div>
+    <li>The objective is the 25th percentile, over the training blocks, of each block's mean net R<sub>ATR</sub> per session. Fewer than 30 training trades scores −∞.</li>
+    <li>Stage A applies only to members that use T3: the T3 grid L × v (72 points) with the screen exit. A setting is allowed only if its Dev entries keep a Jaccard overlap of at least 0.70 with the certified member's entries.</li>
+    <li>Stage B: SL_ATR {0.5, 0.75, 1.0, 1.5, 2.0, 3.0} × TP_R {0.5, 1.0, 1.5, 2.0, 3.0, none} × max bars {1, 2, 4, 8, 16, flat-by} = 216 points.</li>
+    <li>Plateau rule: each score is replaced by the mean of the finite scores in its 3 × 3 (× 3) neighbourhood, and the best smoothed score wins.</li>
+  </ol>
+  <div class="basis"><b>Basis:</b> [R3, R10, R20].</div></div>
 
-  <h3 class="h">B.19 — The verification law</h3>
-  <div class="box"><ol>
-    <li><b>Acceptance tests</b> (run in P1 and by <code>python -m pytest tests</code>): the engine, the drift baseline and the time-of-day drift baseline equal slow reference implementations written from B.2–B.3 and B.13; all 66 rules equal slow references written from B.7–B.8; shorts mirror longs exactly; no rule reads future bars; T3 and ATR equal slow references; Newey-West t and Benjamini-Hochberg equal statsmodels; the expected-maximum-SR formula, the null SR variance and the DSR false-positive rate match Monte Carlo; MinTRL is exactly where PSR reaches 95%; PBO, the stationary bootstrap, SPA and K<sub>eff</sub> behave correctly on known inputs.</li>
-    <li><b>End-to-end check</b> (<code>python run.py verify</code>): on a pure random walk the program must stop without a survivor; on a random walk with a planted breakout edge, the planted units must pass P6 and nothing else may pass.</li>
-    <li>Both must pass before P0 is run on the real data.</li>
-  </ol></div>
+  <h3 class="h">B.19 — The closeout law</h3>
+  <div class="box"><p>Each phase writes a report (what it did, what was tried, what was changed, what was found, and the gates), together with its tables, its plots and a gates file reading PASS or STOP. The report is read before the next phase starts.</p></div>
 
   <h3 class="h">B.20 — The amendment and seal law</h3>
   <div class="box"><ol>
-    <li>Changing any setting, cost, gate, rule or registry row after P2 has run starts a new program: new <code>out_dir</code>, rerun from P2, the old folder kept.</li>
-    <li>P6 writes a <code>LOCK</code> holding the hash of the units it opened the Test window for. A later P6 on a different unit set is refused; forcing it fails every Test gate.</li>
+    <li>Any change to the data, rules, universe, configuration or gates after F2 opens a new program with a new output folder. The old program's trials stay in the ledger.</li>
+    <li>P9 writes a lock holding the hash of the strategies it opened the Test window for. A later P9 on a different set is refused, or is marked contaminated and fails.</li>
   </ol></div>
 
-  <h3 class="h">B.21 — The run order</h3>
-  <div class="box"><pre class="f">cd t3lab
-pip install -r requirements.txt
-python -m pytest tests          # all acceptance tests pass
-python run.py verify            # random walk rejected, planted edge found
-# copy the 5 CSV files into t3lab/data/
-python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time, reading each report
-# every program writes to its own out_dir (config.yaml); a new program starts again at P0</pre></div>
+  <h3 class="h">B.21 — The verification law</h3>
+  <div class="box"><ol>
+    <li>The fast code must equal slow reference implementations written from this framework: the engine, both drift baselines, every trigger and context of both pools, T3, ATR, VWAP, σ<sub>τ</sub> and the session anchors.</li>
+    <li>Shorts mirror longs exactly, and no rule reads future bars.</li>
+    <li>The statistics must equal independent references: statsmodels for HAC and BH; Monte Carlo for E[max SR], the null SR variance and the DSR false-positive rate; known inputs for PBO, CPCV, the bootstrap, SPA, StepM, Simes, Benjamini–Bogomolov and K<sub>eff</sub>.</li>
+    <li>Each null of B.13 returns uniform p-values on null markets (Kolmogorov-Smirnov test, 200 markets).</li>
+    <li>B.17 calibration and power are measured and reported.</li>
+  </ol></div>
 </section>
 
-<!-- ============================================================ P0 -->
-<section id="p0">
-  <h2 class="section-title">P0 — DATA, SESSIONS &amp; WINDOWS</h2>
+<!-- ============================================================ PART C -->
+<section id="universe">
+  <h2 class="section-title">PART C — THE CANDIDATE UNIVERSE (PROGRAM 3)</h2>
+
+  <h3 class="h">C.1 — Two pools, 21 families</h3>
   <div class="box">
-    <h4 class="job">Job</h4>
-    <p>Load and certify the five 30-minute files, build sessions and rolls, cut the windows and seal the Test rows. Nothing is tested.</p>
-    <h4 class="job">Inputs</h4>
-    <p><code>t3lab/data/</code>: one CSV per instrument with <code>timestamp, open, high, low, close, volume, contract</code> (exchange time, CT).</p>
+    <div class="tw"><table>
+      <tr><th>pool</th><th>what</th><th>candidates</th><th>families</th><th>screen holds</th><th>flag</th></tr>
+      <tr><td><b>Pool L — legacy</b></td><td>every candidate of Programs 1 and 2, rules and T3 settings unchanged</td><td>5,046</td><td>12 (C.2)</td><td>registered hold and DAY</td><td><span class="star">★</span> all</td></tr>
+      <tr><td><b>Pool N — new</b></td><td>new session-anchored entry logic, with the T3 engine as trend context (C.6–C.10)</td><td>5,000</td><td>11 (C.7)</td><td>SHORT and DAY</td><td><span class="star">★</span> on 4 families</td></tr>
+    </table></div>
+    <p>OPENING_RANGE and INTRADAY_MOMENTUM exist in both pools and are tested as one family each, so there are 21 distinct families. Units: Pool L, 5,046 candidates × their holds × 5 markets ≈ 50,300; Pool N, 5,000 candidates × 5 markets = 25,000 (the hold is part of a Pool N candidate); about 75,000 in all. Testing families first (P2) keeps the legacy pool from drowning the new one: adding a family adds one test to P2, not hundreds.</p>
+  </div>
+
+  <h3 class="h">C.2 — Pool L: the 5,046 legacy candidates by family</h3>
+  <div class="box">
+    <div class="tw"><table>
+      <tr><th>family</th><th>program</th><th>candidates</th><th>long / short</th><th>triggers</th></tr>
+      <tr><td>CANDLE_REVERSAL</td><td>1</td><td>565</td><td>276 / 289</td><td>TWO_BAR_REVERSAL, OUTSIDE_BAR_REVERSAL</td></tr>
+      <tr><td>COMPRESSION_EXPANSION</td><td>1</td><td>613</td><td>307 / 306</td><td>COMPRESSION_BREAK_3, _5, _8, RANGE_EXPANSION_CLOSE</td></tr>
+      <tr><td>MOMENTUM_CONTINUATION</td><td>1</td><td>612</td><td>312 / 300</td><td>MOMENTUM_3, MOMENTUM_6, THREE_BAR_CONTINUATION, GAP_CONTINUATION</td></tr>
+      <tr><td>STRUCTURE_BREAKOUT</td><td>1</td><td>613</td><td>310 / 303</td><td>DONCHIAN_3, _5, _8, _12, _20, PREVBAR_BREAK, INSIDE_BAR_BREAK</td></tr>
+      <tr><td>STRUCTURE_RECLAIM</td><td>1</td><td>565</td><td>278 / 287</td><td>SWEEP_RECLAIM_5, SWEEP_RECLAIM_10</td></tr>
+      <tr><td>T3_CROSS_RECLAIM</td><td>1</td><td>489</td><td>249 / 240</td><td>T3_BODY_CROSS, T3_CLOSE_CROSS, T3_TWO_CLOSE, T3_WICK_RECLAIM, T3_CLEAN_RECLAIM</td></tr>
+      <tr><td>T3_PULLBACK_CONTINUATION</td><td>1</td><td>489</td><td>244 / 245</td><td>T3_PULLBACK_BREAK, T3_TOUCH_3BAR_TREND, T3_THREE_CLOSE, T3_CROSS_RANGE_BREAK</td></tr>
+      <tr><td>T3_TURN_DISTANCE</td><td>1</td><td>489</td><td>230 / 259</td><td>T3_SLOPE_TURN, T3_DISTANCE_RELEASE</td></tr>
+      <tr><td>VOLATILITY_MEAN_REVERSION</td><td>1</td><td>565</td><td>307 / 258</td><td>MEAN_REVERSION_2, MEAN_REVERSION_3</td></tr>
+      <tr><td>OPENING_RANGE</td><td>2</td><td>16</td><td>8 / 8</td><td>ORB_OPEN_BAR, ORB_BREAK × {NONE, T3_SLOPE_NONNEG, T3_DIST_NEAR_100, ABOVE_PREV_SETTLE}</td></tr>
+      <tr><td>INTRADAY_MOMENTUM</td><td>2</td><td>8</td><td>4 / 4</td><td>IMOM_DAY, IMOM_FIRST × {NONE, T3_SLOPE_NONNEG}</td></tr>
+      <tr><td>T3_ACTIVE_SESSION</td><td>2</td><td>22</td><td>11 / 11</td><td>11 T3 triggers × RTH_OPEN_90</td></tr>
+      <tr><td colspan="2"><b>total</b></td><td><b>5,046</b></td><td></td><td>Program 1: 32 triggers × 28 filters × side with a T3 setting from the B.7 grid, registered hold 8 bars. Program 2: T3 5 / 0.7, registered hold 48 bars (to flat-by) or 1 bar (INTRADAY_MOMENTUM).</td></tr>
+    </table></div>
+  </div>
+
+  <h3 class="h">C.3 — Pool L trigger dictionary (long form; short = mirror)</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>trigger</th><th>rule</th><th>trigger</th><th>rule</th></tr>
+    <tr><td>T3_BODY_CROSS</td><td><code>o ≤ T and c &gt; T</code></td><td>DONCHIAN_N (3,5,8,12,20)</td><td><code>c &gt; HH(N)</code></td></tr>
+    <tr><td>T3_CLOSE_CROSS</td><td><code>c[1] ≤ T[1] and c &gt; T</code></td><td>PREVBAR_BREAK</td><td><code>c &gt; h[1]</code></td></tr>
+    <tr><td>T3_TWO_CLOSE</td><td><code>c &gt; T, c[1] &gt; T[1], c[2] ≤ T[2]</code></td><td>INSIDE_BAR_BREAK</td><td><code>h[1] ≤ h[2], l[1] ≥ l[2], c &gt; h[1]</code></td></tr>
+    <tr><td>T3_THREE_CLOSE</td><td><code>c, c[1], c[2] &gt; T and c[3] ≤ T[3]</code></td><td>COMPRESSION_BREAK_N (3,5,8)</td><td><code>rng[1] = min(rng[1..N]) and c &gt; HH(N)</code></td></tr>
+    <tr><td>T3_WICK_RECLAIM</td><td><code>o &gt; T, l ≤ T, c &gt; T</code></td><td>RANGE_EXPANSION_CLOSE</td><td><code>rng &gt; atr1 and CLV ≥ 0.75</code></td></tr>
+    <tr><td>T3_CLEAN_RECLAIM</td><td><code>l &gt; T and l[1] ≤ T[1] ≤ h[1]</code></td><td>MOMENTUM_N (3,6)</td><td><code>c &gt; c[N]</code></td></tr>
+    <tr><td>T3_CROSS_RANGE_BREAK</td><td><code>c[1] &gt; T[1], c[2] ≤ T[2], c &gt; h[1]</code></td><td>THREE_BAR_CONTINUATION</td><td><code>c[1] &gt; c[2] &gt; c[3] and c &gt; h[1]</code></td></tr>
+    <tr><td>T3_PULLBACK_BREAK</td><td><code>T &gt; T[1], l[1] ≤ T[1] &lt; c[1], c &gt; h[1]</code></td><td>GAP_CONTINUATION</td><td><code>o &gt; c[1] and c &gt; o</code></td></tr>
+    <tr><td>T3_TOUCH_3BAR_TREND</td><td><code>T &gt; T[1], some l[k] ≤ T[k] (k = 1..3), c &gt; T</code></td><td>TWO_BAR_REVERSAL</td><td><code>c[1] &lt; o[1] and c &gt; h[1]</code></td></tr>
+    <tr><td>T3_SLOPE_TURN</td><td><code>T &gt; T[1], T[1] ≤ T[2], c &gt; T</code></td><td>OUTSIDE_BAR_REVERSAL</td><td><code>h &gt; h[1], l &lt; l[1], CLV ≥ 0.75</code></td></tr>
+    <tr><td>T3_DISTANCE_RELEASE</td><td><code>d &gt; 0 and d &gt; d[1]</code></td><td>SWEEP_RECLAIM_N (5,10)</td><td><code>lvl = min(l[2..N+1]); l[1] &lt; lvl and c &gt; lvl</code></td></tr>
+    <tr><td>ORB_OPEN_BAR</td><td><code>bar = OB and c &gt; o</code></td><td>MEAN_REVERSION_k (2,3)</td><td><code>l ≤ SMA20[1] − k·atr1 and c &gt; o</code></td></tr>
+    <tr><td>ORB_BREAK</td><td><code>first(OB &lt; bar &lt; SB and c &gt; h(OB))</code></td><td>IMOM_DAY / IMOM_FIRST</td><td><code>bar = IB and c &gt; S_prev</code> / <code>bar = IB and c(OB) &gt; S_prev</code></td></tr>
+  </table></div></div>
+
+  <h3 class="h">C.4 — Pool L filter dictionary</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>filter</th><th>rule</th><th>filter</th><th>rule</th></tr>
+    <tr><td>NONE</td><td><code>true</code></td><td>RANGE_COMPRESS_060</td><td><code>rng ≤ 0.60·median(rng[1..20])</code></td></tr>
+    <tr><td>BODY_35 / 55 / 70</td><td><code>|c − o| ≥ 0.35 / 0.55 / 0.70·rng</code></td><td>RANGE_EXPAND_125 / 150</td><td><code>rng ≥ 1.25 / 1.50·atr1</code></td></tr>
+    <tr><td>CLV_55 / 65 / 75</td><td><code>CLV ≥ 0.55 / 0.65 / 0.75</code></td><td>STRUCTURE_STEP</td><td><code>l &gt; l[1]</code></td></tr>
+    <tr><td>DIRECTIONAL_BODY</td><td><code>c &gt; o</code></td><td>T3_DIST_FAR_025 / 050</td><td><code>d ≥ 0.25 / 0.50·atr1</code></td></tr>
+    <tr><td>FAVOURABLE_WICK_30</td><td><code>min(o, c) − l ≥ 0.30·rng</code></td><td>T3_DIST_NEAR_025 / 050 / 100</td><td><code>0 &lt; d ≤ 0.25 / 0.50 / 1.00·atr1</code></td></tr>
+    <tr><td>NO_ADVERSE_WICK_20</td><td><code>h − max(o, c) ≤ 0.20·rng</code></td><td>T3_NOT_EXTENDED_075</td><td><code>d ≤ 0.75·atr1</code></td></tr>
+    <tr><td>GAP_ALIGNED_010</td><td><code>o − c[1] ≥ 0.10·atr1</code></td><td>T3_SLOPE_NONNEG</td><td><code>T − T[3] ≥ 0</code></td></tr>
+    <tr><td>MOMENTUM_2</td><td><code>c &gt; c[2]</code></td><td>T3_SLOPE_STRONG_015 / 030</td><td><code>T − T[3] ≥ 0.15 / 0.30·atr1</code></td></tr>
+    <tr><td>PREV_OPPOSITE_CANDLE</td><td><code>c[1] &lt; o[1]</code></td><td>VOL_HIGH_120 / VOL_LOW_080</td><td><code>atr1 ≥ 1.20 / ≤ 0.80·median(atr1[0..49])</code></td></tr>
+    <tr><td>ABOVE_PREV_SETTLE</td><td><code>c &gt; S_prev</code></td><td>RTH_OPEN_90</td><td>bar starts within 90 minutes after OB</td></tr>
+  </table></div></div>
+
+  <h3 class="h">C.5 — What earlier programs teach, and how it is used without leakage</h3>
+  <div class="box">
+    <div class="tw"><table>
+      <tr><th>lesson</th><th>source</th><th>kind</th><th>use in Program 3</th></tr>
+      <tr><td>Micro costs were 0.18–0.25 ATR per trade at an 8-bar hold. That exceeds almost every gross excess seen, and the median unit lost about 0.2 ATR per trade after costs.</td><td>Program 1, cost structure</td><td>cost, known before returns</td><td>Pool N (a) adds the DAY hold, because gross moves grow with the hold while the cost per trade stays fixed; (b) enters in the day session, where the 30-minute range is largest against a fixed cost [R28]; (c) tests mini contracts, which cost 35–38% fewer ticks.</td></tr>
+      <tr><td>Member-level BH over 25,000 units found nothing, with fewer gross t ≥ 2 than chance (272 against about 569).</td><td>Program 1</td><td>method</td><td>Families are tested first (P2), with a pooled view for broad weak edges and a Simes view for a few strong members.</td></tr>
+      <tr><td>The largest gross statistics came from T3 pullback continuation (YM, CL, GC) and from mean reversion with a strong T3 slope (GC). None was significant after multiplicity.</td><td>Program 1, Dev returns</td><td>Dev-informed</td><td>Re-expressed in the day session as T3_DAY_TREND and EXTREME_REVERSION, both flagged <span class="star">★</span>, counted in the ledger and examined more strictly (P8).</td></tr>
+      <tr><td>Opening range and intraday momentum, at one specification each, did not beat chance on Dev (7 of 230 against about 5).</td><td>Program 2, Dev returns</td><td>Dev-informed</td><td>Widened into families with thresholds, volatility states and T3 contexts, flagged <span class="star">★</span>, with Program 2 counted.</td></tr>
+      <tr><td>Validation and Test were never opened.</td><td>Programs 1–2</td><td>—</td><td>Both remain clean exams for Program 3.</td></tr>
+    </table></div>
+  </div>
+
+  <h3 class="h">C.6 — Pool N grammar</h3>
+  <div class="box">
+    <pre class="f">candidate = trigger (25) × T3 context (10) × market context (5) × side (2) × screen hold (2) = 5,000</pre>
+    <p>The <b>trigger</b> decides <b>when</b>: a moment of the trading day with an economic reason. The <b>T3 context</b> decides <b>whether the T3 trend agrees</b>. The <b>market context</b> decides <b>whether it is the right kind of day</b>. The <b>side</b> is an exact mirror. The <b>screen hold</b> decides how long the Stage I measurement lasts. Exits are not part of the universe; they are built in P6, and only for certified edges. Candidates with identical Dev signals are merged in F2 and count as one trial and one test.</p>
+  </div>
+
+  <h3 class="h">C.7 — Pool N families and triggers (long form; short = mirror)</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>family</th><th>trigger</th><th>rule</th><th>reason</th></tr>
+    <tr><td rowspan="4">OPENING_RANGE <span class="star">★</span><br>800</td><td>ORB_DIR_30</td><td><code>bar = OB and c &gt; o</code></td><td rowspan="4">The opening of the day session concentrates information and volume, and the direction and breakout of the opening range carry into the day; the effect depends on the volatility state [R19, R26, R27, R37].</td></tr>
+    <tr><td>ORB_BREAK_30</td><td><code>first(OB &lt; bar &lt; SB and c &gt; h(OB))</code></td></tr>
+    <tr><td>ORB_BREAK_60</td><td><code>first(OB2 &lt; bar &lt; SB and c &gt; max(h(OB), h(OB2)))</code></td></tr>
+    <tr><td>ORB_RETEST_30</td><td><code>first(OB &lt; bar &lt; SB, an ORB_BREAK_30 earlier this session, l ≤ h(OB) and c &gt; h(OB))</code></td></tr>
+    <tr><td rowspan="3">INTRADAY_MOMENTUM <span class="star">★</span><br>600</td><td>IMOM_DAY</td><td><code>bar = IB and c &gt; S_prev</code></td><td rowspan="3">The return since the previous settlement predicts the last half-hour through hedging demand, in more than 60 futures; the effect is stronger on large-move days [R24, R25].</td></tr>
+    <tr><td>IMOM_FIRST</td><td><code>bar = IB and c(OB) &gt; S_prev</code></td></tr>
+    <tr><td>IMOM_LARGE</td><td><code>bar = IB and c − S_prev ≥ 0.5 × mean(R_prev of the last 20 sessions)</code></td></tr>
+    <tr><td rowspan="2">NOISE_BOUNDARY<br>400</td><td>NB_10</td><td><code>first(OB &lt; bar &lt; SB and c &gt; max(O_day, S_prev) + 1.0·σ_τ)</code></td><td rowspan="2">A move beyond the normal noise area of that time of day signals an imbalance of supply and demand [R36].</td></tr>
+    <tr><td>NB_15</td><td><code>first(OB &lt; bar &lt; SB and c &gt; max(O_day, S_prev) + 1.5·σ_τ)</code></td></tr>
+    <tr><td rowspan="2">VOLATILITY_BREAKOUT<br>400</td><td>VBO_025</td><td><code>first(DAY and c &gt; O_day + 0.25·R_prev)</code></td><td rowspan="2">A move from the open larger than a fraction of the previous day's range starts a range expansion [R19, R37].</td></tr>
+    <tr><td>VBO_050</td><td><code>first(DAY and c &gt; O_day + 0.50·R_prev)</code></td></tr>
+    <tr><td rowspan="2">OVERNIGHT_GAP<br>400</td><td>GAP_CONTINUE</td><td><code>bar = OB, O_day − S_prev ≥ 0.25·R_prev and c &gt; o</code></td><td rowspan="2">Overnight and day-session returns behave differently, and the first day-session bar either confirms or rejects the overnight move [R38, R39, R46].</td></tr>
+    <tr><td>GAP_FADE</td><td><code>bar = OB, O_day − S_prev ≤ −0.25·R_prev and c &gt; o</code></td></tr>
+    <tr><td rowspan="2">VWAP_TREND<br>400</td><td>VWAP_RECLAIM</td><td><code>OB &lt; bar &lt; SB, c[1] ≤ VWAP[1] and c &gt; VWAP</code></td><td rowspan="2">VWAP is the execution benchmark of institutional orders, so acceptance above it marks buy-side control [R35, R44].</td></tr>
+    <tr><td>VWAP_PULLBACK</td><td><code>OB &lt; bar &lt; SB, c[1] &gt; VWAP[1], l ≤ VWAP, c &gt; VWAP and c &gt; o</code></td></tr>
+    <tr><td rowspan="2">SAME_SLOT_CONTINUATION<br>400</td><td>SLOT_20</td><td>bar t + 1 in DAY, and z of the return (c − o) of bar t + 1's time slot over the previous 20 sessions ≥ 2, where z = mean / sd × √n</td><td rowspan="2">Half-hour returns continue at the same time of day over the following days and weeks (shown for stocks; untested on futures and tested here as a new hypothesis). The excess over the Dev slot mean removes the fixed seasonal part [R47].</td></tr>
+    <tr><td>SLOT_40</td><td>as SLOT_20 over the previous 40 sessions</td></tr>
+    <tr><td rowspan="2">COMPRESSION_DAY<br>400</td><td>NR4_DAY_BREAK</td><td><code>R_prev = min of the last 4 day ranges and first(DAY and c &gt; H_prev)</code></td><td rowspan="2">Narrow-range days are followed by expansion days (NR4 / NR7); the idea of COMPRESSION_EXPANSION at day scale [R19].</td></tr>
+    <tr><td>NR7_DAY_BREAK</td><td><code>R_prev = min of the last 7 day ranges and first(DAY and c &gt; H_prev)</code></td></tr>
+    <tr><td rowspan="2">PRIOR_DAY_LEVELS<br>400</td><td>PDH_BREAK</td><td><code>first(DAY and c &gt; H_prev)</code></td><td rowspan="2">The previous session's extremes are the levels most watched by day traders; the ideas of STRUCTURE_BREAKOUT and STRUCTURE_RECLAIM at session scale [R19].</td></tr>
+    <tr><td>PDL_RECLAIM</td><td><code>first(DAY and l[1] &lt; L_prev and c &gt; L_prev)</code></td></tr>
+    <tr><td rowspan="2">T3_DAY_TREND <span class="star">★</span><br>400</td><td>T3_PULLBACK_BREAK_D</td><td><code>DAY, T &gt; T[1], l[1] ≤ T[1] &lt; c[1], c &gt; h[1]</code></td><td rowspan="2">The T3 engine's continuation after a pullback, restricted to the day session where costs are smallest relative to the move [R17].</td></tr>
+    <tr><td>T3_TOUCH_3BAR_D</td><td><code>DAY, T &gt; T[1], some l[k] ≤ T[k] (k = 1..3), c &gt; T</code></td></tr>
+    <tr><td rowspan="2">EXTREME_REVERSION <span class="star">★</span><br>400</td><td>MR_VWAP_2</td><td><code>OB &lt; bar &lt; SB, l ≤ VWAP − 2·atr1, c &gt; o and CLV ≥ 0.5</code></td><td rowspan="2">An overextension from the session's value is followed by a reversal bar [R11].</td></tr>
+    <tr><td>MR_SMA20_2_D</td><td><code>DAY, l ≤ SMA20[1] − 2·atr1 and c &gt; o</code></td></tr>
+  </table></div>
+  <p>The figure under each family name is its number of candidates: triggers × 10 × 5 × 2 × 2.</p></div>
+
+  <h3 class="h">C.8 — Pool N T3 contexts (10)</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>context</th><th>rule</th><th>speed</th></tr>
+    <tr><td>NONE</td><td>always true</td><td>— (T3 triggers use FAST)</td></tr>
+    <tr><td>T3_SLOPE_UP_F / _S</td><td><code>T − T[3] ≥ 0</code></td><td>FAST / SLOW</td></tr>
+    <tr><td>T3_SIDE_F / _S</td><td><code>c &gt; T</code></td><td>FAST / SLOW</td></tr>
+    <tr><td>T3_NEAR_F / _S</td><td><code>0 &lt; d ≤ 1.0·atr1</code></td><td>FAST / SLOW</td></tr>
+    <tr><td>T3_STRONG_F / _S</td><td><code>T − T[3] ≥ 0.15·atr1</code></td><td>FAST / SLOW</td></tr>
+    <tr><td>T3_STACK</td><td><code>T_FAST &gt; T_SLOW and T_SLOW − T_SLOW[3] ≥ 0</code></td><td>both (T3 triggers use FAST)</td></tr>
+  </table></div>
+  <p>A T3 trigger uses the context's speed for both the trigger and the context.</p></div>
+
+  <h3 class="h">C.9 — Pool N market contexts (5)</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>context</th><th>rule</th><th>reason</th></tr>
+    <tr><td>NONE</td><td>always true</td><td>—</td></tr>
+    <tr><td>VOL_HIGH</td><td>R_prev ÷ median(R over the previous 250 sessions) in its upper tercile (terciles over the previous 250 sessions)</td><td>intraday breakout returns depend on the volatility state [R37]</td></tr>
+    <tr><td>VOL_NOT_LOW</td><td>the same ratio not in its lower tercile</td><td>[R37]</td></tr>
+    <tr><td>DAILY_TREND</td><td><code>S_prev − S_prev(20 sessions earlier) &gt; 0</code></td><td>time-series momentum at the one-month horizon [R40]</td></tr>
+    <tr><td>MARKET_AGREE</td><td>at the same bar time, the paired market's close minus its own S_prev is &gt; 0 (pairs: NQ↔YM, GC↔SI, CL↔NQ)</td><td>related markets share information, and agreement filters out idiosyncratic noise [R41, R42]</td></tr>
+  </table></div></div>
+
+  <h3 class="h">C.10 — Screen holds (Stage I)</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>pool</th><th>hold</th><th>bars</th></tr>
+    <tr><td rowspan="2">Pool N</td><td>SHORT</td><td>1 bar for INTRADAY_MOMENTUM and SAME_SLOT_CONTINUATION; 4 bars (2 hours) for the others</td></tr>
+    <tr><td>DAY</td><td>until the last tradable bar (flat by 15:08 CT)</td></tr>
+    <tr><td rowspan="2">Pool L</td><td>registered</td><td>8 bars (Program 1); 48 or 1 bar (Program 2)</td></tr>
+    <tr><td>DAY</td><td>until the last tradable bar (when the registered hold is already DAY, it is the only hold)</td></tr>
+  </table></div></div>
+
+  <h3 class="h">C.11 — The family list for P2 (21)</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>group</th><th>families</th></tr>
+    <tr><td>legacy only (10)</td><td>CANDLE_REVERSAL, COMPRESSION_EXPANSION, MOMENTUM_CONTINUATION, STRUCTURE_BREAKOUT, STRUCTURE_RECLAIM, T3_CROSS_RECLAIM, T3_PULLBACK_CONTINUATION, T3_TURN_DISTANCE, VOLATILITY_MEAN_REVERSION, T3_ACTIVE_SESSION</td></tr>
+    <tr><td>both pools (2)</td><td>OPENING_RANGE, INTRADAY_MOMENTUM</td></tr>
+    <tr><td>new only (9)</td><td>NOISE_BOUNDARY, VOLATILITY_BREAKOUT, OVERNIGHT_GAP, VWAP_TREND, SAME_SLOT_CONTINUATION, COMPRESSION_DAY, PRIOR_DAY_LEVELS, T3_DAY_TREND, EXTREME_REVERSION</td></tr>
+  </table></div>
+  <p>A family test covers one family × side × market, and its members are all of that family's candidates on that side and market, at every hold.</p></div>
+
+  <h3 class="h">C.12 — Earlier programs on the same Dev data</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>program</th><th>universe</th><th>result on Dev</th><th>ledger K<sub>eff</sub></th></tr>
+    <tr><td>Program 1</td><td>5,000 candidates, 9 families, 8-bar screen</td><td>STOP at the screen: gross t ≥ 2 in 272 of 25,000 units (about 569 by chance); 0 discoveries; SPA p = 1.0 on every market; median unit about −0.2 ATR per trade after costs</td><td>CL 498 · GC 458 · NQ 460 · SI 490 · YM 485</td></tr>
+    <tr><td>Program 2</td><td>46 candidates, 3 families</td><td>STOP at the screen: gross t ≥ 2 in 7 of 230 units (about 5 by chance); 0 discoveries; SPA p 0.53–1.0</td><td>CL 6 · GC 5 · NQ 6 · SI 4 · YM 6</td></tr>
+  </table></div>
+  <p>Neither program opened Validation or Test.</p></div>
+</section>
+
+<!-- ============================================================ FOUNDATION -->
+<div class="stage">FOUNDATION</div>
+
+<section id="f0">
+  <h2 class="section-title">F0 — DATA, SESSIONS &amp; WINDOWS</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Certify the five 30-minute files, build sessions, rolls, the session clock, the paired-market alignment and the windows, and seal the Test rows.</p>
+    <div class="plain"><b>Plain words:</b> make sure the data are clean, mark every trading day and its key times, and lock away the last 40% of history.</div>
     <h4 class="job">Steps</h4>
     <ol>
-      <li><b>Load</b> each file and sort by time.</li>
-      <li><b>Duplicates</b>: remove repeated timestamps (keep the last) and count them.</li>
-      <li><b>OHLC containment</b>: count bars with high &lt; max(open, close) or low &gt; min(open, close); set high = max(o, h, l, c), low = min(o, h, l, c).</li>
-      <li><b>Grids</b>: share of timestamps on the 30-minute grid; share of prices on the tick grid.</li>
-      <li><b>Sessions</b> (B.2): session date = timestamp + 7 h; a gap ≥ 120 minutes also starts a session; bars per session and short sessions counted.</li>
-      <li><b>Rolls</b>: flag contract changes; compare the median |open − previous close| / ATR at roll opens with normal session opens.</li>
-      <li><b>Windows</b> (A.3): Dev 60% / 1 embargo session / Validation 20% / 1 embargo session / Test 20%; Dev cut into 6 equal blocks.</li>
-      <li><b>Seal</b>: SHA-256 of the Test rows stored in <code>gates.json</code>; Test rows are dropped on every load before P6.</li>
-      <li><b>Cache</b> each instrument with session, roll, window, block and session-bucket columns.</li>
+      <li>Load each file and sort it by time.</li>
+      <li>Remove duplicate timestamps (keeping the last), enforce OHLC containment, and count both.</li>
+      <li>Check the 30-minute grid, the tick grid and non-negative volume.</li>
+      <li>Build sessions (B.3), rolls, the flat-by mask and the session clock (B.8).</li>
+      <li>Measure roll gaps against normal session-open gaps, in ATR.</li>
+      <li>Cut the windows by session (A.4), and split Dev into 6 blocks, 10 groups and 16 blocks.</li>
+      <li>Build the paired-market table (NQ↔YM, GC↔SI, CL↔NQ) by timestamp.</li>
+      <li>Hash the Test rows and drop them from every load before P9.</li>
     </ol>
     <div class="gate"><b>Gates (hard)</b><ol>
       <li>OHLC repairs ≤ 0.1% of bars.</li>
-      <li>Timestamps on the 30-minute grid ≥ 99%.</li>
-      <li>Prices on the tick grid ≥ 99%.</li>
-      <li>Every window of every instrument has ≥ 250 sessions.</li>
+      <li>≥ 99% of timestamps on the 30-minute grid; ≥ 99% of prices on the tick grid.</li>
+      <li>≥ 250 sessions in every window of every market.</li>
+      <li>OB and SB present in ≥ 95% of Dev sessions of every market.</li>
+      <li>Paired-market timestamps aligned in ≥ 99% of day-session bars.</li>
     </ol></div>
-    <div class="out"><b>Outputs</b> — <code>data_qa.csv</code>, <code>repairs.csv</code>, <code>splits.csv</code>, <code>costs.csv</code> (contract, tick value, fees, cost in ticks, flat-by); <code>split_timeline.png</code> (price with Validation and Test shaded); <code>sessions.png</code> (bars per session; time-of-day coverage).</div>
-    <div class="closeout"><b>Closeout</b> — Forwards the cached, split data. <code>python run.py P0</code></div>
+    <div class="out"><b>Outputs</b>: data_qa, repairs, splits, costs (micro and mini), session-clock coverage, pair alignment. Plots: split timeline, session lengths, time-of-day coverage, roll gaps.</div>
   </div>
 </section>
 
-<!-- ============================================================ P1 -->
+<section id="f1">
+  <h2 class="section-title">F1 — ENGINE ACCEPTANCE &amp; CALIBRATION</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Prove that the machine does exactly what this framework says, measure how often Stage I would certify luck, and measure how small an edge it can see.</p>
+    <div class="plain"><b>Plain words:</b> test the tester. On fake markets with no edge it must almost never say "edge". On fake markets with a hidden edge it must find it.</div>
+    <h4 class="job">Steps</h4>
+    <ol>
+      <li><b>Hand cases</b> for every rule of B.3–B.5: target, stop-first tie, gap through, time exit, session end, flat-by, one position, costs, delay.</li>
+      <li><b>Slow references</b> (B.21) for the engine, both drift baselines, every trigger and context of both pools, VWAP, σ<sub>τ</sub>, the session anchors, T3 and ATR, on synthetic markets, with exact equality.</li>
+      <li><b>Mirror and causality</b> tests over every rule.</li>
+      <li><b>Statistic references</b> (B.21-3).</li>
+      <li><b>Null uniformity</b>: the p-values of N1–N5 on 200 null markets, Kolmogorov-Smirnov.</li>
+      <li><b>False-certificate calibration</b> (B.17-1).</li>
+      <li><b>Power and MDE</b> (B.17-2, B.17-3).</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b><ol>
+      <li>Every hand case, slow reference, mirror and causality test passes.</li>
+      <li>Statistic references are within tolerance.</li>
+      <li>No null's p-values reject uniformity at 1%.</li>
+      <li>At most 5 of 100 null markets yield a certificate, on every instrument.</li>
+    </ol><b>Report</b>: power curves and the MDE (used in P5).</div>
+    <div class="out"><b>Outputs</b>: acceptance table, null-uniformity table, calibration table, power curves, MDE table.</div>
+  </div>
+</section>
+
+<section id="f2">
+  <h2 class="section-title">F2 — PRE-REGISTRATION &amp; TRIAL LEDGER</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Freeze the universe, the configuration and every threshold before any Stage I statistic exists.</p>
+    <div class="plain"><b>Plain words:</b> write down every idea and every rule, seal them with a fingerprint, and only then look at results.</div>
+    <h4 class="job">Steps</h4>
+    <ol>
+      <li>Write Pool L (5,046 rows, unchanged) and generate Pool N (5,000 rows) from C.6–C.10. Each row carries its id, pool, family, trigger, contexts or filter, side, T3 setting, holds and ★ flag.</li>
+      <li>Write the exact rule text of every component and a spec hash per candidate.</li>
+      <li>Hash the candidate file, the configuration and this framework together, and store the hash.</li>
+      <li>Open the trial ledger with the earlier programs' K<sub>eff</sub> (B.11).</li>
+      <li>Run a signal census on Dev, counting signals only and computing no returns: signals per candidate and market; the Jaccard overlap of triggers and of candidates within each family; signal-identical candidates merged.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b><ol>
+      <li>0 unknown components, 0 duplicate specs, 0 missing T3 settings, every side valid.</li>
+      <li>The hash is stored before P1 runs.</li>
+    </ol></div>
+    <div class="out"><b>Outputs</b>: registry, merge log, hash, ledger, signal census. Plots: candidates per family × context, trigger overlap.</div>
+  </div>
+</section>
+
+<!-- ============================================================ STAGE I -->
+<div class="stage">STAGE I — EDGE BEFORE COSTS (gross, Dev only)</div>
+
 <section id="p1">
-  <h2 class="section-title">P1 — REGISTRY &amp; ENGINE ACCEPTANCE</h2>
+  <h2 class="section-title">P1 — EVENT STUDY (MEASURE, DO NOT SELECT)</h2>
   <div class="box">
-    <h4 class="job">Job</h4>
-    <p>Prove the code obeys the laws exactly, and make every candidate executable. No return is computed.</p>
+    <h4 class="job">Job</h4><p>Measure, for every unit, what happens after the signal before costs, against the drift of the same time of day. Nothing is selected here except that units with too few trades leave.</p>
+    <div class="plain"><b>Plain words:</b> for each idea, compare the move after its signal with the move after an ordinary bar at the same clock time.</div>
     <h4 class="job">Steps</h4>
     <ol>
-      <li><b>Acceptance tests</b> (B.19, 34 tests): hand-made engine cases (target fill, stop-first tie, TradingView path, gap through stop, time exit, session-end exit, one position, costs, delay); engine, drift baseline and time-of-day baseline vs slow references (12 random configurations, both sides); sessions, rolls and the flat-by cutoff; T3 and ATR vs slow references; all 66 rules vs slow references; mirror; no look-ahead; every rule reachable; statistics vs statsmodels and Monte Carlo.</li>
-      <li><b>Registry checks</b>: missing columns, duplicate ids, unknown triggers, unknown filters, invalid sides, T3 rows without T3 settings, T3 settings out of range, duplicate specifications.</li>
-      <li><b>Executable registry</b> (B.9): <code>registry.csv</code> with <code>uses_t3</code>, <code>cell_id</code>, <code>trigger_def</code>, <code>filter_def</code>, <code>spec_hash</code>.</li>
-      <li><b>Trigger overlap</b>: Jaccard overlap of the 32 triggers' entry sets on Dev, long side, at the registry's median T3 setting; pairs ≥ 0.5 listed.</li>
+      <li>Build each candidate's signal on its side, and record its trades at each screen hold with no stop and no target.</li>
+      <li>Compute drift baselines per market, side, hold and bar time (A.6).</li>
+      <li>Per unit, compute: trades; gross mean; excess per trade; the per-session excess series; Newey-West t and one-sided p; edge ratio; excess per Dev block; the horizon profile (1, 2, 4, 8, 16 bars, flat-by); MFE and MAE.</li>
+      <li>Per market, compute: K<sub>eff</sub> of the new series (ledger); PBO of picking the Dev winner; Hansen SPA p.</li>
     </ol>
-    <div class="gate"><b>Gates (hard)</b><ol>
-      <li>All acceptance tests pass.</li>
-      <li>Every registry check counts 0.</li>
-      <li>Unique spec hashes = number of rows.</li>
-    </ol></div>
-    <div class="out"><b>Outputs</b> — <code>acceptance_tests.csv</code>, <code>registry_checks.csv</code>, <code>registry.csv</code>, <code>trigger_overlap.csv</code>; <code>registry_composition.png</code>, <code>trigger_overlap.png</code>.</div>
-    <div class="closeout"><b>Closeout</b> — Forwards the frozen executable registry. <code>python run.py P1</code></div>
+    <div class="gate"><b>Gate (hard)</b>: ≥ 100 Dev trades. Units below the floor are recorded as insufficient and leave.</div>
+    <div class="out"><b>Outputs</b>: units table, universe table, ledger update. Plots: t distribution against N(0,1) per market; family × market heatmap of the mean t; excess by hour per family; horizon profiles per family.</div>
   </div>
 </section>
 
-<!-- ============================================================ P2 -->
 <section id="p2">
-  <h2 class="section-title">P2 — SCREEN: EDGE BEFORE COSTS, THEN AFTER COSTS</h2>
+  <h2 class="section-title">P2 — FAMILY TEST (DOES THE FAMILY HAVE AN EDGE?)</h2>
   <div class="box">
-    <h4 class="job">Job</h4>
-    <p>Run every candidate on every instrument on Dev with its screen exit, keep only units with a real edge before costs that also stays significant after costs, and measure the size and difficulty of the search.</p>
+    <h4 class="job">Job</h4><p>Ask first whether a family has an edge on a market at all, with one test per family, side and market, so that a real family is not drowned by thousands of members.</p>
+    <div class="plain"><b>Plain words:</b> before judging single candidates, ask each family as a team whether it beats chance.</div>
     <h4 class="job">Steps</h4>
     <ol>
-      <li><b>Signals</b>: trigger ∧ filter with the row's own T3 setting, on the row's side.</li>
-      <li><b>Screen exit</b>: no stop, no target, TIME at the open of bar entry + the row's <code>screen_bars</code> (default 8; 48 = until the flat-by time), EOS earlier at a session end.</li>
-      <li><b>Drift baseline</b> per instrument, side, screen exit and time of day: mean gross R<sub>ATR</sub> of the screen exit entered after every eligible Dev bar at that time (B.13).</li>
-      <li><b>Layer A — edge before costs</b>, per unit:
-        <ul>
-          <li>trades n; gross mean; excess = gross − baseline per trade;</li>
-          <li>per-session excess series → Newey-West t and one-sided p;</li>
-          <li>edge ratio = mean MFE<sub>ATR</sub> ÷ mean MAE<sub>ATR</sub>;</li>
-          <li>number of Dev blocks with positive excess.</li>
-        </ul></li>
-      <li><b>Benjamini-Hochberg</b> over all gross p-values of the program.</li>
-      <li><b>Layer B — after costs</b>, per unit: net mean R<sub>ATR</sub> per trade; per-session net series → Newey-West t; win rate; SR.</li>
-      <li><b>Universe</b> per instrument, on the net per-session series of all its units: K<sub>eff</sub>; spread of SR; Hansen SPA p (500 draws); PBO of picking the Dev winner (16 blocks).</li>
-      <li><b>De-duplication</b> within each instrument: sort passing units by net t; keep a unit only if the Jaccard overlap of its entry bars with every kept unit is ≤ 0.30.</li>
-      <li><b>Shortlist</b>: the 50 best remaining units by net t.</li>
-      <li><b>Horizon profile</b> of the shortlist: gross excess for time exits of 1, 2, 4, 8, 16 bars.</li>
+      <li>For each of the 210 family tests, compute the Simes p over the members' P1 p-values, the pooled p of the averaged member series, and the family p (A.6).</li>
+      <li>Apply BH across the 210 family p-values at q = 0.05. The selected family tests number R.</li>
+      <li>Report Stouffer z across markets per family and side, the share of members with positive excess, and the pooled mean excess.</li>
     </ol>
-    <div class="gate"><b>Gates — per unit (hard, all required)</b><ol>
-      <li><code>g_trades</code>: n ≥ 100.</li>
-      <li><code>g_edge</code>: mean excess per trade &gt; 0.</li>
-      <li><code>g_t_gross</code>: Newey-West t of the excess series ≥ 2.0.</li>
-      <li><code>g_bh_gross</code>: BH q ≤ 0.10 over all units of the program.</li>
-      <li><code>g_e_ratio</code>: edge ratio &gt; 1.0.</li>
-      <li><code>g_blocks</code>: excess positive in ≥ 4 of 6 Dev blocks.</li>
-      <li><code>g_net</code>: net mean per trade &gt; 0.</li>
-      <li><code>g_t_net</code>: Newey-West t of the net series ≥ 2.0.</li>
-    </ol><b>Gate — phase</b>: shortlist ≥ 1 unit.</div>
-    <div class="out"><b>Outputs</b> — <code>units.csv</code> (every unit with every figure and gate), <code>universe.csv</code>, <code>gate_funnel.csv</code>, <code>shortlist.csv</code>; <code>screen_distribution.png</code> (gross and net t against N(0,1); gross excess vs net), <code>family_heatmap.png</code> (share with an edge before costs by family × instrument), <code>entry_quality.png</code> (edge ratio vs excess; horizon profile).</div>
-    <div class="closeout"><b>Closeout</b> — Forwards the shortlist and the universe figures (K<sub>eff</sub>, SPA p). <code>python run.py P2</code></div>
+    <div class="gate"><b>Gate (hard)</b>: R ≥ 1.</div>
+    <div class="out"><b>Outputs</b>: family table (Simes p, pooled p, family p, q). Plot: family × side × market map of q.</div>
+    <div class="basis"><b>Basis:</b> [R5, R30, R31].</div>
   </div>
 </section>
 
-<!-- ============================================================ P3 -->
 <section id="p3">
-  <h2 class="section-title">P3 — T3 SETTINGS, STOP, TARGET, HOLD (WALK-FORWARD IN DEV)</h2>
+  <h2 class="section-title">P3 — MEMBER SELECTION (WHICH MEMBERS CARRY IT?)</h2>
   <div class="box">
-    <h4 class="job">Job</h4>
-    <p>For each shortlisted unit, choose the T3 setting and the exit — stop in ATR, target as a multiple of the stop, maximum bars — without ever scoring a choice on the data it was chosen on.</p>
+    <h4 class="job">Job</h4><p>Inside the selected family tests only, find the members that carry the edge, with a correction that accounts for the family selection.</p>
+    <div class="plain"><b>Plain words:</b> inside the winning teams, find the players who actually score, with stricter rules because the teams were picked first.</div>
     <h4 class="job">Steps</h4>
     <ol>
-      <li><b>Folds</b>: fold k = 1…5 trains on blocks B0…B(k−1) and is scored on Bk.</li>
-      <li><b>Stage A</b> (T3 units): score the 72 T3 settings with the screen exit on the training blocks (B.12); plateau-smooth; take the best.</li>
-      <li><b>Stage B</b>: score the 252 exits on that T3 setting on the training blocks; plateau-smooth; take the best.</li>
-      <li><b>Score the fold</b>: apply the chosen parameters unchanged to block Bk; keep its per-session net results and trades.</li>
-      <li><b>Stitch</b> B1…B5 into the walk-forward out-of-sample (WF-OOS) series.</li>
-      <li><b>Final parameters</b>: Stages A and B on all six blocks; frozen for P4–P7.</li>
-      <li><b>Search size</b>: configs evaluated, K<sub>eff</sub> of their Dev series, and PBO (CSCV, 16 blocks) over them.</li>
+      <li>Within each selected family test, apply BH at level 0.10 × R / 210 over its members (Benjamini–Bogomolov).</li>
+      <li>Report Romano-Wolf StepM on the same members (family-wise 10%, 999 joint bootstrap draws).</li>
+      <li>Keep members with all of: a discovery; excess &gt; 0; edge ratio &gt; 1; positive excess in ≥ 4 of 6 Dev blocks.</li>
+      <li>De-duplicate within each market: sort by t, and drop a member whose entries overlap a kept member by Jaccard &gt; 0.30.</li>
+      <li>Keep at most 50 members per market, highest t first.</li>
     </ol>
-    <div class="gate"><b>Gates — per unit (hard)</b><ol>
-      <li><code>g_oos_trades</code>: WF-OOS trades ≥ 50.</li>
-      <li><code>g_oos_mean</code>: WF-OOS mean per session &gt; 0.</li>
-    </ol><b>Gate — phase</b>: ≥ 1 unit passes.</div>
-    <div class="out"><b>Outputs</b> — <code>refined.csv</code> (final T3 length and vf, SL_ATR, TP_R, max bars, configs evaluated, K<sub>eff</sub> of configs, PBO, WF-OOS mean and trades, positive folds), <code>wf_folds.csv</code> (choice and result of every fold), <code>units/*.npz</code>; <code>exit_surfaces.png</code> (Dev score over SL × TP at the chosen hold), <code>wf_folds.png</code>.</div>
-    <div class="closeout"><b>Closeout</b> — Forwards the passing units with their final parameters and WF-OOS series. <code>python run.py P3</code></div>
+    <div class="gate"><b>Gates (hard, per member)</b><ol>
+      <li><code>g_bb</code>: Benjamini–Bogomolov discovery.</li>
+      <li><code>g_excess</code>: mean excess &gt; 0.</li>
+      <li><code>g_e_ratio</code>: edge ratio &gt; 1.</li>
+      <li><code>g_blocks</code>: ≥ 4 of 6 Dev blocks positive.</li>
+    </ol><b>Gate (phase)</b>: ≥ 1 member.</div>
+    <div class="out"><b>Outputs</b>: member table (BB q, StepM, block profile), dedupe log.</div>
+    <div class="basis"><b>Basis:</b> [R31, R32].</div>
   </div>
 </section>
 
-<!-- ============================================================ P4 -->
 <section id="p4">
-  <h2 class="section-title">P4 — TIMING, SELECTION BIAS, ROBUSTNESS, STABILITY, POWER</h2>
+  <h2 class="section-title">P4 — LUCK ELIMINATION &amp; EDGE CERTIFICATE</h2>
   <div class="box">
-    <h4 class="job">Job</h4>
-    <p>Decide whether each refined unit is real: its timing must beat random timing before costs, its walk-forward out-of-sample result must survive the full search, stress and time, and Validation must be long enough to confirm it.</p>
+    <h4 class="job">Job</h4><p>Try to destroy every surviving member with tests that P2–P3 did not use. A member that survives everything receives an <b>Edge Certificate</b>: evidence of a gross timing edge that is not luck, not drift, not one period, not one setting and not one path.</p>
+    <div class="plain"><b>Plain words:</b> make luck compete with the member 999 times in three different ways, including luck that also gets to pick the best of the family. Then shake the data, the settings and the years. Only a member that wins every time is certified.</div>
     <h4 class="job">Steps</h4>
     <ol>
-      <li><b>Random-timing null on gross R</b> (B.13): final parameters on Dev, 1,000 draws.</li>
-      <li><b>Bootstrap</b> the WF-OOS series (2,000 draws): 95% CI and one-sided p.</li>
-      <li><b>Deflated Sharpe</b> of the WF-OOS series with N = K<sub>eff</sub>(universe) + K<sub>eff</sub>(configs) + prior trials (B.11).</li>
-      <li><b>PBO</b> of the P3 search; <b>SPA p</b> of the instrument's universe.</li>
-      <li><b>Fold dispersion</b>: share of positive folds; largest fold ÷ sum of positive folds.</li>
-      <li><b>Stress</b> on Dev with the final parameters: cost × 1.5; +1 tick per side; one-bar delay.</li>
-      <li><b>Neighbours</b>: every grid axis one step down and up; median Dev mean.</li>
-      <li><b>Concentration and time</b>: mean without the best 5% of trades; total without the best year; share of positive years.</li>
-      <li><b>Stability</b> (B.15) by year, volatility tercile and session bucket.</li>
-      <li><b>Power</b> (B.17): MinTRL of the WF-OOS series vs the number of Validation sessions.</li>
+      <li><b>Selection-aware MCPT</b> (N1-S, 999) once per selected family test. Compare each member's real t with the best-of-family t of every permuted market.</li>
+      <li><b>Own MCPT</b> (N1, 999), report only. Comparing it with N1-S shows how much of the significance came from selection.</li>
+      <li><b>Random entry</b> (N2, 999) and <b>circular shift</b> (N3, 999).</li>
+      <li><b>Bootstrap CI</b> (N4, 2,000) of the mean per-session excess.</li>
+      <li><b>Detrended data</b> (N5): rerun the member on detrended prices.</li>
+      <li><b>Horizon coherence</b> and <b>delay profile</b> (B.16).</li>
+      <li><b>Price-noise perturbation</b>: 100 copies (B.16).</li>
+      <li><b>Neighbours</b> (B.16).</li>
+      <li><b>Stability</b> (B.15) and <b>concentration</b> (B.16).</li>
+      <li><b>CPCV</b> of the family selection. In each of the 45 splits, pick the member with the highest t on the 8 training groups and record its excess on the 2 test groups, then assemble 9 paths. Also compute the <b>PBO</b> of the family's members (CSCV, 16 blocks).</li>
+      <li><b>Gross PSR and DSR</b> with the ledger N (B.11), and <b>MinTRL</b> against the number of Validation sessions.</li>
+      <li>Report: clock placebo (B.16), breadth (the markets where the same candidate has excess &gt; 0 and t ≥ 1), and SPA.</li>
     </ol>
-    <div class="gate"><b>Gates — per unit (hard, all required)</b><ol>
-      <li><code>g_null_gross</code>: random-timing null p ≤ 0.05.</li>
-      <li><code>g_ci_lo</code>: 95% CI lower bound of the WF-OOS mean &gt; 0.</li>
-      <li><code>g_dsr</code>: DSR ≥ 0.95.</li>
-      <li><code>g_pbo</code>: PBO ≤ 0.40.</li>
-      <li><code>g_spa</code>: SPA p of the universe ≤ 0.10.</li>
-      <li><code>g_wf_pos</code>: ≥ 70% of folds positive.</li>
-      <li><code>g_wf_share</code>: no fold above 50% of the positive-fold total.</li>
-      <li><code>g_cost</code>: mean &gt; 0 at cost × 1.5.</li>
-      <li><code>g_slip</code>: mean &gt; 0 with +1 tick per side.</li>
-      <li><code>g_delay</code>: mean &gt; 0 with a one-bar delay.</li>
-      <li><code>g_neighbours</code>: neighbours' median &gt; 0.</li>
-      <li><code>g_top_trim</code>: mean &gt; 0 without the best 5% of trades.</li>
-      <li><code>g_best_year</code>: total &gt; 0 without the best year.</li>
-      <li><code>g_years</code>: ≥ 60% of years positive.</li>
-      <li><code>g_stable</code>: no judged bucket significantly negative; ≤ 1 negative regime bucket; ≤ 1 negative session bucket.</li>
+    <div class="gate"><b>Gates (hard, all required): the Edge Certificate</b><ol>
+      <li><code>g_mcpt_sel</code>: selection-aware MCPT p ≤ 0.01, beating at least 990 of 999 best-of-family luck draws.</li>
+      <li><code>g_random</code>: random-entry p ≤ 0.01.</li>
+      <li><code>g_shift</code>: circular-shift p ≤ 0.01.</li>
+      <li><code>g_ci</code>: 95% bootstrap CI lower bound of the excess &gt; 0.</li>
+      <li><code>g_detrend</code>: excess on detrended data &gt; 0 with t ≥ 2.</li>
+      <li><code>g_horizon</code>: excess &gt; 0 at the neighbouring horizons that exist.</li>
+      <li><code>g_noise</code>: t ≥ 2 in ≥ 90 of 100 perturbed copies.</li>
+      <li><code>g_neighbours</code>: ≥ 70% of neighbours with positive excess, and their median &gt; 0.</li>
+      <li><code>g_blocks5</code>: ≥ 5 of 6 Dev blocks positive.</li>
+      <li><code>g_years</code>: ≥ 70% of years positive, and the total positive without the best year.</li>
+      <li><code>g_stable</code>: no judged bucket significantly negative.</li>
+      <li><code>g_trim</code>: excess &gt; 0 without the best 5% of trades.</li>
+      <li><code>g_cpcv</code>: ≥ 7 of 9 CPCV paths positive.</li>
+      <li><code>g_pbo</code>: PBO of the family's members ≤ 0.20.</li>
+      <li><code>g_dsr</code>: gross DSR ≥ 0.95.</li>
       <li><code>g_power</code>: MinTRL ≤ Validation sessions.</li>
-    </ol><b>Gate — phase</b>: ≥ 1 unit passes all 16.</div>
-    <div class="out"><b>Outputs</b> — <code>evidence.csv</code>, <code>gate_funnel.csv</code>, <code>survivors.csv</code>; <code>wf_equity_ci.png</code> (WF-OOS equity; CI forest), <code>gate_matrix.png</code> (units × gates), <code>null_tests.png</code> (random timing vs actual).</div>
-    <div class="closeout"><b>Closeout</b> — Forwards the units that passed all 16 gates with frozen parameters. <code>python run.py P4</code></div>
+    </ol><b>Gate (phase)</b>: ≥ 1 Edge Certificate.</div>
+    <div class="out"><b>Outputs</b>: certificate table (every test's value and gate per member, with ★). Plots: null histograms with the real value marked (N1-S, N1, N2, N3); CPCV paths; horizon and delay profiles; noise distribution; neighbour map; stability bars; clock placebo; gate matrix.</div>
+    <div class="closeout"><b>Closeout</b>: Only certified members enter Stage II. A STOP here means no family has a gross timing edge on these markets at this bar size that survives luck.</div>
+    <div class="basis"><b>Basis:</b> [R1, R2, R3, R9, R10, R11, R12, R20, R33, R43].</div>
   </div>
 </section>
 
-<!-- ============================================================ P5 -->
+<!-- ============================================================ STAGE II -->
+<div class="stage">STAGE II — COSTS (micro and mini)</div>
+
 <section id="p5">
-  <h2 class="section-title">P5 — VALIDATION (ONE LOOK, PARAMETERS FROZEN)</h2>
+  <h2 class="section-title">P5 — COST HURDLE</h2>
   <div class="box">
-    <h4 class="job">Job</h4>
-    <p>Run every P4 survivor once on the Validation window with frozen parameters, and confirm the Test window can confirm what Validation shows.</p>
+    <h4 class="job">Job</h4><p>Price every certified edge with both contracts, and keep the pairs in which the edge pays its cost with a margin.</p>
+    <div class="plain"><b>Plain words:</b> the edge is real; now see whether it is big enough to pay the broker and slippage on the micro and on the mini.</div>
     <h4 class="job">Steps</h4>
     <ol>
-      <li>Load Dev + Validation (Test rows still dropped); build each unit's signal with its frozen T3 setting.</li>
-      <li>Simulate on Validation with the frozen exit; per-session net series.</li>
-      <li>Stationary bootstrap (10,000 draws): mean, 95% CI, one-sided p; Benjamini-Hochberg across the P5 units at q = 0.05.</li>
-      <li>Random-timing null on gross R inside Validation (1,000 draws).</li>
-      <li>Cost × 1.5 on Validation.</li>
-      <li>Power (B.17): MinTRL of the Validation series vs the number of Test sessions.</li>
+      <li>For each certified member and each permitted contract (micro, mini): the cost per trade in ATR (B.5), the net result per trade, the per-session net series, and its Newey-West t.</li>
+      <li>The break-even cost multiple: BCM = gross excess ÷ cost.</li>
+      <li>Stresses: cost × 1.5 and × 2; +1 tick per side.</li>
+      <li>The cost per trade compared with the instrument's MDE (F1).</li>
     </ol>
-    <div class="gate"><b>Gates — per unit (hard, all required)</b><ol>
-      <li><code>g_trades</code>: ≥ 30 Validation trades.</li>
-      <li><code>g_mean</code>: Validation mean per session &gt; 0.</li>
-      <li><code>g_bh</code>: BH q ≤ 0.05.</li>
-      <li><code>g_null_gross</code>: null p ≤ 0.05.</li>
-      <li><code>g_cost</code>: mean &gt; 0 at cost × 1.5.</li>
-      <li><code>g_power</code>: MinTRL ≤ Test sessions.</li>
-    </ol><b>Gate — phase</b>: ≥ 1 unit passes.</div>
-    <div class="out"><b>Outputs</b> — <code>validation.csv</code>, <code>survivors.csv</code>; <code>validation.png</code> (equity through Dev and Validation; Validation CI forest).</div>
-    <div class="closeout"><b>Closeout</b> — Forwards the validation survivors unchanged. <code>python run.py P5</code></div>
+    <div class="gate"><b>Gates (hard, per member × contract)</b><ol>
+      <li><code>g_net</code>: net mean &gt; 0.</li>
+      <li><code>g_t_net</code>: net Newey-West t ≥ 2.</li>
+      <li><code>g_bcm</code>: BCM ≥ 2.</li>
+      <li><code>g_cost15</code>: net mean &gt; 0 at cost × 1.5.</li>
+      <li><code>g_slip</code>: net mean &gt; 0 with +1 tick per side.</li>
+    </ol><b>Report</b>: cost × 2, cost against MDE. <b>Gate (phase)</b>: ≥ 1 member × contract pair.</div>
+    <div class="out"><b>Outputs</b>: cost table per pair. Plots: gross excess against cost per trade (micro and mini); BCM bars.</div>
+    <div class="basis"><b>Basis:</b> [R22, R23, R34].</div>
   </div>
 </section>
 
-<!-- ============================================================ P6 -->
+<!-- ============================================================ STAGE III -->
+<div class="stage">STAGE III — CONSTRUCTION</div>
+
 <section id="p6">
-  <h2 class="section-title">P6 — SEALED TEST (ONE LOOK) &amp; DEPLOYMENT CARDS</h2>
+  <h2 class="section-title">P6 — EXITS &amp; PARAMETERS (WALK-FORWARD)</h2>
   <div class="box">
-    <h4 class="job">Job</h4>
-    <p>Open the sealed Test window once for the validation survivors with frozen parameters, and issue a deployment card for every unit that passes.</p>
+    <h4 class="job">Job</h4><p>Choose the T3 setting, stop, target and hold for each member × contract without scoring any choice on the data it was chosen on.</p>
+    <div class="plain"><b>Plain words:</b> pick the stop, target and holding time using only older years, then check them on the next year, and repeat.</div>
     <h4 class="job">Steps</h4>
     <ol>
-      <li>Check the <code>LOCK</code> (B.20) and write the hash of the unit set being opened.</li>
-      <li>Load the full history; simulate each unit on Test with frozen parameters.</li>
-      <li>Stationary bootstrap (10,000 draws): mean and 95% CI.</li>
-      <li>DSR on the Test series with N = number of P6 units (PSR against 0 when N = 1).</li>
-      <li>Cost × 1.5 on Test.</li>
-      <li>Deployment card per passing unit: instrument, contract (mini or micro symbol), trigger, filter, side, T3 length and vf, ATR length, SL_ATR, TP_R, max bars, fees per round trip, slippage, cost in ticks, flat-by time, Test CI.</li>
+      <li>Folds k = 1…5: train on B0…B(k−1) and score on Bk.</li>
+      <li>On the training blocks, run Stage A (members using T3, with the Jaccard ≥ 0.70 rule) and then Stage B (B.18), apply the plateau rule, and apply the result unchanged to Bk.</li>
+      <li>Stitch B1…B5 into the walk-forward out-of-sample (WF-OOS) net series.</li>
+      <li>Final parameters: the same procedure on B0…B5.</li>
+      <li>Ledger: the configurations evaluated, the K<sub>eff</sub> of those configurations, and the PBO of the search.</li>
     </ol>
-    <div class="gate"><b>Gates — per unit (hard, all required)</b><ol>
-      <li><code>g_trades</code>: ≥ 30 Test trades.</li>
-      <li><code>g_ci_lo</code>: 95% CI lower bound of the Test mean &gt; 0.</li>
-      <li><code>g_dsr</code>: DSR ≥ 0.95.</li>
-      <li><code>g_cost</code>: mean &gt; 0 at cost × 1.5.</li>
-      <li><code>g_sealed</code>: the Test window was not opened before for a different unit set.</li>
-    </ol><b>Gate — phase</b>: ≥ 1 unit passes.</div>
-    <div class="out"><b>Outputs</b> — <code>test.csv</code>, <code>deployment_cards.csv</code>, <code>LOCK</code>; <code>test.png</code> (whole-history equity with Validation and Test shaded; Test CI forest).</div>
-    <div class="closeout"><b>Closeout</b> — Forwards the deployment cards. <code>python run.py P6</code></div>
+    <div class="gate"><b>Gates (hard)</b>: WF-OOS trades ≥ 50; WF-OOS net mean &gt; 0.</div>
+    <div class="out"><b>Outputs</b>: refined table, fold table. Plots: exit surfaces (SL × TP at the chosen hold), fold results.</div>
   </div>
 </section>
 
-<!-- ============================================================ P7 -->
 <section id="p7">
-  <h2 class="section-title">P7 — PINE PARITY, INCUBATION &amp; KILL SWITCH</h2>
+  <h2 class="section-title">P7 — NET EVIDENCE &amp; ACCOUNT FIT</h2>
   <div class="box">
-    <h4 class="job">Job</h4>
-    <p>Reproduce each deployment card in TradingView with <code>T3_Entry_Lab_v2.pine</code>, prove parity with the engine, then let real time decide.</p>
+    <h4 class="job">Job</h4><p>Show that the constructed strategy keeps its edge after costs, the exit search, stress and time, and that one contract fits the Topstep account.</p>
+    <div class="plain"><b>Plain words:</b> with the real exits and real costs, prove again that it is not luck, and that one bad stretch cannot blow the account.</div>
     <h4 class="job">Steps</h4>
     <ol>
-      <li><b>Chart</b>: the instrument's continuous contract, 30-minute bars, full electronic session.</li>
-      <li><b>Card</b>: Trigger, Filter, Side, T3 length, T3 volume factor, ATR length, Stop loss (× ATR), Take profit (× stop), Max bars in trade.</li>
-      <li><b>Costs</b>: Properties → commission "cash per contract" = the card's Fees_round_trip_usd ÷ 2 (per side), slippage = 1 tick; Session inputs: flat by 15:08 CT.</li>
-      <li><b>Parity replay</b>: "Trade from / Trade until" = the Test dates of <code>P0/splits.csv</code>; compare the strategy table (trades, win rate, net mean R, MFE / MAE, bars held, exits SL / TP / TIME / EOS) with the unit's row of <code>P6/test.csv</code>.</li>
-      <li><b>Incubation</b>: paper or simulated trading from today until ≥ 30 trades.</li>
-      <li><b>Kill switch</b>, checked after every trade from the 30th: stop when the live mean R<sub>ATR</sub> is below the Test CI lower bound, or the live drawdown exceeds the worst drawdown of the unit's Dev + Validation + Test history.</li>
-      <li>A killed unit is never restarted with new parameters; new parameters are a new program from P2 (B.20).</li>
+      <li>WF-OOS net: stationary bootstrap CI (2,000); PSR; net DSR with N = ledger N + K<sub>eff</sub>(configurations); MinTRL.</li>
+      <li>Random-entry and circular-shift nulls on net R with the final parameters (999 each).</li>
+      <li>PBO of the exit search.</li>
+      <li>Stress (cost × 1.5, +1 tick, one-bar delay), neighbours, concentration, stability.</li>
+      <li>Account fit for one contract: stop risk = SL_ATR × median Dev ATR × point value; the worst WF-OOS drawdown in dollars.</li>
+      <li>Report a Combine simulation: stationary-bootstrap paths of the WF-OOS daily net dollar P&amp;L under the account's trailing maximum loss limit, giving the share of paths that reach the profit target before the limit, per contract.</li>
     </ol>
     <div class="gate"><b>Gates (hard)</b><ol>
-      <li><b>Parity</b>: Pine trade count within ±5% of the engine's Test trade count, and Pine net mean R inside the unit's Test 95% CI (the engine run with <code>intrabar: tv</code> gives the exact TradingView fill rule).</li>
-      <li><b>Incubation</b>: after ≥ 30 trades, live mean R<sub>ATR</sub> ≥ Test CI lower bound and drawdown within the historical worst.</li>
+      <li>CI lower bound &gt; 0; net DSR ≥ 0.95; both nulls p ≤ 0.05; PBO of the exit search ≤ 0.30.</li>
+      <li>Positive at cost × 1.5, at +1 tick and with a one-bar delay; neighbours' median &gt; 0; positive without the top 5% of trades and without the best year; no significantly negative bucket.</li>
+      <li>MinTRL ≤ Validation sessions.</li>
+      <li>Stop risk ≤ the configured maximum loss per trade; worst drawdown ≤ the configured drawdown budget.</li>
     </ol></div>
-    <div class="out"><b>Outputs</b> — parity screenshot per card; live trade log (R<sub>ATR</sub>, MFE / MAE, exit type); kill-switch record.</div>
-    <div class="closeout"><b>Closeout</b> — A unit that passes incubation goes live; a unit that trips the kill switch is closed for good.</div>
+    <div class="out"><b>Outputs</b>: evidence table per strategy (member × contract). Plots: WF-OOS equity, CI forest, null histograms, Combine simulation, gate matrix.</div>
   </div>
 </section>
 
-<!-- ============================================================ PROGRAMS -->
-<section id="programs">
-  <h2 class="section-title">PART D — PROGRAM 1 AND PROGRAM 2</h2>
+<!-- ============================================================ STAGE IV -->
+<div class="stage">STAGE IV — EXAMS (one look each)</div>
 
-  <h3 class="h">D.1 — Program 1 (closed)</h3>
-  <div class="box"><p><code>registry/program1_candidates.csv</code>: 5000 rows = 1516 trigger × filter × side cells with T3 settings, screen exit 8 bars. Result on Dev: STOP at P2. No unit had an edge before costs after the multiple-testing correction (gross t ≥ 2: 272 units against about 569 expected by chance; Benjamini-Hochberg discoveries: 0; Hansen SPA p = 1.0 on all five instruments), and the median unit lost about 0.2 ATR per trade to costs. Its effective trials per instrument (K<sub>eff</sub>: CL 498, GC 458, NQ 460, SI 490, YM 485) stay in <code>prior_trials</code>. Validation and Test were not opened.</p></div>
-
-  <h3 class="h">D.2 — What Program 1 showed about costs</h3>
-  <div class="box"><ol>
-    <li>Cost is fixed per trade, so a trade must move far enough to pay it: holding 4 hours from any bar of the day did not.</li>
-    <li>Intraday volatility is highest around the day-session open and close and lowest overnight [R31]: the same fixed cost is a much smaller share of the move in active hours.</li>
-    <li>Thousands of trades per unit at random times multiply the cost; one well-timed trade per session pays it once.</li>
-    <li>Testing thousands of near-identical variants makes every individual edge harder to prove; a short list of hypotheses with an economic reason keeps the statistical bar reachable.</li>
-  </ol></div>
-
-  <h3 class="h">D.3 — Program 2 (current)</h3>
+<section id="p8">
+  <h2 class="section-title">P8 — VALIDATION</h2>
   <div class="box">
-    <p><code>registry/program2_candidates.csv</code>: 46 candidates written before any Program 2 result exists, each with a published reason and a cost design. T3 rows use T3 length 5, volume factor 0.7 (Tillson's published setting [R17]); P3 re-tunes them inside walk-forward.</p>
-    <div class="tw"><table>
-      <tr><th>family</th><th>rows</th><th>triggers × filters × sides</th><th>screen exit</th><th>why</th></tr>
-      <tr><td>OPENING_RANGE</td><td>16</td><td>ORB_OPEN_BAR, ORB_BREAK × NONE, T3_SLOPE_NONNEG, T3_DIST_NEAR_100, ABOVE_PREV_SETTLE × long, short</td><td>until flat-by</td><td>opening-range breakout [R19, R29, R30]: one trade per session at the most active time, held for the day's move</td></tr>
-      <tr><td>INTRADAY_MOMENTUM</td><td>8</td><td>IMOM_DAY, IMOM_FIRST × NONE, T3_SLOPE_NONNEG × long, short</td><td>1 bar (the last half-hour before settlement)</td><td>the return since the previous settlement predicts the last half-hour, documented across more than 60 futures [R27, R28]</td></tr>
-      <tr><td>T3_ACTIVE_SESSION</td><td>22</td><td>the 11 T3 triggers × RTH_OPEN_90 × long, short</td><td>until flat-by</td><td>the T3 engine traded only in the first 90 minutes of the day session and held for the session: bigger moves per trade than costs [R31]</td></tr>
-    </table></div>
-    <p>Output folder: <code>out_program2</code>. N of every DSR includes Program 1's effective trials. Validation and Test are still sealed.</p>
+    <h4 class="job">Job</h4><p>Run each P7 strategy once on Validation with frozen parameters. The edge must still exist before costs and must still pay after costs.</p>
+    <div class="plain"><b>Plain words:</b> first exam, on years the program has never seen. One try, no changes.</div>
+    <h4 class="job">Steps</h4>
+    <ol>
+      <li>Per strategy: gross excess (drift baselines built within Validation by bar time) and net result.</li>
+      <li>Stationary bootstrap (10,000), with BH across strategies.</li>
+      <li>Random-entry null on gross R (999).</li>
+      <li>Cost × 1.5; MinTRL of the Validation net series against the number of Test sessions.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b><ol>
+      <li>Trades ≥ 30; gross excess &gt; 0; net mean &gt; 0.</li>
+      <li>Not ★: BH q ≤ 0.05 and random-entry p ≤ 0.05. ★: BH q ≤ 0.01 and random-entry p ≤ 0.01.</li>
+      <li>Net &gt; 0 at cost × 1.5; MinTRL ≤ Test sessions.</li>
+    </ol></div>
+    <div class="out"><b>Outputs</b>: validation table. Plots: equity through Dev and Validation, CI forest.</div>
+  </div>
+</section>
+
+<section id="p9">
+  <h2 class="section-title">P9 — SEALED TEST</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Open the Test window once for the Validation survivors, and issue deployment cards.</p>
+    <div class="plain"><b>Plain words:</b> final exam on the most recent years, which were locked from the start.</div>
+    <h4 class="job">Steps</h4>
+    <ol>
+      <li>Check the lock and write it (B.20).</li>
+      <li>Run the frozen strategies on Test: net per session, 95% CI (10,000), DSR with N = strategies tested, cost × 1.5, gross excess.</li>
+      <li>Write a deployment card for each passing strategy: market, contract, family, trigger, contexts or filter, side, T3 setting, SL_ATR, TP_R, max bars, costs, flat-by, Test CI, worst drawdown, ★.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b>: trades ≥ 30; CI lower bound &gt; 0; DSR ≥ 0.95; net &gt; 0 at cost × 1.5; gross excess &gt; 0; not contaminated.</div>
+    <div class="out"><b>Outputs</b>: test table, deployment cards, lock. Plot: equity over the whole history with the windows shaded.</div>
+  </div>
+</section>
+
+<!-- ============================================================ STAGE V -->
+<div class="stage">STAGE V — LIVE</div>
+
+<section id="p10">
+  <h2 class="section-title">P10 — PINE PARITY, INCUBATION &amp; KILL SWITCH</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Reproduce each card in TradingView, incubate it, and stop it at once if it breaks.</p>
+    <h4 class="job">Steps</h4>
+    <ol>
+      <li>Load the card into the Pine strategy on the instrument's continuous contract, with 30-minute bars, the electronic session, commission per side and slippage from the card, and flat-by at 15:08 CT.</li>
+      <li>Run a parity replay on the Test dates: the trade count must be within ±5% of the engine's, and the net mean R inside the Test CI.</li>
+      <li>Incubate in simulation until ≥ 30 trades.</li>
+      <li>Apply the kill switch after every trade from the 30th on: stop when the live mean R falls below the Test CI lower bound or the drawdown exceeds the worst historical drawdown.</li>
+      <li>A killed strategy is never re-optimised. A new idea is a new program (B.20).</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b>: parity; incubation within the Test CI and within the historical drawdown.</div>
   </div>
 </section>
 
 <!-- ============================================================ REFERENCES -->
 <section id="refs">
-  <h2 class="section-title">PART C — REFERENCES</h2>
+  <h2 class="section-title">PART D — REFERENCES</h2>
   <div class="box"><ol>
-    <li id="R1">[R1] Bailey, D. H. &amp; López de Prado, M. (2012). The Sharpe Ratio Efficient Frontier. <i>Journal of Risk</i> 15(2). — PSR, minimum track record length.</li>
-    <li>[R2] Bailey, D. H. &amp; López de Prado, M. (2014). The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality. <i>Journal of Portfolio Management</i> 40(5). — DSR, expected maximum SR (False Strategy Theorem).</li>
-    <li>[R3] Bailey, D. H., Borwein, J., López de Prado, M. &amp; Zhu, Q. J. (2017). The Probability of Backtest Overfitting. <i>Journal of Computational Finance</i> 20(4). — CSCV, PBO.</li>
-    <li>[R4] López de Prado, M. (2019). A Data Science Solution to the Multiple-Testing Crisis in Financial Research. <i>Journal of Financial Data Science</i> 1(1). — effective number of trials by clustering.</li>
+    <li>[R1] Bailey, D. H. &amp; López de Prado, M. (2012). The Sharpe Ratio Efficient Frontier. <i>Journal of Risk</i> 15(2).</li>
+    <li>[R2] Bailey, D. H. &amp; López de Prado, M. (2014). The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality. <i>Journal of Portfolio Management</i> 40(5).</li>
+    <li>[R3] Bailey, D. H., Borwein, J., López de Prado, M. &amp; Zhu, Q. J. (2017). The Probability of Backtest Overfitting. <i>Journal of Computational Finance</i> 20(4).</li>
+    <li>[R4] López de Prado, M. (2019). A Data Science Solution to the Multiple-Testing Crisis in Financial Research. <i>Journal of Financial Data Science</i> 1(1).</li>
     <li>[R5] Benjamini, Y. &amp; Hochberg, Y. (1995). Controlling the False Discovery Rate. <i>Journal of the Royal Statistical Society B</i> 57(1).</li>
-    <li>[R6] Harvey, C. R., Liu, Y. &amp; Zhu, H. (2016). … and the Cross-Section of Expected Returns. <i>Review of Financial Studies</i> 29(1). — multiple testing in finance.</li>
     <li>[R6a] White, H. (2000). A Reality Check for Data Snooping. <i>Econometrica</i> 68(5).</li>
     <li>[R6b] Hansen, P. R. (2005). A Test for Superior Predictive Ability. <i>Journal of Business &amp; Economic Statistics</i> 23(4).</li>
     <li>[R7] Newey, W. K. &amp; West, K. D. (1987). A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix. <i>Econometrica</i> 55(3).</li>
     <li>[R8] Newey, W. K. &amp; West, K. D. (1994). Automatic Lag Selection in Covariance Matrix Estimation. <i>Review of Economic Studies</i> 61(4).</li>
-    <li>[R9] Politis, D. N. &amp; Romano, J. P. (1994). The Stationary Bootstrap. <i>JASA</i> 89(428); Politis, D. N. &amp; White, H. (2004) and Patton, Politis &amp; White (2009), automatic block length. <i>Econometric Reviews</i> 23(1), 28(4).</li>
-    <li>[R10] López de Prado, M. (2018). <i>Advances in Financial Machine Learning</i>. Wiley. — walk-forward, embargo, backtesting protocol.</li>
-    <li>[R11] Aronson, D. (2006). <i>Evidence-Based Technical Analysis</i>. Wiley. — detrending, randomization and bootstrap tests of trading rules, data-mining bias.</li>
-    <li>[R12] Masters, T. (2020). <i>Permutation and Randomization Tests for Trading System Development</i>. — randomization nulls for timing.</li>
-    <li>[R13] Faith, C. (2007). <i>Way of the Turtle</i>. McGraw-Hill. — edge ratio, ATR-normalised MFE / MAE.</li>
-    <li>[R14] Sweeney, J. (1997). <i>Maximum Adverse Excursion</i>. Wiley. — MFE / MAE.</li>
+    <li>[R9] Politis, D. N. &amp; Romano, J. P. (1994). The Stationary Bootstrap. <i>JASA</i> 89(428); Politis, D. N. &amp; White, H. (2004), <i>Econometric Reviews</i> 23(1); Patton, A., Politis, D. N. &amp; White, H. (2009), <i>Econometric Reviews</i> 28(4).</li>
+    <li>[R10] López de Prado, M. (2018). <i>Advances in Financial Machine Learning</i>. Wiley. Purging, embargo, walk-forward, combinatorial purged cross-validation.</li>
+    <li>[R11] Aronson, D. (2006). <i>Evidence-Based Technical Analysis</i>. Wiley. Detrending, randomization and bootstrap tests of rules.</li>
+    <li>[R12] Masters, T. (2020). <i>Permutation and Randomization Tests for Trading System Development</i>. Apress.</li>
+    <li>[R13] Faith, C. (2007). <i>Way of the Turtle</i>. McGraw-Hill. Edge ratio.</li>
+    <li>[R14] Sweeney, J. (1997). <i>Maximum Adverse Excursion</i>. Wiley.</li>
     <li>[R15] Lo, A. W. (2002). The Statistics of Sharpe Ratios. <i>Financial Analysts Journal</i> 58(4).</li>
-    <li>[R16] Mertens, E. (2002). Comments on Variance of the IID Estimator in Lo (2002); Opdyke, J. D. (2007). Comparing Sharpe Ratios. <i>Journal of Asset Management</i> 8(5). — SR sampling variance under non-normality.</li>
-    <li>[R17] Tillson, T. (1998). Smoothing Techniques for More Accurate Signals. <i>Technical Analysis of Stocks &amp; Commodities</i> 16(1). — T3.</li>
-    <li>[R18] Wilder, J. W. (1978). <i>New Concepts in Technical Trading Systems</i>. — ATR.</li>
-    <li>[R19] Crabel, T. (1990). <i>Day Trading with Short Term Price Patterns and Opening Range Breakout</i>. — NR-N narrow-range bars.</li>
-    <li>[R20] Pardo, R. (2008). <i>The Evaluation and Optimization of Trading Strategies</i>. Wiley. — walk-forward analysis, robust parameter regions.</li>
-    <li>[R21] TradingView. Pine Script v6 User Manual and Reference: Strategies (broker emulator, <code>strategy.close(immediately)</code>), Sessions (<code>session.islastbar</code>), Migration guide to v6.</li>
-    <li>[R22] CME Group. Globex trading hours and contract specifications for CL, GC, NQ, SI, YM.</li>
-    <li>[R23] Owner's specification: <i>T3 Entry Lab — Complete Backtesting Framework</i> (windows 60/20/20, 5 walk-forward folds, 8-bar endpoint, 100-event floor, 25th-percentile objective, exit grid, BH levels, PBO and DSR levels, bootstrap draws, walk-forward and CI gates, cost / slippage / delay stresses, neighbours, concentration).</li>
-    <li>[R24] Owner's specification: earlier build framework (K<sub>eff</sub> cutoff 0.70, Jaccard 0.30, 30-trade buckets with a 97.5% bound and at most one negative bucket, per-session Sharpe with zeros, 30-trade incubation, kill switch).</li>
-    <li>[R26] Topstep. Help Center: "TopstepX — Commissions and Fees" (fees per round turn, CME fee changes of 1 Oct 2026) and "When and What Products Can I Trade?" (flat by 15:10 CT, flattening from 15:08 CT, permitted products).</li>
-    <li>[R27] Gao, L., Han, Y., Li, S. Z. &amp; Zhou, G. (2018). Market Intraday Momentum. <i>Journal of Financial Economics</i> 129(2), 394–414.</li>
-    <li>[R28] Baltussen, G., Da, Z., Lammers, S. &amp; Martens, M. (2021). Hedging Demand and Market Intraday Momentum. <i>Journal of Financial Economics</i> 142(1), 377–403.</li>
-    <li>[R29] Holmberg, U., Lönnbark, C. &amp; Lundström, C. (2013). Assessing the Profitability of Intraday Opening Range Breakout Strategies. <i>Finance Research Letters</i> 10(1), 27–33.</li>
-    <li>[R30] Zarattini, C. &amp; Aziz, A. (2023). Can Day Trading Really Be Profitable? SSRN 4416622.</li>
-    <li>[R31] Andersen, T. G. &amp; Bollerslev, T. (1997). Intraday Periodicity and Volatility Persistence in Financial Markets. <i>Journal of Empirical Finance</i> 4, 115–158.</li>
-    <li>[R32] CME Group. Daily settlement time details: energy 14:28–14:30 ET, gold 13:29–13:30 ET, silver 13:24–13:25 ET, equity index 14:59:30–15:00 CT.</li>
-    <li>[R25] Akiba, T., Sano, S., Yanase, T., Ohta, T. &amp; Koyama, M. (2019). Optuna: A Next-generation Hyperparameter Optimization Framework. <i>KDD 2019</i>.</li>
+    <li>[R16] Mertens, E. (2002). Comments on Variance of the IID Estimator in Lo (2002). Working paper; Opdyke, J. D. (2007). Comparing Sharpe Ratios. <i>Journal of Asset Management</i> 8(5).</li>
+    <li>[R17] Tillson, T. (1998). Smoothing Techniques for More Accurate Signals. <i>Technical Analysis of Stocks &amp; Commodities</i> 16(1).</li>
+    <li>[R18] Wilder, J. W. (1978). <i>New Concepts in Technical Trading Systems</i>. Trend Research.</li>
+    <li>[R19] Crabel, T. (1990). <i>Day Trading with Short Term Price Patterns and Opening Range Breakout</i>. Traders Press.</li>
+    <li>[R20] Pardo, R. (2008). <i>The Evaluation and Optimization of Trading Strategies</i>. Wiley.</li>
+    <li>[R21] TradingView. Pine Script v6 User Manual and Reference Manual.</li>
+    <li>[R22] CME Group. Contract specifications, trading hours and fee schedules: CL, MCL, GC, MGC, NQ, MNQ, SI, SIL, YM, MYM.</li>
+    <li>[R23] Topstep Help Center. TopstepX Commissions and Fees; When and What Products Can I Trade? (flat by 15:10 CT, platform flattening from 15:08 CT).</li>
+    <li>[R24] Gao, L., Han, Y., Li, S. Z. &amp; Zhou, G. (2018). Market Intraday Momentum. <i>Journal of Financial Economics</i> 129(2).</li>
+    <li>[R25] Baltussen, G., Da, Z., Lammers, S. &amp; Martens, M. (2021). Hedging Demand and Market Intraday Momentum. <i>Journal of Financial Economics</i> 142(1).</li>
+    <li>[R26] Holmberg, U., Lönnbark, C. &amp; Lundström, C. (2013). Assessing the Profitability of Intraday Opening Range Breakout Strategies. <i>Finance Research Letters</i> 10(1).</li>
+    <li>[R27] Zarattini, C. &amp; Aziz, A. (2023). Can Day Trading Really Be Profitable? Evidence of Sustainable Long-term Profits from Opening Range Breakout (ORB) Day Trading Strategy. SSRN 4416622.</li>
+    <li>[R28] Andersen, T. G. &amp; Bollerslev, T. (1997). Intraday Periodicity and Volatility Persistence in Financial Markets. <i>Journal of Empirical Finance</i> 4(2–3).</li>
+    <li>[R29] CME Group. Daily settlement procedures and times: energy 13:28–13:30 CT, gold 12:29–12:30 CT, silver 12:24–12:25 CT, equity index 14:59:30–15:00 CT.</li>
+    <li>[R30] Simes, R. J. (1986). An Improved Bonferroni Procedure for Multiple Tests of Significance. <i>Biometrika</i> 73(3); Yekutieli, D. (2008). Hierarchical False Discovery Rate–Controlling Methodology. <i>JASA</i> 103(481).</li>
+    <li>[R31] Benjamini, Y. &amp; Bogomolov, M. (2014). Selective Inference on Multiple Families of Hypotheses. <i>Journal of the Royal Statistical Society B</i> 76(1).</li>
+    <li>[R32] Romano, J. P. &amp; Wolf, M. (2005). Stepwise Multiple Testing as Formalized Data Snooping. <i>Econometrica</i> 73(4).</li>
+    <li>[R33] Masters, T. (2018). <i>Testing and Tuning Market Trading Systems</i>. Apress. Monte Carlo permutation tests, selection bias, robustness.</li>
+    <li>[R34] Novy-Marx, R. &amp; Velikov, M. (2016). A Taxonomy of Anomalies and Their Trading Costs. <i>Review of Financial Studies</i> 29(1).</li>
+    <li>[R35] Berkowitz, S. A., Logue, D. E. &amp; Noser, E. A. (1988). The Total Cost of Transactions on the NYSE. <i>Journal of Finance</i> 43(1). VWAP as the execution benchmark.</li>
+    <li>[R36] Zarattini, C., Aziz, A. &amp; Barbon, A. (2024). Beat the Market: An Effective Intraday Momentum Strategy for S&amp;P500 ETF (SPY). Swiss Finance Institute Research Paper 24-97.</li>
+    <li>[R37] Lundström, C. (2017). Day Trading Returns across Volatility States. Umeå Economic Studies 861.</li>
+    <li>[R38] Cliff, M., Cooper, M. J. &amp; Gulen, H. (2008). Return Differences between Trading and Non-Trading Hours: Like Night and Day. SSRN 1004081.</li>
+    <li>[R39] Lou, D., Polk, C. &amp; Skouras, S. (2019). A Tug of War: Overnight versus Intraday Expected Returns. <i>Journal of Financial Economics</i> 134(1).</li>
+    <li>[R40] Moskowitz, T. J., Ooi, Y. H. &amp; Pedersen, L. H. (2012). Time Series Momentum. <i>Journal of Financial Economics</i> 104(2).</li>
+    <li>[R41] Rapach, D. E., Strauss, J. K. &amp; Zhou, G. (2013). International Stock Return Predictability: What Is the Role of the United States? <i>Journal of Finance</i> 68(4).</li>
+    <li>[R42] Kilian, L. &amp; Park, C. (2009). The Impact of Oil Price Shocks on the U.S. Stock Market. <i>International Economic Review</i> 50(4).</li>
+    <li>[R43] Harvey, C. R., Liu, Y. &amp; Zhu, H. (2016). … and the Cross-Section of Expected Returns. <i>Review of Financial Studies</i> 29(1).</li>
+    <li>[R44] Zarattini, C. &amp; Aziz, A. (2023). Volume Weighted Average Price (VWAP): The Holy Grail for Day Trading Systems. SSRN working paper.</li>
+    <li>[R45] Topstep Help Center. Trading Combine parameters: profit target, Maximum Loss Limit, maximum position size, Daily Loss Limit, micro contract counting.</li>
+    <li>[R46] Berkman, H., Koch, P. D., Tuttle, L. &amp; Zhang, Y. J. (2012). Paying Attention: Overnight Returns and the Hidden Cost of Buying at the Open. <i>Journal of Financial and Quantitative Analysis</i> 47(4).</li>
+    <li>[R47] Heston, S. L., Korajczyk, R. A. &amp; Sadka, R. (2010). Intraday Patterns in the Cross-Section of Stock Returns. <i>Journal of Finance</i> 65(4).</li>
   </ol></div>
 </section>
 
