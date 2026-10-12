@@ -1,46 +1,75 @@
 """T3 Entry Lab runner.
 
-  python run.py P0            # one phase (P0..P6), in order
-  python run.py all           # P0 -> P6, stops at the first phase whose gates fail
-  python run.py demo          # code check on SYNTHETIC random-walk data (no edge exists; nothing should survive honestly)
-  options: --config config.yaml   --force (P6 only, re-open a test that was already opened: contaminates it)
+  python run.py P0 ... P6        run one phase (in order; each needs the previous phase PASS)
+  python run.py all              P0 -> P6, stops at the first STOP
+  python run.py verify           end-to-end check on synthetic data with the real gates:
+                                 a pure random walk must be rejected, a planted edge must be found and pass P6
+  options: --config config.yaml, --force (P6 only: re-open a Test window already opened; marks it contaminated)
 """
 import argparse, sys, time
 from pathlib import Path
-import yaml
+import pandas as pd, yaml
 sys.path.insert(0, str(Path(__file__).parent))
 from t3lab.phases import Ctx, PHASES
 
-def demo():
+HERE = Path(__file__).parent
+
+def run_phases(cfg_path, phases, force=False):
+    ctx = Ctx(cfg_path)
+    last = None
+    for p in phases:
+        t = time.time()
+        st = PHASES[p](ctx, force) if p == "P6" else PHASES[p](ctx)
+        print(f"{p} finished in {time.time() - t:.0f}s: {st}")
+        last = (p, st)
+        if st != "PASS":
+            print(f"Stopped at {p}. Read {ctx.out / p / 'report.md'}")
+            break
+    return ctx, last
+
+def verify():
     from t3lab.selftest import synthetic
-    base = Path(__file__).parent / "demo"; (base / "data").mkdir(parents=True, exist_ok=True)
-    cfg = yaml.safe_load(open(Path(__file__).parent / "config.yaml"))
-    ticks = {"CL": 0.01, "GC": 0.1, "NQ": 0.25, "SI": 0.005, "YM": 1.0}
-    for k, sym in enumerate(cfg["instruments"]):
-        f = base / "data" / cfg["instruments"][sym]["file"]
-        if not f.exists():
-            synthetic(1300, seed=k, tick=ticks.get(sym, 0.01)).to_csv(f, index=False)
-    cfg.update(data_dir="data", out_dir="out", registry="../registry/candidate_registry_5000.csv", registry_limit=150,
-               demo_ignore_gates=True)
-    cfg["p2_screen"].update(spa_reps=100, shortlist_max=4, min_trades=30)
-    cfg["p3_refine"].update(t3_length=[3, 5, 8], t3_vf=[0.7, 0.9], sl_atr=[0.75, 1.0, 1.5], tp_r=[1.0, 2.0], max_bars=[8, 16])
-    cfg["p4_evidence"].update(boot_reps=300, null_reps=100)
-    cfg["p5_validation"].update(boot_reps=500, null_reps=100); cfg["p6_test"].update(boot_reps=500)
-    yaml.safe_dump(cfg, open(base / "config_demo.yaml", "w"), sort_keys=False)
-    return base / "config_demo.yaml"
+    cfg0 = yaml.safe_load(open(HERE / "config.yaml"))
+    reg = pd.read_csv(HERE / cfg0["registry"])
+    planted = [dict(candidate_id=f"PLANTED_{s.upper()}", family="STRUCTURE_BREAKOUT", trigger="DONCHIAN_20", filter="NONE",
+                    side=s, t3_length=None, t3_vf=None) for s in ("long", "short")]
+    sub = pd.concat([reg.sample(60, random_state=1), pd.DataFrame(planted)], ignore_index=True)
+    results = {}
+    for name, plant in (("noise", 0.0), ("planted", 0.1)):
+        base = HERE / "verify" / name
+        (base / "data").mkdir(parents=True, exist_ok=True)
+        synthetic(1300, seed=11, tick=0.01, plant=plant).to_csv(base / "data" / "CL_30min_continuous_backadjusted.csv", index=False)
+        sub.to_csv(base / "candidates.csv", index=False)
+        cfg = yaml.safe_load(open(HERE / "config.yaml"))
+        cfg["instruments"] = {"CL": cfg["instruments"]["CL"]}
+        cfg.update(data_dir="data", out_dir="out", registry="candidates.csv")
+        cfg["p2_screen"].update(spa_reps=200)
+        cfg["p4_evidence"].update(null_reps=300, boot_reps=1000)
+        cfg["p5_validation"].update(null_reps=300, boot_reps=2000)
+        cfg["p6_test"].update(boot_reps=2000)
+        yaml.safe_dump(cfg, open(base / "config.yaml", "w"), sort_keys=False)
+        print(f"\n=== verify: {name} ===")
+        ctx, last = run_phases(base / "config.yaml", list(PHASES))
+        passed = []
+        tf = ctx.out / "P6" / "test.csv"
+        if last == ("P6", "PASS") and tf.exists():
+            t = pd.read_csv(tf).merge(sub[["candidate_id", "trigger"]], on="candidate_id")
+            passed = t[t["pass"]][["candidate_id", "trigger"]].values.tolist()
+        results[name] = (last, passed)
+    ok_noise = results["noise"][0] != ("P6", "PASS")
+    found = results["planted"][1]
+    ok_plant = bool(found) and all(trig.startswith(("DONCHIAN", "PREVBAR", "COMPRESSION")) for _, trig in found)
+    print("\nVERIFY RESULT")
+    print(f"  random walk rejected: {ok_noise} (stopped at {results['noise'][0]})")
+    print(f"  planted breakout edge found and passed the sealed test, and nothing else passed: {ok_plant} (P6 passes: {found})")
+    return ok_noise and ok_plant
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("phase", choices=list(PHASES) + ["all", "demo"])
-    ap.add_argument("--config", default=str(Path(__file__).parent / "config.yaml"))
+    ap.add_argument("phase", choices=list(PHASES) + ["all", "verify"])
+    ap.add_argument("--config", default=str(HERE / "config.yaml"))
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
-    cfgp = demo() if a.phase == "demo" else a.config
-    ctx = Ctx(cfgp)
-    todo = list(PHASES) if a.phase in ("all", "demo") else [a.phase]
-    for p in todo:
-        t = time.time()
-        st = PHASES[p](ctx, a.force) if p == "P6" else PHASES[p](ctx)
-        print(f"{p} finished in {time.time() - t:.0f}s: {st}")
-        if st != "PASS" and not ctx.demo:
-            print(f"Pipeline stopped at {p}. Read {ctx.out / p / 'report.md'}"); break
+    if a.phase == "verify":
+        sys.exit(0 if verify() else 1)
+    run_phases(a.config, list(PHASES) if a.phase == "all" else [a.phase], a.force)

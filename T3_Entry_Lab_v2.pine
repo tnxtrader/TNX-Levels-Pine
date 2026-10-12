@@ -1,30 +1,16 @@
 //@version=6
-// T3 Entry Lab v2 — fixed + optimised version of T3_Entry_Lab_Phase0_AUDITED.
-// Every trigger / filter is the SAME executable definition used by the Python framework (t3lab/t3lab/core.py),
-// so a candidate validated in Python is reproduced here bar for bar (see t3lab/README.md, "Pine parity").
-//
-// What changed vs Phase0_AUDITED (from the audit + research report):
-//  1. Entries = the 32 registry triggers x 28 registry filters (dropdowns), not 103 hard-coded IDs.
-//     Short side is an exact mirror of long (prices negated, high<->low swapped), so no mislabelled/half-mirrored rules.
-//  2. ID 9 "CloseCross" was really a gap cross (open >= T3). Now T3_CLOSE_CROSS = close[1] <= T3[1] and close > T3;
-//     the gap version is T3_BODY_CROSS.
-//  3. Normalisation uses ATR of the PREVIOUS bar (atr[1]) in every filter, so the signal bar never sizes itself.
-//  4. Costs are on: commission per contract + 1 tick slippage (edit them in Properties to match your broker).
-//  5. Stop = SL x ATR(signal bar) in ticks, target = TP R x stop (R-multiple) — one risk unit, comparable across markets.
-//  6. No trade crosses a session: no entry from the last bar of a session, open trades are closed at the session's last close.
-//  7. Time exit = order at close of bar (entry + maxBars - 1) -> fills at the next open (same as the Python engine).
-//  8. Date window inputs to reproduce the Dev / Validation / Test segments exactly.
-//  9. Stats table: trades, win rate, profit factor, net R in ATR units, MFE / MAE in ATR, bars held, exit mix.
-// Intrabar note: TradingView fills SL/TP inside one bar with its O-H-L-C / O-L-H-C path. The Python research default is
-// pessimistic (stop wins when both are hit). Set intrabar: tv in config.yaml to reconcile exactly, or enable the
-// bar magnifier (use_bar_magnifier) on a plan that supports it.
+// T3 Entry Lab v2 — executes one registry candidate (trigger + filter + side + T3) with the framework's exit rules.
+// Rules and execution are identical to t3lab/t3lab/core.py and t3lab/t3lab/engine.py (FRAMEWORK.html B.2, B.3, B.7, B.8).
+// Chart: the instrument's continuous contract, 30-minute bars, full electronic (ETH) session.
+// Properties: set commission per contract and slippage ticks to the deployment card's costs.
 strategy("T3 Entry Lab v2", shorttitle = "T3Lab v2", overlay = true, pyramiding = 0, calc_on_every_tick = false,
      process_orders_on_close = false, default_qty_type = strategy.fixed, default_qty_value = 1,
+     initial_capital = 1000000, margin_long = 0, margin_short = 0,
      commission_type = strategy.commission.cash_per_contract, commission_value = 2.5, slippage = 1,
      use_bar_magnifier = false, max_bars_back = 500)
 
 // ───────────────────────────── inputs
-gE = "Entry (registry)"
+gE = "Entry (deployment card)"
 trigName = input.string("T3_CLOSE_CROSS", "Trigger", group = gE, options = ["T3_BODY_CROSS", "T3_CLOSE_CROSS", "T3_TWO_CLOSE",
      "T3_THREE_CLOSE", "T3_WICK_RECLAIM", "T3_CLEAN_RECLAIM", "T3_CROSS_RANGE_BREAK", "T3_PULLBACK_BREAK", "T3_TOUCH_3BAR_TREND",
      "T3_SLOPE_TURN", "T3_DISTANCE_RELEASE", "DONCHIAN_3", "DONCHIAN_5", "DONCHIAN_8", "DONCHIAN_12", "DONCHIAN_20",
@@ -41,18 +27,18 @@ t3Len  = input.int(3, "T3 length", minval = 1, group = gE)
 t3VF   = input.float(0.7, "T3 volume factor", minval = 0.0, maxval = 1.0, step = 0.1, group = gE)
 atrLen = input.int(14, "ATR length", minval = 1, group = gE)
 
-gX = "Exit"
-slATR   = input.float(1.0, "Stop loss  (x ATR of signal bar, 0 = none)", minval = 0.0, step = 0.25, group = gX)
-tpR     = input.float(1.5, "Take profit (x stop = R, 0 = none)", minval = 0.0, step = 0.25, group = gX)
+gX = "Exit (deployment card)"
+slATR   = input.float(1.0, "Stop loss (x ATR of the signal bar, 0 = none)", minval = 0.0, step = 0.25, group = gX)
+tpR     = input.float(1.5, "Take profit (x stop distance, 0 = none)", minval = 0.0, step = 0.25, group = gX)
 maxBars = input.int(8, "Max bars in trade", minval = 1, group = gX)
-flatEOS = input.bool(true, "Close open trade on the last bar of the session", group = gX)
 
-gW = "Window (use the dates printed in t3lab/out/P0/splits.csv)"
+gW = "Window"
 fromT = input.time(timestamp("2008-01-01T00:00:00"), "Trade from", group = gW)
 toT   = input.time(timestamp("2099-01-01T00:00:00"), "Trade until", group = gW)
 showT = input.bool(true, "Show stats table", group = gW)
 
-// ───────────────────────────── T3 (Tillson): GD = (1+v)EMA - v EMA(EMA), T3 = GD(GD(GD))
+// ───────────────────────────── indicators
+// T3 (Tillson): GD(x) = (1+v)EMA(x) - v EMA(EMA(x)); T3 = GD(GD(GD(close)))
 f_t3(src, len, v) =>
     e1 = ta.ema(src, len)
     e2 = ta.ema(e1, len)
@@ -70,32 +56,32 @@ t3line = f_t3(close, t3Len, t3VF)
 atrNow = ta.atr(atrLen)
 a1     = atrNow[1]
 
-// ───────────────────────────── mirrored prices: short rules = long rules on (-o, -l, -h, -c)
+// short side = long rules on mirrored prices (-open, -low, -high, -close) and -T3
 isLong = sideIn == "Long"
 sgn = isLong ? 1.0 : -1.0
 float O = isLong ? open : -open
 float H = isLong ? high : -low
-float L = isLong ? low  : -high
+float L = isLong ? low : -high
 float C = isLong ? close : -close
 float T = sgn * t3line
 rng = H - L
 d = C - T
+clv = rng > 0 ? (C - L) / rng : 0.0
 
-// all rolling series are computed on every bar (Pine requirement for consistent history)
-hi3  = ta.highest(H, 3)[1]
-hi5  = ta.highest(H, 5)[1]
-hi8  = ta.highest(H, 8)[1]
-hi12 = ta.highest(H, 12)[1]
-hi20 = ta.highest(H, 20)[1]
-lo3  = ta.lowest(L, 3)[1]
-lo5  = ta.lowest(L, 5)[1]
-lo8  = ta.lowest(L, 8)[1]
+// rolling series are computed on every bar
+hh3  = ta.highest(H, 3)[1]
+hh5  = ta.highest(H, 5)[1]
+hh8  = ta.highest(H, 8)[1]
+hh12 = ta.highest(H, 12)[1]
+hh20 = ta.highest(H, 20)[1]
+nr3  = ta.lowest(rng, 3)[1]
+nr5  = ta.lowest(rng, 5)[1]
+nr8  = ta.lowest(rng, 8)[1]
 sw5  = ta.lowest(L, 5)[2]
 sw10 = ta.lowest(L, 10)[2]
 mu20 = ta.sma(C, 20)[1]
-medRng = ta.median(high - low, 20)[1]
+medRng = ta.median(rng, 20)[1]
 medATR = ta.median(a1, 50)
-clv = rng > 0 ? (C - L) / rng : 0.0
 
 bool trig = switch trigName
     "T3_BODY_CROSS"          => O <= T and C > T
@@ -103,33 +89,33 @@ bool trig = switch trigName
     "T3_TWO_CLOSE"           => C > T and C[1] > T[1] and C[2] <= T[2]
     "T3_THREE_CLOSE"         => C > T and C[1] > T[1] and C[2] > T[2] and C[3] <= T[3]
     "T3_WICK_RECLAIM"        => O > T and L <= T and C > T
-    "T3_CLEAN_RECLAIM"       => L > T and L[1] <= T[1]
+    "T3_CLEAN_RECLAIM"       => L > T and L[1] <= T[1] and T[1] <= H[1]
     "T3_CROSS_RANGE_BREAK"   => C[1] > T[1] and C[2] <= T[2] and C > H[1]
-    "T3_PULLBACK_BREAK"      => T > T[1] and L[1] <= T[1] and C[1] > T[1] and C > H[1]
-    "T3_TOUCH_3BAR_TREND"    => T > T[3] and (L[1] <= T[1] or L[2] <= T[2] or L[3] <= T[3]) and C > T
+    "T3_PULLBACK_BREAK"      => T > T[1] and L[1] <= T[1] and T[1] < C[1] and C > H[1]
+    "T3_TOUCH_3BAR_TREND"    => T > T[1] and (L[1] <= T[1] or L[2] <= T[2] or L[3] <= T[3]) and C > T
     "T3_SLOPE_TURN"          => T > T[1] and T[1] <= T[2] and C > T
     "T3_DISTANCE_RELEASE"    => d > 0 and d > d[1]
-    "DONCHIAN_3"             => C > hi3
-    "DONCHIAN_5"             => C > hi5
-    "DONCHIAN_8"             => C > hi8
-    "DONCHIAN_12"            => C > hi12
-    "DONCHIAN_20"            => C > hi20
+    "DONCHIAN_3"             => C > hh3
+    "DONCHIAN_5"             => C > hh5
+    "DONCHIAN_8"             => C > hh8
+    "DONCHIAN_12"            => C > hh12
+    "DONCHIAN_20"            => C > hh20
     "PREVBAR_BREAK"          => C > H[1]
     "INSIDE_BAR_BREAK"       => H[1] <= H[2] and L[1] >= L[2] and C > H[1]
-    "COMPRESSION_BREAK_3"    => (hi3 - lo3) <= 0.75 * a1 * math.sqrt(3) and C > hi3
-    "COMPRESSION_BREAK_5"    => (hi5 - lo5) <= 0.75 * a1 * math.sqrt(5) and C > hi5
-    "COMPRESSION_BREAK_8"    => (hi8 - lo8) <= 0.75 * a1 * math.sqrt(8) and C > hi8
+    "COMPRESSION_BREAK_3"    => rng[1] <= nr3 and C > hh3
+    "COMPRESSION_BREAK_5"    => rng[1] <= nr5 and C > hh5
+    "COMPRESSION_BREAK_8"    => rng[1] <= nr8 and C > hh8
     "RANGE_EXPANSION_CLOSE"  => rng > a1 and (C - L) >= 0.75 * rng
-    "MOMENTUM_3"             => C - C[3] >= 0.5 * a1 * math.sqrt(3)
-    "MOMENTUM_6"             => C - C[6] >= 0.5 * a1 * math.sqrt(6)
+    "MOMENTUM_3"             => C > C[3]
+    "MOMENTUM_6"             => C > C[6]
     "THREE_BAR_CONTINUATION" => C[1] > C[2] and C[2] > C[3] and C > H[1]
-    "GAP_CONTINUATION"       => O - C[1] >= 0.05 * a1 and C > O
+    "GAP_CONTINUATION"       => O > C[1] and C > O
     "TWO_BAR_REVERSAL"       => C[1] < O[1] and C > H[1]
-    "OUTSIDE_BAR_REVERSAL"   => H > H[1] and L < L[1] and (C - L) >= 0.75 * rng and rng > 0
-    "SWEEP_RECLAIM_5"        => L[1] < sw5 and C > sw5 and C > C[1]
-    "SWEEP_RECLAIM_10"       => L[1] < sw10 and C > sw10 and C > C[1]
-    "MEAN_REVERSION_2"       => math.min(L, L[1]) <= mu20 - 2 * a1 and C > O and (C - L) >= 0.5 * rng
-    "MEAN_REVERSION_3"       => math.min(L, L[1]) <= mu20 - 3 * a1 and C > O and (C - L) >= 0.5 * rng
+    "OUTSIDE_BAR_REVERSAL"   => H > H[1] and L < L[1] and rng > 0 and (C - L) >= 0.75 * rng
+    "SWEEP_RECLAIM_5"        => L[1] < sw5 and C > sw5
+    "SWEEP_RECLAIM_10"       => L[1] < sw10 and C > sw10
+    "MEAN_REVERSION_2"       => L <= mu20 - 2 * a1 and C > O
+    "MEAN_REVERSION_3"       => L <= mu20 - 3 * a1 and C > O
     => false
 
 bool filt = switch filtName
@@ -163,8 +149,8 @@ bool filt = switch filtName
     "VOL_LOW_080"          => a1 <= 0.80 * medATR
     => false
 
-// ───────────────────────────── per-trade stats in ATR units (runs before new entries on purpose)
-var float riskATR = na        // ATR of the signal bar of the open trade (R normalisation)
+// ───────────────────────────── per-trade statistics in ATR units (before new entries, so riskATR still belongs to the closed trade)
+var float riskATR = na
 var int nT = 0
 var int nW = 0
 var float sumR = 0.0
@@ -181,25 +167,26 @@ var int seen = 0
 if strategy.closedtrades > seen
     for i = seen to strategy.closedtrades - 1
         unit = riskATR * syminfo.pointvalue * math.abs(strategy.closedtrades.size(i))
-        r = strategy.closedtrades.profit(i) / unit
-        nT += 1
-        nW += r > 0 ? 1 : 0
-        sumR += r
-        grossW += r > 0 ? r : 0
-        grossL += r < 0 ? -r : 0
-        sumMFE += strategy.closedtrades.max_runup(i) / unit
-        sumMAE += strategy.closedtrades.max_drawdown(i) / unit
-        sumBars += strategy.closedtrades.exit_bar_index(i) - strategy.closedtrades.entry_bar_index(i)
-        cm = strategy.closedtrades.exit_comment(i)
-        nSL += cm == "SL" ? 1 : 0
-        nTP += cm == "TP" ? 1 : 0
-        nTM += cm == "TIME" ? 1 : 0
-        nEOS += cm == "EOS" ? 1 : 0
+        if unit > 0
+            r = strategy.closedtrades.profit(i) / unit
+            nT += 1
+            nW += r > 0 ? 1 : 0
+            sumR += r
+            grossW += r > 0 ? r : 0
+            grossL += r < 0 ? -r : 0
+            sumMFE += strategy.closedtrades.max_runup(i) / unit
+            sumMAE += strategy.closedtrades.max_drawdown(i) / unit
+            sumBars += strategy.closedtrades.exit_bar_index(i) - strategy.closedtrades.entry_bar_index(i)
+            cm = strategy.closedtrades.exit_comment(i)
+            nSL += cm == "SL" ? 1 : 0
+            nTP += cm == "TP" ? 1 : 0
+            nTM += cm == "TIME" ? 1 : 0
+            nEOS += cm == "EOS" ? 1 : 0
     seen := strategy.closedtrades
 
-// ───────────────────────────── execution (same rules as t3lab/t3lab/engine.py)
+// ───────────────────────────── execution (FRAMEWORK.html B.2 / B.3)
 inWindow = time >= fromT and time <= toT
-lastOfSession = session.islastbar
+lastOfSession = session.islastbar or time_close >= time_close("D")
 signal = trig and filt
 canEnter = signal and inWindow and strategy.position_size == 0 and not lastOfSession and atrNow > 0
 
@@ -218,7 +205,7 @@ if strategy.position_size != 0
     slT = math.max(1, math.round(slATR * riskATR / syminfo.mintick))
     slPx := slATR > 0 ? ep - sgn * slT * syminfo.mintick : na
     tpPx := slATR > 0 and tpR > 0 ? ep + sgn * math.max(1, math.round(tpR * slT)) * syminfo.mintick : na
-    if flatEOS and lastOfSession
+    if lastOfSession
         strategy.close("E", comment = "EOS", immediately = true)
     else if bar_index >= eb + maxBars - 1
         strategy.close("E", comment = "TIME")
@@ -227,7 +214,7 @@ else
     tpPx := na
 
 // ───────────────────────────── visuals
-plot(t3line, "T3", color = color.new(color.orange, 0), linewidth = 2)
+plot(t3line, "T3", color = color.orange, linewidth = 2)
 plotshape(signal and inWindow, "Signal", style = isLong ? shape.triangleup : shape.triangledown,
      location = isLong ? location.belowbar : location.abovebar, color = isLong ? color.teal : color.red, size = size.tiny)
 plot(slPx, "Stop", color = color.red, style = plot.style_linebr)
@@ -248,4 +235,4 @@ if showT and barstate.islast
     f_row(7, "Mean bars held", nT > 0 ? str.tostring(sumBars / nT, "#.0") : "-")
     f_row(8, "Exits SL/TP/TIME/EOS", str.tostring(nSL) + "/" + str.tostring(nTP) + "/" + str.tostring(nTM) + "/" + str.tostring(nEOS))
     f_row(9, "T3 / ATR", str.tostring(t3Len) + " / " + str.tostring(t3VF) + " / " + str.tostring(atrLen))
-    f_row(10, "SL ATR / TP R / max bars", str.tostring(slATR) + " / " + str.tostring(tpR) + " / " + str.tostring(maxBars))
+    f_row(10, "SL x ATR / TP x stop / max bars", str.tostring(slATR) + " / " + str.tostring(tpR) + " / " + str.tostring(maxBars))
