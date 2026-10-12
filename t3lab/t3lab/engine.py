@@ -1,4 +1,4 @@
-"""Bar-level execution engine (same rules as T3_Entry_Lab_v2.pine).
+"""Bar-level execution engine (same rules as T3_Edge_Lab.pine; FRAMEWORK.html B.3, B.4, B.5).
 
 Signal at the CLOSE of bar t -> market entry at the OPEN of bar e = t + 1 (+ delay).
 Shorts run on mirrored prices (o, h, l, c) -> (-o, -l, -h, -c), so one long-only engine serves both sides.
@@ -14,6 +14,24 @@ import pandas as pd
 from numba import njit
 
 EXIT_NAMES = ("SL", "TP", "TIME", "EOS")
+
+# TopstepX (FRAMEWORK.html B.5): tick, and per contract (symbol, tick value USD, fees round trip USD =
+# Topstep commission + CME exchange fee + NFA fee). Full-size SI is not permitted in standard Topstep Trading Combines.
+TOPSTEPX = {
+    "CL": dict(tick=0.01,  mini=("CL", 10.00, 4.04), micro=("MCL", 1.00, 1.72)),
+    "GC": dict(tick=0.10,  mini=("GC", 10.00, 4.32), micro=("MGC", 1.00, 1.92)),
+    "NQ": dict(tick=0.25,  mini=("NQ", 5.00, 3.78),  micro=("MNQ", 0.50, 1.22)),
+    "SI": dict(tick=0.005, mini=("SI", 25.00, 4.32), micro=("SIL", 5.00, 2.72)),
+    "YM": dict(tick=1.0,   mini=("YM", 5.00, 3.78),  micro=("MYM", 0.50, 1.22)),
+}
+
+def contract_costs(market: str, contract: str, slip_ticks_per_side: float = 1.0, table: dict = TOPSTEPX) -> dict:
+    """Round-trip cost of one contract: cost_ticks_rt = fees / tick value + 2 x slippage (B.5). The research prices are
+    the mini series; the micro trades the same price on the same tick, so only the cost in ticks differs."""
+    sym, tick_value, fees = table[market][contract]
+    ticks = fees / tick_value + 2 * slip_ticks_per_side
+    return dict(market=market, contract=contract, symbol=sym, tick=table[market]["tick"], tick_value=tick_value,
+                fees_rt_usd=fees, cost_ticks_rt=ticks, cost_rt_usd=ticks * tick_value)
 
 @njit(cache=True)
 def _run(o, h, l, c, atr, sig, sess_last, roll_last, sl_atr, tp_r, max_bars, tick,

@@ -1,4 +1,8 @@
-"""Data, sessions, indicators, the 32 triggers + 28 filters, and the candidate registry.
+"""Data, sessions, indicators, every candidate rule of FRAMEWORK.html Part C, and the candidate registries.
+
+Pool L (legacy, Programs 1-2): 36 triggers x 30 filters (TRIGGERS, FILTERS; trigger(), filt()).
+Pool N (Program 3): 25 triggers x 10 T3 contexts x 5 market contexts (N_TRIGGERS, T3_CONTEXTS, MARKET_CONTEXTS;
+ntrigger(), t3ctx(), mctx()); signal3() executes any row of registry/program3_candidates.csv.
 
 Every rule is causal (reads bars <= t only; x[k] = k bars back) and is written for the long side.
 The short side is the same rule on mirrored prices (o, h, l, c) -> (-o, -l, -h, -c) and T -> -T.
@@ -130,6 +134,7 @@ class Bars:
                  bar_minutes: int = 30):
         self.df = df
         self.o, self.h, self.l, self.c = (df[k].to_numpy(float) for k in ("open", "high", "low", "close"))
+        self.v = df["volume"].to_numpy(float) if "volume" in df else np.ones(len(df))
         self.n = len(df)
         self.atr = atr_wilder(self.h, self.l, self.c, atr_len)
         self.atr1 = lag(self.atr, 1)
@@ -140,6 +145,9 @@ class Bars:
         self.or_start = int(np.ceil(hhmm(rth_open) / bar_minutes) * bar_minutes)          # first full bar of the day session
         self.settle_start = int(np.floor((hhmm(rth_close) - 1) / bar_minutes) * bar_minutes)  # bar that ends at settlement
         self.imom_start = self.settle_start - bar_minutes                                 # bar before the last half-hour
+        self.or2_start = self.or_start + bar_minutes                                      # the bar after the opening bar
+        self.nsess = int(self.sess.max()) + 1 if self.n else 0
+        self._anch, self.pair_d = {}, None
 
     def by_session(self, x, at):
         """x at the bar of each session where `at` is true, carried forward inside that session (NaN before it)."""
@@ -157,6 +165,107 @@ class Bars:
         if k not in self._t3:
             self._t3[k] = t3(self.c, *k)
         return self._t3[k]
+
+    def first(self, cond):
+        """first(cond): cond true for the first time in the current session."""
+        cond = np.asarray(cond, bool)
+        return cond & (pd.Series(cond.astype(np.int64)).groupby(self.sess).cumsum().to_numpy() == 1)
+
+    def set_pair(self, pb: "Bars"):
+        """MARKET_AGREE input: the paired market's close minus its own previous settlement close, aligned by timestamp
+        (NaN where the paired market has no bar at that time)."""
+        d = pd.Series(pb.c - pb.prev_settle(pb.c), index=pb.df["ts"].to_numpy())
+        d = d[~d.index.duplicated(keep="last")]
+        self.pair_d = d.reindex(self.df["ts"].to_numpy()).to_numpy(float)
+        self._cache = {k: v for k, v in self._cache.items() if not (k[0] == "M" and k[1] == "MARKET_AGREE")}
+
+    def anchors(self, side: int) -> dict:
+        """Session anchors of FRAMEWORK.html B.8 on the side's (mirrored) prices, per bar. Causal: every value exists only
+        from the bar at which it is known; session statistics use sessions strictly before the current one."""
+        if side in self._anch:
+            return self._anch[side]
+        o, h, l, c = _mirror(self, side)
+        tod, sess, S = self.tod, self.sess, self.nsess
+        isOB, isOB2, isSB = tod == self.or_start, tod == self.or2_start, tod == self.settle_start
+        inday = (tod >= self.or_start) & (tod <= self.settle_start)
+        hasOB = np.zeros(S, bool); hasOB[sess[isOB]] = True
+        hasSB = np.zeros(S, bool); hasSB[sess[isSB]] = True
+        grp = lambda x, f: getattr(pd.Series(x).groupby(sess), f)().reindex(np.arange(S)).to_numpy(float)
+        valid = hasOB & hasSB
+        Hs = np.where(valid, grp(np.where(inday, h, np.nan), "max"), np.nan)
+        Ls = np.where(valid, grp(np.where(inday, l, np.nan), "min"), np.nan)
+        Rs = Hs - Ls
+        St = grp(np.where(isSB, c, np.nan), "max")
+        prev = lambda x: np.r_[np.nan, x[:-1]]
+        R_prev, H_prev, L_prev, S_prev_s = prev(Rs), prev(Hs), prev(Ls), prev(St)
+        med250 = _prior(Rs, 250, np.median)
+        x = R_prev / med250
+        vol_cnt = _prior_rank(x, 250)
+        first21 = _prior(St, 21, lambda w: w[0])
+        A = dict(
+            O_day=self.by_session(o, isOB), hOB=self.by_session(h, isOB), cOB=self.by_session(c, isOB),
+            hOB2=self.by_session(h, isOB2), S_prev=S_prev_s[sess], H_prev=H_prev[sess], L_prev=L_prev[sess],
+            R_prev=R_prev[sess], meanR20=_prior(Rs, 20, np.mean)[sess],
+            nr4=(R_prev <= _prior(Rs, 4, np.min))[sess], nr7=(R_prev <= _prior(Rs, 7, np.min))[sess],
+            vol_cnt=vol_cnt[sess], dtrend=((S_prev_s - first21) > 0)[sess])
+        after = ~np.isnan(self.by_session(np.ones(self.n), isOB))
+        tp = (h + l + c) / 3.0
+        cpv = pd.Series(np.where(after, tp * self.v, 0.0)).groupby(sess).cumsum().to_numpy()
+        cv = pd.Series(np.where(after, self.v, 0.0)).groupby(sess).cumsum().to_numpy()
+        with np.errstate(invalid="ignore", divide="ignore"):
+            A["vwap"] = np.where(after & (cv > 0), cpv / np.where(cv > 0, cv, 1.0), np.nan)
+        dev = np.abs(c - A["O_day"])
+        A["sigma"] = self._slot_prior(dev, 14, tod, "mean")
+        ret = c - o
+        nxt = tod + self.bar
+        for N in (20, 40):
+            mu = self._slot_prior(ret, N, nxt, "mean")
+            sd = self._slot_prior(ret, N, nxt, "std")
+            with np.errstate(invalid="ignore", divide="ignore"):
+                A[f"z{N}"] = np.where(sd > 0, mu / np.where(sd > 0, sd, 1.0) * np.sqrt(N), np.nan)
+        self._anch[side] = A
+        return A
+
+    def _slot_prior(self, vals, n, query_tod, how):
+        """Per bar t: rolling `how` (mean | std with ddof 1) over the last n non-NaN values of time slot query_tod[t]
+        from sessions strictly before the session of bar t; NaN with fewer than n."""
+        out = np.full(self.n, np.nan)
+        ok = ~np.isnan(vals)
+        for tau in np.unique(self.tod[ok]):
+            m = ok & (self.tod == tau)
+            q = np.nonzero(query_tod == tau)[0]
+            if not len(q):
+                continue
+            ss = self.sess[m]
+            r = pd.Series(vals[m]).rolling(n, min_periods=n)
+            st = (r.mean() if how == "mean" else r.std(ddof=1)).to_numpy()
+            pos = np.searchsorted(ss, self.sess[q], side="left") - 1
+            good = pos >= 0
+            out[q[good]] = st[pos[good]]
+        return out
+
+def _prior(vals, n, fn):
+    """Per session s: fn over the last n non-NaN values of sessions strictly before s; NaN with fewer than n."""
+    vals = np.asarray(vals, float)
+    out = np.full(len(vals), np.nan)
+    idx = np.nonzero(~np.isnan(vals))[0]
+    v = vals[idx]
+    st = np.full(len(idx), np.nan)
+    for k in range(n - 1, len(idx)):
+        st[k] = fn(v[k - n + 1:k + 1])
+    pos = np.searchsorted(idx, np.arange(len(vals)), side="left") - 1
+    good = pos >= 0
+    out[good] = st[pos[good]]
+    return out
+
+def _prior_rank(x, n):
+    """Per session s with a value: how many of the last n non-NaN values of sessions before s are strictly below x[s]."""
+    out = np.full(len(x), np.nan)
+    idx = np.nonzero(~np.isnan(x))[0]
+    for j, s in enumerate(idx):
+        if j >= n:
+            out[s] = float((x[idx[j - n:j]] < x[s]).sum())
+    return out
 
 def _mirror(b: Bars, side: int):
     if side == 1:
@@ -349,7 +458,232 @@ def candidate_signal(b: Bars, row) -> np.ndarray:
         L = V = None
     return trigger(b, row["trigger"], side, L, V) & filt(b, row["filter"], side, L, V)
 
-# ----------------------------------------------------------------------------- registry
+# ============================================================================= Program 3, Pool N (FRAMEWORK.html C.6-C.10)
+FAST = (5, 0.7)        # Tillson's published setting
+SLOW = (13, 0.7)
+DAY_BARS = 48          # a DAY hold: more bars than a session has, so the trade ends at the last tradable bar (flat-by)
+VOL_HIGH_MIN = 167     # x above at least 2/3 of the previous 250 sessions' x (upper tercile)
+VOL_NOT_LOW_MIN = 84   # x above at least 1/3 of them (not the lower tercile)
+
+N_TRIGGERS = {
+    "ORB_DIR_30":          "bar = OB and c > o",
+    "ORB_BREAK_30":        "first(OB < bar < SB and c > h(OB))",
+    "ORB_BREAK_60":        "first(OB2 < bar < SB and c > max(h(OB), h(OB2)))",
+    "ORB_RETEST_30":       "first(OB < bar < SB, an ORB_BREAK_30 on an earlier bar of this session, l <= h(OB) and c > h(OB))",
+    "IMOM_DAY":            "bar = IB and c > S_prev",
+    "IMOM_FIRST":          "bar = IB and c(OB) > S_prev",
+    "IMOM_LARGE":          "bar = IB and c - S_prev >= 0.5 * mean(R of the last 20 valid sessions)",
+    "NB_10":               "first(OB < bar < SB and c > max(O_day, S_prev) + 1.0*sigma_tau)",
+    "NB_15":               "first(OB < bar < SB and c > max(O_day, S_prev) + 1.5*sigma_tau)",
+    "VBO_025":             "first(DAY and c > O_day + 0.25*R_prev)",
+    "VBO_050":             "first(DAY and c > O_day + 0.50*R_prev)",
+    "GAP_CONTINUE":        "bar = OB, O_day - S_prev >= 0.25*R_prev and c > o",
+    "GAP_FADE":            "bar = OB, O_day - S_prev <= -0.25*R_prev and c > o",
+    "VWAP_RECLAIM":        "OB < bar < SB, c[1] <= VWAP[1] and c > VWAP",
+    "VWAP_PULLBACK":       "OB < bar < SB, c[1] > VWAP[1], l <= VWAP, c > VWAP and c > o",
+    "SLOT_20":             "OB <= time of bar t+1 < SB and z(c - o of that time slot, previous 20 sessions) >= 2",
+    "SLOT_40":             "OB <= time of bar t+1 < SB and z(c - o of that time slot, previous 40 sessions) >= 2",
+    "NR4_DAY_BREAK":       "R_prev <= min(R of the last 4 valid sessions) and first(DAY and c > H_prev)",
+    "NR7_DAY_BREAK":       "R_prev <= min(R of the last 7 valid sessions) and first(DAY and c > H_prev)",
+    "PDH_BREAK":           "first(DAY and c > H_prev)",
+    "PDL_RECLAIM":         "first(DAY and l[1] < L_prev and c > L_prev)",
+    "T3_PULLBACK_BREAK_D": "DAY and T > T[1] and l[1] <= T[1] < c[1] and c > h[1]",
+    "T3_TOUCH_3BAR_D":     "DAY and T > T[1] and (l[1] <= T[1] or l[2] <= T[2] or l[3] <= T[3]) and c > T",
+    "MR_VWAP_2":           "OB < bar < SB, l <= VWAP - 2*atr1, c > o and CLV >= 0.5",
+    "MR_SMA20_2_D":        "DAY and l <= SMA20(c)[1] - 2*atr1 and c > o",
+}
+T3_CONTEXTS = {
+    "NONE":          "true",
+    "T3_SLOPE_UP_F": "T - T[3] >= 0 (FAST)",
+    "T3_SLOPE_UP_S": "T - T[3] >= 0 (SLOW)",
+    "T3_SIDE_F":     "c > T (FAST)",
+    "T3_SIDE_S":     "c > T (SLOW)",
+    "T3_NEAR_F":     "0 < c - T <= 1.0*atr1 (FAST)",
+    "T3_NEAR_S":     "0 < c - T <= 1.0*atr1 (SLOW)",
+    "T3_STRONG_F":   "T - T[3] >= 0.15*atr1 (FAST)",
+    "T3_STRONG_S":   "T - T[3] >= 0.15*atr1 (SLOW)",
+    "T3_STACK":      "T_FAST > T_SLOW and T_SLOW - T_SLOW[3] >= 0",
+}
+MARKET_CONTEXTS = {
+    "NONE":         "true",
+    "VOL_HIGH":     "x = R_prev / median(R of the last 250 valid sessions) is above >= 167 of the previous 250 sessions' x",
+    "VOL_NOT_LOW":  "x is above >= 84 of the previous 250 sessions' x",
+    "DAILY_TREND":  "S_prev - (the valid settlement 20 before S_prev) > 0",
+    "MARKET_AGREE": "paired market: its close - its own S_prev > 0 at the same bar time (NQ-YM, GC-SI, CL-NQ)",
+}
+N_TRIGGER_NAMES, T3_CONTEXT_NAMES, MARKET_CONTEXT_NAMES = list(N_TRIGGERS), list(T3_CONTEXTS), list(MARKET_CONTEXTS)
+PAIRS = {"NQ": "YM", "YM": "NQ", "GC": "SI", "SI": "GC", "CL": "NQ"}
+
+def n_speed(t3_context: str):
+    """T3 speed of a Pool N row: SLOW for *_S contexts, FAST otherwise (T3 triggers with NONE / T3_STACK use FAST)."""
+    return SLOW if t3_context.endswith("_S") else FAST
+
+def ntrigger(b: Bars, name: str, side: int, L=None, V=None) -> np.ndarray:
+    """Pool N trigger, long form on the side's mirrored prices. L, V: T3 speed (T3 triggers only)."""
+    key = ("N", name, side) if not name.startswith("T3_") else ("N", name, side, L, V)
+    if key in b._cache:
+        return b._cache[key]
+    if name in ("IMOM_DAY", "IMOM_FIRST"):
+        return _done(b, key, trigger(b, name, side), True)
+    if name == "ORB_DIR_30":
+        return _done(b, key, trigger(b, "ORB_OPEN_BAR", side), True)
+    if name == "ORB_BREAK_30":
+        return _done(b, key, trigger(b, "ORB_BREAK", side), True)
+    A = b.anchors(side)
+    o, h, l, c = _mirror(b, side)
+    S = lag; a1 = b.atr1; rng = h - l; tod = b.tod
+    OB, OB2, SB, IB = b.or_start, b.or2_start, b.settle_start, b.imom_start
+    day = (tod >= OB) & (tod < SB)
+    mid = (tod > OB) & (tod < SB)
+    vw = A["vwap"]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        if name == "ORB_BREAK_60":
+            r = b.first((tod > OB2) & (tod < SB) & (c > np.maximum(A["hOB"], A["hOB2"])))
+        elif name == "ORB_RETEST_30":
+            brk = trigger(b, "ORB_BREAK", side).astype(np.int64)
+            before = (pd.Series(brk).groupby(b.sess).cumsum().to_numpy() - brk) > 0
+            r = b.first(mid & before & (l <= A["hOB"]) & (c > A["hOB"]))
+        elif name == "IMOM_LARGE":
+            r = (tod == IB) & ((c - A["S_prev"]) >= 0.5 * A["meanR20"])
+        elif name in ("NB_10", "NB_15"):
+            k = 1.0 if name == "NB_10" else 1.5
+            r = b.first(mid & (c > np.maximum(A["O_day"], A["S_prev"]) + k * A["sigma"]))
+        elif name in ("VBO_025", "VBO_050"):
+            k = 0.25 if name == "VBO_025" else 0.50
+            r = b.first(day & (c > A["O_day"] + k * A["R_prev"]))
+        elif name == "GAP_CONTINUE":
+            r = (tod == OB) & ((A["O_day"] - A["S_prev"]) >= 0.25 * A["R_prev"]) & (c > o)
+        elif name == "GAP_FADE":
+            r = (tod == OB) & ((A["O_day"] - A["S_prev"]) <= -0.25 * A["R_prev"]) & (c > o)
+        elif name == "VWAP_RECLAIM":
+            r = mid & (S(c, 1) <= S(vw, 1)) & (c > vw)
+        elif name == "VWAP_PULLBACK":
+            r = mid & (S(c, 1) > S(vw, 1)) & (l <= vw) & (c > vw) & (c > o)
+        elif name in ("SLOT_20", "SLOT_40"):
+            nxt = tod + b.bar
+            r = (nxt >= OB) & (nxt < SB) & (A["z" + name[-2:]] >= 2)
+        elif name in ("NR4_DAY_BREAK", "NR7_DAY_BREAK", "PDH_BREAK"):
+            r = b.first(day & (c > A["H_prev"]))
+            if name != "PDH_BREAK":
+                r = r & A["nr4" if name.startswith("NR4") else "nr7"]
+        elif name == "PDL_RECLAIM":
+            r = b.first(day & (S(l, 1) < A["L_prev"]) & (c > A["L_prev"]))
+        elif name == "T3_PULLBACK_BREAK_D":
+            r = day & trigger(b, "T3_PULLBACK_BREAK", side, L, V)
+        elif name == "T3_TOUCH_3BAR_D":
+            r = day & trigger(b, "T3_TOUCH_3BAR_TREND", side, L, V)
+        elif name == "MR_VWAP_2":
+            r = mid & (l <= vw - 2 * a1) & (c > o) & (rng > 0) & ((c - l) >= 0.5 * rng)
+        elif name == "MR_SMA20_2_D":
+            r = day & trigger(b, "MEAN_REVERSION_2", side)
+        else:
+            raise KeyError(name)
+    return _done(b, key, r, True)
+
+def t3ctx(b: Bars, name: str, side: int, fast=FAST, slow=SLOW) -> np.ndarray:
+    key = ("C", name, side, fast, slow)
+    if key in b._cache:
+        return b._cache[key]
+    c = b.c * side
+    a1 = b.atr1
+    with np.errstate(invalid="ignore"):
+        if name == "NONE":
+            r = np.ones(b.n, bool)
+        elif name == "T3_STACK":
+            Tf, Ts = b.t3(*fast) * side, b.t3(*slow) * side
+            r = (Tf > Ts) & ((Ts - lag(Ts, 3)) >= 0)
+        else:
+            base, sp = name.rsplit("_", 1)
+            T = b.t3(*(fast if sp == "F" else slow)) * side
+            d = c - T
+            if base == "T3_SLOPE_UP":  r = (T - lag(T, 3)) >= 0
+            elif base == "T3_SIDE":    r = c > T
+            elif base == "T3_NEAR":    r = (d > 0) & (d <= 1.0 * a1)
+            elif base == "T3_STRONG":  r = (T - lag(T, 3)) >= 0.15 * a1
+            else:
+                raise KeyError(name)
+    return _done(b, key, r, True)
+
+def mctx(b: Bars, name: str, side: int) -> np.ndarray:
+    key = ("M", name, side)
+    if key in b._cache:
+        return b._cache[key]
+    A = b.anchors(side)
+    with np.errstate(invalid="ignore"):
+        if name == "NONE":           r = np.ones(b.n, bool)
+        elif name == "VOL_HIGH":     r = A["vol_cnt"] >= VOL_HIGH_MIN
+        elif name == "VOL_NOT_LOW":  r = A["vol_cnt"] >= VOL_NOT_LOW_MIN
+        elif name == "DAILY_TREND":  r = A["dtrend"]
+        elif name == "MARKET_AGREE":
+            if b.pair_d is None:
+                raise ValueError("MARKET_AGREE needs the paired market: call Bars.set_pair(paired_bars) first")
+            r = side * b.pair_d > 0
+        else:
+            raise KeyError(name)
+    return _done(b, key, r, True)
+
+def parse_t3(x):
+    """'12/0.6' -> (12, 0.6); '' / NaN -> (None, None)."""
+    if x is None or (isinstance(x, float) and np.isnan(x)) or str(x).strip() == "":
+        return None, None
+    a, v = str(x).split("+")[0].strip().split("/")
+    return int(a), float(v)
+
+def hold_bars(screen_hold: str) -> list:
+    """'8 bars | DAY' -> [8, 48]; 'SHORT 4 bars' -> [4]; 'SHORT 1 bar' -> [1]; 'DAY' -> [48]."""
+    out = []
+    for part in str(screen_hold).split("|"):
+        part = part.strip()
+        out.append(DAY_BARS if part == "DAY" else int(part.split()[-2]))
+    return out
+
+def signal3(b: Bars, row, fast=FAST, slow=SLOW) -> np.ndarray:
+    """Signal of one row of registry/program3_candidates.csv (pool L or N)."""
+    side = 1 if row["side"] == "long" else -1
+    if row["pool"] == "L":
+        L, V = parse_t3(row["t3"])
+        return trigger(b, row["trigger"], side, L, V) & filt(b, row["context_or_filter"], side, L, V)
+    ctx = row["context_or_filter"]
+    L, V = (slow if ctx.endswith("_S") else fast)
+    return ntrigger(b, row["trigger"], side, L, V) & t3ctx(b, ctx, side, fast, slow) & mctx(b, row["market_context"], side)
+
+REGISTRY3_COLUMNS = ["candidate_id", "pool", "program", "family", "trigger", "context_or_filter", "market_context", "side",
+                     "t3", "screen_hold", "dev_informed"]
+
+def registry3_problems(reg: pd.DataFrame) -> dict:
+    """Counts of Program 3 rows that cannot be executed exactly as written."""
+    L, N = reg[reg["pool"] == "L"], reg[reg["pool"] == "N"]
+    def bad_hold(x):
+        try:
+            return not hold_bars(x)
+        except Exception:
+            return True
+    def expect_t3(r):
+        ctx, trg = r["context_or_filter"], r["trigger"]
+        if ctx == "T3_STACK":
+            return "5/0.7 + 13/0.7"
+        if ctx.startswith("T3_"):
+            return "13/0.7" if ctx.endswith("_S") else "5/0.7"
+        return "5/0.7" if trg.startswith("T3_") else ""
+    t3L = L["trigger"].str.startswith("T3_") | L["context_or_filter"].str.startswith("T3_")
+    return dict(
+        missing_columns=len(set(REGISTRY3_COLUMNS) - set(reg.columns)),
+        duplicate_ids=int(reg["candidate_id"].duplicated().sum()),
+        bad_pool=int((~reg["pool"].isin(["L", "N"])).sum()),
+        bad_side=int((~reg["side"].isin(["long", "short"])).sum()),
+        unknown_trigger=int((~L["trigger"].isin(TRIGGER_NAMES)).sum() + (~N["trigger"].isin(N_TRIGGER_NAMES)).sum()),
+        unknown_context_or_filter=int((~L["context_or_filter"].isin(FILTER_NAMES)).sum()
+                                      + (~N["context_or_filter"].isin(T3_CONTEXT_NAMES)).sum()),
+        unknown_market_context=int((~reg["market_context"].isin(MARKET_CONTEXT_NAMES)).sum()
+                                   + (L["market_context"] != "NONE").sum()),
+        bad_hold=int(sum(bad_hold(x) for x in reg["screen_hold"])),
+        t3_missing_or_wrong=int((t3L & (L["t3"].fillna("") == "")).sum()
+                                + sum((("" if pd.isna(r["t3"]) else str(r["t3"])) != expect_t3(r)) for _, r in N.iterrows())),
+        duplicate_specs=int(reg.duplicated(["pool", "trigger", "context_or_filter", "market_context", "side", "t3",
+                                            "screen_hold"]).sum()),
+    )
+
+# ----------------------------------------------------------------------------- registry (Programs 1-2)
 REGISTRY_COLUMNS = ["candidate_id", "family", "trigger", "filter", "side", "t3_length", "t3_vf"]
 
 def spec_hash(trigger_name, filter_name, side, L, V) -> str:

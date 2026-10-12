@@ -443,7 +443,7 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
 
   <h3 class="h">B.21 — The verification law</h3>
   <div class="box"><ol>
-    <li>The fast code must equal slow reference implementations written from this framework: the engine, both drift baselines, every trigger and context of both pools, T3, ATR, VWAP, σ<sub>τ</sub> and the session anchors.</li>
+    <li>The fast code must equal slow reference implementations written from this framework: the engine, both drift baselines, every trigger and context of both pools, T3, ATR, VWAP, σ<sub>τ</sub> and the session anchors. The Pool N reference is streamed bar by bar with the same state and order of updates as <code>T3_Edge_Lab.pine</code>.</li>
     <li>Shorts mirror longs exactly, and no rule reads future bars.</li>
     <li>The statistics must equal independent references: statsmodels for HAC and BH; Monte Carlo for E[max SR], the null SR variance and the DSR false-positive rate; known inputs for PBO, CPCV, the bootstrap, SPA, StepM, Simes, Benjamini–Bogomolov and K<sub>eff</sub>.</li>
     <li>Each null of B.13 returns uniform p-values on null markets (Kolmogorov-Smirnov test, 200 markets).</li>
@@ -583,9 +583,9 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
   <div class="box"><div class="tw"><table>
     <tr><th>context</th><th>rule</th><th>reason</th></tr>
     <tr><td>NONE</td><td>always true</td><td>—</td></tr>
-    <tr><td>VOL_HIGH</td><td>R_prev ÷ median(R over the previous 250 sessions) in its upper tercile (terciles over the previous 250 sessions)</td><td>intraday breakout returns depend on the volatility state [R37]</td></tr>
-    <tr><td>VOL_NOT_LOW</td><td>the same ratio not in its lower tercile</td><td>[R37]</td></tr>
-    <tr><td>DAILY_TREND</td><td><code>S_prev − S_prev(20 sessions earlier) &gt; 0</code></td><td>time-series momentum at the one-month horizon [R40]</td></tr>
+    <tr><td>VOL_HIGH</td><td>x = R_prev ÷ median(R of the last 250 valid sessions) is in its upper tercile: above at least 167 of the previous 250 sessions' x</td><td>intraday breakout returns depend on the volatility state [R37]</td></tr>
+    <tr><td>VOL_NOT_LOW</td><td>x is not in its lower tercile: above at least 84 of the previous 250 sessions' x</td><td>[R37]</td></tr>
+    <tr><td>DAILY_TREND</td><td><code>S_prev − (the valid settlement close 20 before S_prev) &gt; 0</code></td><td>time-series momentum at the one-month horizon [R40]</td></tr>
     <tr><td>MARKET_AGREE</td><td>at the same bar time, the paired market's close minus its own S_prev is &gt; 0 (pairs: NQ↔YM, GC↔SI, CL↔NQ)</td><td>related markets share information, and agreement filters out idiosyncratic noise [R41, R42]</td></tr>
   </table></div></div>
 
@@ -918,7 +918,7 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
     <h4 class="job">Job</h4><p>Reproduce each card in TradingView, incubate it, and stop it at once if it breaks.</p>
     <h4 class="job">Steps</h4>
     <ol>
-      <li>Load the card into the Pine strategy on the instrument's continuous contract, with 30-minute bars, the electronic session, commission per side and slippage from the card, and flat-by at 15:08 CT.</li>
+      <li>Load the card into <code>T3_Edge_Lab.pine</code> on the instrument's continuous contract, with 30-minute bars, the electronic session, commission per side and slippage from the card, and flat-by at 15:08 CT.</li>
       <li>Run a parity replay on the Test dates: the trade count must be within ±5% of the engine's, and the net mean R inside the Test CI.</li>
       <li>Incubate in simulation until ≥ 30 trades.</li>
       <li>Apply the kill switch after every trade from the 30th on: stop when the live mean R falls below the Test CI lower bound or the drawdown exceeds the worst historical drawdown.</li>

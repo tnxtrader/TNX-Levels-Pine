@@ -204,6 +204,188 @@ def ref_time_rules(o, h, l, c, tod, sess, t, or_start, settle_start, imom_start)
     F = {"ABOVE_PREV_SETTLE": c[t] > ps, "RTH_OPEN_90": or_start <= tod[t] < or_start + 90}
     return R, F
 
+def ref_pair_diff(c, tod, sess, settle_start):
+    """Paired market input of MARKET_AGREE, streamed bar by bar like f_pairDiff in T3_Edge_Lab.pine."""
+    out, s_today, s_prev = [], math.nan, math.nan
+    for t in range(len(c)):
+        if t > 0 and sess[t] != sess[t - 1]:
+            s_prev, s_today = s_today, math.nan
+        if tod[t] == settle_start:
+            s_today = c[t]
+        out.append(c[t] - s_prev)
+    return out
+
+def ref_stream_n(o, h, l, c, v, tod, sess, atr, TF, TS, pair_d, side, OB, SB, bar):
+    """Slow reference of every Pool N rule (25 triggers, 10 T3 contexts, 5 market contexts), streamed bar by bar with
+    the same state and the same order of updates as T3_Edge_Lab.pine. Independent of the vectorized core."""
+    nan = math.nan
+    n = len(c)
+    if side == 1:
+        O, H, L, C = list(o), list(h), list(l), list(c)
+    else:
+        O, H, L, C = [-x for x in o], [-x for x in l], [-x for x in h], [-x for x in c]
+    TF = [side * x for x in TF]; TS = [side * x for x in TS]
+    OB2, IB = OB + bar, SB - bar
+    isn = lambda x: x != x
+    mx = lambda a, b: nan if (isn(a) or isn(b)) else max(a, b)
+    mean = lambda w: sum(w) / len(w)
+    names = ["ORB_DIR_30", "ORB_BREAK_30", "ORB_BREAK_60", "ORB_RETEST_30", "IMOM_DAY", "IMOM_FIRST", "IMOM_LARGE", "NB_10",
+             "NB_15", "VBO_025", "VBO_050", "GAP_CONTINUE", "GAP_FADE", "VWAP_RECLAIM", "VWAP_PULLBACK", "SLOT_20", "SLOT_40",
+             "NR4_DAY_BREAK", "NR7_DAY_BREAK", "PDH_BREAK", "PDL_RECLAIM", "T3_PULLBACK_BREAK_D@F", "T3_PULLBACK_BREAK_D@S",
+             "T3_TOUCH_3BAR_D@F", "T3_TOUCH_3BAR_D@S", "MR_VWAP_2", "MR_SMA20_2_D",
+             "C:T3_SLOPE_UP_F", "C:T3_SLOPE_UP_S", "C:T3_SIDE_F", "C:T3_SIDE_S", "C:T3_NEAR_F", "C:T3_NEAR_S",
+             "C:T3_STRONG_F", "C:T3_STRONG_S", "C:T3_STACK", "M:VOL_HIGH", "M:VOL_NOT_LOW", "M:DAILY_TREND", "M:MARKET_AGREE"]
+    out = {k: [False] * n for k in names}
+    orH = orH2 = orC = oDay = settleToday = settlePrev = dayHi = dayLo = hPrev = lPrev = rPrev = meanR20 = nan
+    seenOB = seenSB = afterOB = brk30Seen = nr4 = nr7 = dTrend = False
+    volCnt = -1; cumPV = cumV = 0.0
+    cnt = dict.fromkeys(["B30", "B60", "RET", "NB10", "NB15", "V25", "V50", "PDH", "PDL"], 0)
+    rHist, sHist, xHist, sigMap, retMap = [], [], [], {}, {}
+    vw = [nan] * n
+    def zlast(w, k):
+        if len(w) < k:
+            return nan
+        sl = w[-k:]
+        mu = mean(sl)
+        sd = math.sqrt(sum((x - mu) ** 2 for x in sl) / (k - 1))
+        return mu / sd * math.sqrt(k) if sd > 0 else nan
+    for t in range(n):
+        if t > 0 and sess[t] != sess[t - 1]:
+            settlePrev = settleToday
+            validPrev = seenOB and seenSB
+            rPrev = dayHi - dayLo if validPrev else nan
+            hPrev = dayHi if validPrev else nan
+            lPrev = dayLo if validPrev else nan
+            if validPrev:
+                rHist = (rHist + [rPrev])[-250:]
+            if not isn(settleToday):
+                sHist = (sHist + [settleToday])[-21:]
+            meanR20 = mean(rHist[-20:]) if len(rHist) >= 20 else nan
+            m4 = min(rHist[-4:]) if len(rHist) >= 4 else nan
+            m7 = min(rHist[-7:]) if len(rHist) >= 7 else nan
+            nr4 = (not isn(rPrev)) and (not isn(m4)) and rPrev <= m4
+            nr7 = (not isn(rPrev)) and (not isn(m7)) and rPrev <= m7
+            med = float(np.median(rHist)) if len(rHist) >= 250 else nan
+            x = rPrev / med if not (isn(rPrev) or isn(med)) else nan
+            volCnt = -1
+            if not isn(x):
+                if len(xHist) >= 250:
+                    volCnt = sum(1 for y in xHist[-250:] if y < x)
+                xHist = (xHist + [x])[-250:]
+            dTrend = (not isn(settlePrev)) and len(sHist) >= 21 and settlePrev - sHist[-21] > 0
+            settleToday = orH = orH2 = orC = oDay = dayHi = dayLo = nan
+            seenOB = seenSB = afterOB = brk30Seen = False
+            cumPV = cumV = 0.0
+            cnt = dict.fromkeys(cnt, 0)
+        m = tod[t]
+        isOB = m == OB
+        if isOB:
+            orH, orC, oDay, seenOB, afterOB = H[t], C[t], O[t], True, True
+        if m == OB2:
+            orH2 = H[t]
+        if OB <= m <= SB:
+            dayHi = H[t] if isn(dayHi) else max(dayHi, H[t])
+            dayLo = L[t] if isn(dayLo) else min(dayLo, L[t])
+        if m == SB:
+            settleToday, seenSB = C[t], True
+        if afterOB:
+            cumPV += (H[t] + L[t] + C[t]) / 3.0 * v[t]
+            cumV += v[t]
+        vw[t] = cumPV / cumV if (afterOB and cumV > 0) else nan
+        sg = sigMap.setdefault(m, [])
+        sigma = mean(sg) if len(sg) >= 14 else nan
+        if not isn(oDay):
+            sigMap[m] = (sg + [abs(C[t] - oDay)])[-14:]
+        rn = retMap.setdefault(m + bar, [])
+        z20, z40 = zlast(rn, 20), zlast(rn, 40)
+        retMap[m] = (retMap.setdefault(m, []) + [C[t] - O[t]])[-40:]
+        a1 = atr[t - 1] if t >= 1 else nan
+        inDay, mid, isIB = OB <= m < SB, OB < m < SB, m == IB
+        g = lambda x, k: x[t - k] if t - k >= 0 else nan
+        orb30Raw = mid and C[t] > orH
+        cnt["B30"] += orb30Raw
+        orb30 = orb30Raw and cnt["B30"] == 1
+        orb60Raw = OB2 < m < SB and C[t] > mx(orH, orH2)
+        cnt["B60"] += orb60Raw
+        retRaw = mid and brk30Seen and L[t] <= orH and C[t] > orH
+        cnt["RET"] += retRaw
+        if orb30:
+            brk30Seen = True
+        base = mx(oDay, settlePrev)
+        nb10Raw = mid and C[t] > base + 1.0 * sigma
+        nb15Raw = mid and C[t] > base + 1.5 * sigma
+        cnt["NB10"] += nb10Raw; cnt["NB15"] += nb15Raw
+        v25Raw = inDay and C[t] > oDay + 0.25 * rPrev
+        v50Raw = inDay and C[t] > oDay + 0.50 * rPrev
+        cnt["V25"] += v25Raw; cnt["V50"] += v50Raw
+        pdhRaw = inDay and C[t] > hPrev
+        cnt["PDH"] += pdhRaw
+        pdlRaw = inDay and g(L, 1) < lPrev and C[t] > lPrev
+        cnt["PDL"] += pdlRaw
+        slotOK = OB <= m + bar < SB
+        mu20 = mean(C[t - 20:t]) if t >= 20 else nan
+        rngt = H[t] - L[t]
+        R = out
+        R["ORB_DIR_30"][t] = isOB and C[t] > O[t]
+        R["ORB_BREAK_30"][t] = orb30
+        R["ORB_BREAK_60"][t] = orb60Raw and cnt["B60"] == 1
+        R["ORB_RETEST_30"][t] = retRaw and cnt["RET"] == 1
+        R["IMOM_DAY"][t] = isIB and C[t] > settlePrev
+        R["IMOM_FIRST"][t] = isIB and orC > settlePrev
+        R["IMOM_LARGE"][t] = isIB and C[t] - settlePrev >= 0.5 * meanR20
+        R["NB_10"][t] = nb10Raw and cnt["NB10"] == 1
+        R["NB_15"][t] = nb15Raw and cnt["NB15"] == 1
+        R["VBO_025"][t] = v25Raw and cnt["V25"] == 1
+        R["VBO_050"][t] = v50Raw and cnt["V50"] == 1
+        R["GAP_CONTINUE"][t] = isOB and oDay - settlePrev >= 0.25 * rPrev and C[t] > O[t]
+        R["GAP_FADE"][t] = isOB and oDay - settlePrev <= -0.25 * rPrev and C[t] > O[t]
+        R["VWAP_RECLAIM"][t] = mid and g(C, 1) <= g(vw, 1) and C[t] > vw[t]
+        R["VWAP_PULLBACK"][t] = mid and g(C, 1) > g(vw, 1) and L[t] <= vw[t] and C[t] > vw[t] and C[t] > O[t]
+        R["SLOT_20"][t] = slotOK and z20 >= 2
+        R["SLOT_40"][t] = slotOK and z40 >= 2
+        R["PDH_BREAK"][t] = pdhRaw and cnt["PDH"] == 1
+        R["NR4_DAY_BREAK"][t] = R["PDH_BREAK"][t] and nr4
+        R["NR7_DAY_BREAK"][t] = R["PDH_BREAK"][t] and nr7
+        R["PDL_RECLAIM"][t] = pdlRaw and cnt["PDL"] == 1
+        for tag, T in (("F", TF), ("S", TS)):
+            R["T3_PULLBACK_BREAK_D@" + tag][t] = inDay and T[t] > g(T, 1) and g(L, 1) <= g(T, 1) < g(C, 1) and C[t] > g(H, 1)
+            R["T3_TOUCH_3BAR_D@" + tag][t] = inDay and T[t] > g(T, 1) and any(g(L, k) <= g(T, k) for k in (1, 2, 3)) and C[t] > T[t]
+        R["MR_VWAP_2"][t] = mid and L[t] <= vw[t] - 2 * a1 and C[t] > O[t] and rngt > 0 and (C[t] - L[t]) >= 0.5 * rngt
+        R["MR_SMA20_2_D"][t] = inDay and L[t] <= mu20 - 2 * a1 and C[t] > O[t]
+        for tag, T in (("F", TF), ("S", TS)):
+            R["C:T3_SLOPE_UP_" + tag][t] = T[t] - g(T, 3) >= 0
+            R["C:T3_SIDE_" + tag][t] = C[t] > T[t]
+            R["C:T3_NEAR_" + tag][t] = C[t] - T[t] > 0 and C[t] - T[t] <= 1.0 * a1
+            R["C:T3_STRONG_" + tag][t] = T[t] - g(T, 3) >= 0.15 * a1
+        R["C:T3_STACK"][t] = TF[t] > TS[t] and TS[t] - g(TS, 3) >= 0
+        R["M:VOL_HIGH"][t] = volCnt >= 167
+        R["M:VOL_NOT_LOW"][t] = volCnt >= 84
+        R["M:DAILY_TREND"][t] = dTrend
+        R["M:MARKET_AGREE"][t] = side * pair_d[t] > 0
+    return {k: np.array(x, bool) for k, x in out.items()}
+
+def core_n(b, side):
+    """The same names as ref_stream_n, from the vectorized core."""
+    R = {}
+    for k in core.N_TRIGGER_NAMES:
+        if k.startswith("T3_"):
+            R[k + "@F"] = core.ntrigger(b, k, side, *core.FAST)
+            R[k + "@S"] = core.ntrigger(b, k, side, *core.SLOW)
+        else:
+            R[k] = core.ntrigger(b, k, side)
+    for k in core.T3_CONTEXT_NAMES[1:]:
+        R["C:" + k] = core.t3ctx(b, k, side)
+    for k in core.MARKET_CONTEXT_NAMES[1:]:
+        R["M:" + k] = core.mctx(b, k, side)
+    return R
+
+def prep_pair(df, dfp):
+    d = core.load_symbol_df(df.copy()); d = core.add_sessions(d, 17, 120, {"ALL": (0, 24)})
+    dp = core.load_symbol_df(dfp.copy()); dp = core.add_sessions(dp, 17, 120, {"ALL": (0, 24)})
+    b, pb = core.Bars(d), core.Bars(dp)
+    b.set_pair(pb)
+    return d, dp, b, pb
+
 def ref_t3(close, L, v):
     a = 2 / (L + 1)
     def ema(x):
@@ -363,6 +545,86 @@ def run_all():
     dead = [k for k in core.TRIGGER_NAMES if core.trigger(b, k, 1, 5, 0.7).sum() == 0] + \
            [k for k in core.FILTER_NAMES if core.filt(b, k, 1, 5, 0.7).sum() == 0]
     check("every trigger and filter fires on random data", not dead, dead)
+
+    # --- Program 3: Pool N rules vs the streamed slow reference (the logic of T3_Edge_Lab.pine), both sides
+    dfa, dfb = synthetic(620, seed=21), synthetic(620, seed=22)
+    da, dpa, ba, pba = prep_pair(dfa, dfb)
+    pdiff = ref_pair_diff(pba.c.tolist(), pba.tod.tolist(), pba.sess.tolist(), pba.settle_start)
+    check("MARKET_AGREE input == streamed paired-market reference", np.allclose(ba.pair_d, pdiff, equal_nan=True))
+    TFr, TSr = ref_t3(ba.c, 5, 0.7), ref_t3(ba.c, 13, 0.7)
+    bad = []
+    fired = {}
+    for side in (1, -1):
+        ref = ref_stream_n(ba.o.tolist(), ba.h.tolist(), ba.l.tolist(), ba.c.tolist(), ba.v.tolist(), ba.tod.tolist(),
+                           ba.sess.tolist(), ba.atr.tolist(), TFr.tolist(), TSr.tolist(), list(pdiff), side,
+                           ba.or_start, ba.settle_start, ba.bar)
+        fast = core_n(ba, side)
+        for k in ref:
+            if not np.array_equal(ref[k], fast[k]):
+                bad.append((side, k, int((ref[k] != fast[k]).sum())))
+            fired[(side, k)] = int(fast[k].sum())
+    check(f"Pool N: 25 triggers + 10 T3 contexts + 5 market contexts == streamed reference ({len(ref)} rules x 2 sides, "
+          f"{ba.n} bars)", not bad, bad)
+    dead = [k for k, n_ in fired.items() if n_ == 0]
+    check("Pool N: every rule fires on random data, both sides", not dead, dead)
+    dna, dpn = da.copy(), dpa.copy()
+    for dd in (dna, dpn):
+        o_, h_, l_, c_ = dd["open"].copy(), dd["high"].copy(), dd["low"].copy(), dd["close"].copy()
+        dd["open"], dd["high"], dd["low"], dd["close"] = -o_, -l_, -h_, -c_
+    bm, pbm = core.Bars(dna), core.Bars(dpn)
+    bm.set_pair(pbm)
+    long_m, short_o = core_n(bm, 1), core_n(ba, -1)
+    bad = [k for k in long_m if not np.array_equal(long_m[k], short_o[k])]
+    check("Pool N: short rules are exact mirrors of long rules", not bad, bad)
+    cut = 20000
+    d2, dp2 = da.copy(), dpa.copy()
+    rn_ = np.random.default_rng(7)
+    for dd in (d2, dp2):
+        for col in ("open", "high", "low", "close"):
+            dd.loc[cut:, col] = dd.loc[cut:, col].to_numpy() + rn_.normal(0, 0.5, len(dd) - cut)
+        dd["high"] = dd[["open", "high", "low", "close"]].max(axis=1); dd["low"] = dd[["open", "high", "low", "close"]].min(axis=1)
+        dd.loc[cut:, "volume"] = rn_.integers(1, 500, len(dd) - cut)
+    b2, pb2 = core.Bars(d2), core.Bars(dp2)
+    b2.set_pair(pb2)
+    bad = []
+    for side in (1, -1):
+        x1, x2 = core_n(ba, side), core_n(b2, side)
+        bad += [(side, k) for k in x1 if not np.array_equal(x1[k][:cut], x2[k][:cut])]
+    check("Pool N: no look-ahead (future bars of both markets never change past signals)", not bad, bad)
+
+    # --- Program 3 registry and contract costs
+    import pathlib
+    regp = pathlib.Path(__file__).resolve().parents[1] / "registry" / "program3_candidates.csv"
+    reg3 = pd.read_csv(regp, keep_default_na=False, na_values=[""])
+    probs = core.registry3_problems(reg3)
+    fam = reg3.groupby("pool")["family"].nunique().to_dict()
+    check("Program 3 registry: 10,046 rows (5,046 L + 5,000 N), 21 families, every row executable",
+          len(reg3) == 10046 and (reg3["pool"] == "N").sum() == 5000 and reg3["family"].nunique() == 21
+          and not any(probs.values()), (probs, fam))
+    sub = reg3.groupby(["pool", "family"]).head(3)
+    errs = []
+    for _, row in sub.iterrows():
+        try:
+            core.signal3(ba, row)
+        except Exception as e:
+            errs.append((row["candidate_id"], repr(e)))
+    check("Program 3 registry: rows of every family execute on a market", not errs, errs)
+    from .engine import TOPSTEPX, contract_costs
+    want = {("CL", "mini"): 2.404, ("CL", "micro"): 3.72, ("GC", "mini"): 2.432, ("GC", "micro"): 3.92,
+            ("NQ", "mini"): 2.756, ("NQ", "micro"): 4.44, ("SI", "mini"): 2.1728, ("SI", "micro"): 2.544,
+            ("YM", "mini"): 2.756, ("YM", "micro"): 4.44}
+    got = {k: contract_costs(*k)["cost_ticks_rt"] for k in want}
+    check("costs: TopstepX round trip in ticks, micro and mini (FRAMEWORK.html B.5)",
+          all(abs(got[k] - want[k]) < 1e-9 for k in want) and set(TOPSTEPX) == {"CL", "GC", "NQ", "SI", "YM"}, got)
+    tmA = core.tradable_mask(da, 17, 30, "15:08")
+    slA, rlA = core.last_index_arrays(da, tmA)
+    mA = Market(ba, slA, rlA, 0.01, 3, 1)
+    trA = mA.trades(core.ntrigger(ba, "ORB_BREAK_30", 1), 1, 0.0, 0.0, core.DAY_BARS)
+    check("DAY hold: every screen trade ends at the close of the session's last tradable bar (flat-by)",
+          len(trA["entry_bar"]) > 0 and np.all(trA["exit_bar"] == slA[trA["entry_bar"]]) and np.all(trA["exit_type"] == 3))
+    check("screen holds parse: '8 bars | DAY' -> [8, 48], 'SHORT 1 bar' -> [1], 'DAY' -> [48]",
+          core.hold_bars("8 bars | DAY") == [8, 48] and core.hold_bars("SHORT 1 bar") == [1] and core.hold_bars("DAY") == [48]
+          and core.hold_bars("SHORT 4 bars") == [4] and core.hold_bars("1 bar | DAY") == [1, 48])
 
     # --- statistics vs independent references
     import statsmodels.api as sm
