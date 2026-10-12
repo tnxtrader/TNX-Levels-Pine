@@ -1,0 +1,49 @@
+intervention is a very sporadic policy with long periods in which the Federal Reserve remained
+calm. Second, there appears to be a lot of persistence to the direction of intervention in terms
+of purchases and sales, but overall intervention has been relatively balanced between the buying
+and selling sides. Finally, it is difficult to tell whether certain episodes of intervention moved the
+exchange rate in the desired direction simply by looking at the picture.
+
+Table 2 gives a further summary of these intervention series. It shows that unconditionally the
+mean intervention levels are close to zero which is consistent with figure 1. However, the table
+shows that conditional on the intervention occurring, the mean absolute value of daily purchases
+or sales is near 100 million dollars. The most important numbers in table 2 are the fraction of days
+that intervention is going on. For the DM this is 0.118, and for the JY this is 0.056, indicating
+that Federal Reserve intervention activity only occurs on a smal! fraction of days. The table also
+estimates markov transition probabilities from no intervention to intervention, P(I; 4 0|/;-1 = 0),
+and intervention to intervention, P(/J; 4 0|/;-1 4 0). These estimates show that the nonintervention
+periods are persistent. However, when intervention is going on it is about equally likely to continue
+or end on the next day.
+
+Table 2: Intervention Summary Statistics
+
+es ea
+| Mean (fe) ff -2.1 | -1.,79 |
+Mean (Kili; #0) [| -15.6 | -30.9 |
+Mean (|e #0) [| 112 | 115 |
+[ Fraction In Market [| 0.118 | 0.056 |
+P(I: # O|f-1 = 0) [| 0.065 | 0.029 |
+PU: # Oia # 0) [| 0.584 | 0.532 |
+
+I, equals the intervention at time t in millions of dollars purchased (+), or sold (-) in support of the
+dollar.
+
+3 Trading Rule Evidence
+
+This section repeats earlier statistical evidence on the forecasting properties of a simple technical
+trading rule. Many of these results are given in more detail in LeBaron (1991). Forecasts will be
+examined over 1 day and 1 week horizons. The rule used compares the current price to a moving
+average of past prices. Let P; be the $/DM exchange rate at time t. Define ma; as
+
+1 M-1
+mat = Vi 2X Pri; (1)
+
+where M is the length of the moving average. For the daily data M = 150 and for weekly M = 30.!°
+Define a buy or sell signal s; as
+
+«=| 1 if P; > ma; (2)
+
+-1 fBh<ma
+
+1°Trading rule profitability is not overly sensitive to the the actual length of the moving average. See LeBaron
+(1991) for some evidence on this. Also, these moving average lengths are very commonly used by traders.

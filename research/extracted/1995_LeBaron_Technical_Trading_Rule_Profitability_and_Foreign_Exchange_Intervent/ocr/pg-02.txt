@@ -1,0 +1,27 @@
+NBER Working Paper 5505
+March 1996
+
+TECHNICAL TRADING RULE
+PROFITABILITY AND FOREIGN
+EXCHANGE INTERVENTION
+
+ABSTRACT
+
+There is reliable evidence that simple rules used by traders have some predictive value
+over the future movement of foreign exchange prices. This paper will review some of this
+evidence and discuss the economic magnitude of this predictability. The profitability of these
+trading rules will then be analyzed in connection with central bank activity using intervention
+data from the Federal Reserve. The objective is to find out to what extent foreign exchange
+predictability can be confined to periods of central bank activity in the foreign exchange market.
+The results indicate that after removing periods in which the Federal Reserve is active, exchange
+
+rate predictability is dramatically reduced.
+
+Blake LeBaron
+
+Department of Economics
+University of Wisconsin-Madison
+1180 Observatory Drive
+Madison, WI 53706
+
+and NBER

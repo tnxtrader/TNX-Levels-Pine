@@ -1,0 +1,83 @@
+2 Data Summary
+
+This study uses both weekly and daily foreign exchange series from NatWest Bank provided by DRI.
+The series represent the London close for the German Mark (DM) and Japanese Yen (JY) extending
+from January 2nd, 1979 through, December 31st, 1992. The weekly series use the Wednesday close
+from this daily series. The interest rate series are 1 week eurorates (London close) for each currency
+from the London Financial Times and NatWest Bank covering the same period. Summary statistics
+for the log first differences of the two daily foreign exchange series are given in table 1. This table
+displays features that are fairly well known for relatively high frequency foreign exchange series.
+They are close to uncorrelated, not very skewed, showing large kurtosis.
+
+Table 1: Exchange Rate Summary Statistics
+
+TV
+Mean*100 .
+Sid.*100 1 0.723 | 0.
+Skew | 0.132 | .
+
+Kurtosis
+ACF(1) .
+
+|
+
+ACF(2) [| 0.000 [ 0.01
+|
+|
+
+Oolo!|o
+pia! Oo
+OU ou ee
+Go} Bm] dS
+
+an
+
+“J
+
+on
+
+1
+
+o
+_—
+Sj te]
+Oo
+on)
+—_—
+on
+
+On
+
+ACF(3) || 0.028 | 0.034 |
+ACF(4) __ || -0.009 | 0.005 |
+| ACF(5)__|f_ 0.029 | 0.037 |
+| Bartlett |] 0.017 | 0.017 |
+
+Summary statistics for the daily foreign exchange series from January 2nd, 1979, through December
+31st, 1992, representing 3544 daily observations of log first differences.
+
+The Federal Reserve intervention values were provided by the Federal Reserve Bank. These
+series represent the amount of intervention from the Federal Reserve in purchases (or sales) of
+dollars in relation to the DM or JY.® “ All these interventions are sterilized as mandated by Federal
+Reserve policy. This means that the overall monetary base is not affected by the intervention, but
+the composition of assets will change.® Some of these interventions are reported in the newspaper
+and are known to traders, but other interventions are secret and go unreported.”
+
+Figure 1 shows the DM/$ exchange rate plotted along with the amount of Federal Reserve
+purchases(+) or sales(-) of dollars. A few important features are clear from the picture. First,
+
+®This study uses the “In Market” series only. This series covers active trades made by the Federal Reserve with
+the intention of impacting foreign exchange rates. Passive trades instigated for reasons unrelated to exchange rate
+management are not included.
+
+7 These intervention series are some of the best currently being made publically available to researchers. However,
+it should be noted that there are still many improvements that would be desirable. The data used here are unable
+to discern between interventions coming from the Federal Reserve alone or those that are coordinated with other
+central banks. They also cannot capture interventions coming from third parties intervening in these two markets.
+Finally, some noise may still exist in estimating and dating the true intervention numbers since interventions occuring
+after the London close would be impacted into prices on the next day. All these effects would act against any useful
+findings coming from these series, so the fact that they work as well as they do in this paper is quite impressive.
+
+®See Dominguez & Frankel (1993) for further discussion of sterlized intervention.
+
+*See Klein (1993) for evidence on the accuracy of newspaper reports.

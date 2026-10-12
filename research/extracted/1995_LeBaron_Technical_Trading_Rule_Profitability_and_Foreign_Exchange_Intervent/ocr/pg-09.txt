@@ -1,0 +1,49 @@
+should be adjusted downward in each period according to the bid-offer spread. For the three money
+markets involved, the yen, dollar, and mark, this spread averages about 0.15 percent at an annual
+rate. Looking at the mean return magnitudes in table 4 in the column labeled, “mean”, it is clear
+that an adjustment of this magnitude would have little impact on any of the numbers in the table.!®
+In summary, this section has demonstrated significant forecastability from a simple moving
+average trading rule for two foreign exchange series. The results are unquestionably large statisti-
+cally. Since they generate large Sharpe ratios, and their infrequent trading minimizes the impact
+of transaction costs., these returns appear to be economically significant as well.!© Another curious
+feature that comes out of the first two tables is that it appears that considering interest rates does
+not make much of a difference for these results. It is a little disturbing that interest rates have
+such a small impact on the results, but it is consistent with deviations from uncovered parity which
+suggest that in the short run exchange rates movements do not correspond closely to interest rate
+differentials. Another interesting fact that appears is that changing from daily to weekly frequency
+also does not make much of a difference. This is somewhat curious since one would expect that
+giving the rule the chance to trade at the daily frequency would allow it greater opportunities.
+
+4 Removing Intervention Periods
+
+This section looks at one possible explanation for the previously demonstrated puzzle in foreign
+exchange series, central bank intervention. Some of the previous tests are repeated with the foreign
+exchange intervention periods removed. Figure 2 presents a time series of both the Federal Reserve
+intervention series along with a rolling estimate of 1-year Sharpe ratios for the interest adjusted
+daily DM returns. It is clear that the rule performance changes over time, but the connection
+between the rules and intervention is not obvious from the figure.
+
+Direct evidence on the impact of intervention is presented in table 5 where the experiments from
+table 3 are repeated with intervention days removed. Returns to the dynamic trading strategy from
+t tot+1 are examined conditional on the intervention series being zero on t + 1. For weekly series
+an intervention period is defined as a week in which intervention occurred on at least 1 day. The
+results suggest a dramatic change when intervention periods are removed. For the DM series all of
+the t-statistics are not significantly different from zero, and the Sharpe ratios are close to 0.1. For
+the JY the results are not as dramatic, but mean returns have gone into the range of only being
+marginally significant for two of the series, and showing simulated p-values of 0.146 and 0.198 for
+the other two.
+
+These results are strong in suggesting that something different is going on when the Federal
+Reserve is active in terms of foreign exchange predictability. Before concluding that this is the
+overall cause of what is going on, some further experiments will be performed. First, from figure
+2 it is clear that there are some long periods in which the rule works and some in which it does
+not work very well. Also, the figure shows intervention to be somewhat persistent. Using the
+probabilities from table 2, a two state markov process for interventions is generated. Simulated
+
+ISThis estimate depends on the independence of the spread and the trading rule signal. In other words the
+adjustment might be larger if the buy currency had larger interest rate spreads most of the time. However, it seems
+unlikely any dependence would have a big impact here since the magnitudes of the spreads are generally very small.
+99 percent of the spreads fal) below 1 percent annual for all three currencies. The maximum spreads for the dollar,
+mark, and yen respectively, are 3 percent, 2 percent, and 2 percent.
+
+1 The judgement of economic significance would require more detailed testing of a specific model.

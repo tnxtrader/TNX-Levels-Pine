@@ -1,0 +1,30 @@
+{
+  "file": "market_microstructure/price_discovery/2009 - Rosenberg - Price Discovery in the Foreign Currency Futures and Spot Market.pdf",
+  "slug": "2009_Rosenberg_Price_Discovery_in_the_Foreign_Currency_Futures_and_Spot_Market",
+  "pages": 46,
+  "metadata": {
+    "format": "PDF 1.4",
+    "title": "Price discovery in the foreign currency futures and spot market",
+    "author": "Rosenberg, Joshua V.; Traub, Leah G.",
+    "subject": "Economics: 330",
+    "keywords": "price discovery, exchange rates, order flow, futures, microstructure, foreign exchange, F31, G13, G15, Devisentermingesch\u00e4ft, Wechselkurs, Mikrostrukturanalyse, USA",
+    "creator": "Apache FOP Version 2.8",
+    "producer": "Apache FOP Version 2.8",
+    "creationDate": "D:20261008025949+02'00'",
+    "modDate": "D:20080213114626-05'00'",
+    "trapped": "",
+    "encryption": null
+  },
+  "embedded_images": 0,
+  "figure_pages": [
+    1,
+    36,
+    41,
+    44,
+    45,
+    46
+  ],
+  "tables": 12,
+  "text_chars": 93028,
+  "needs_ocr": false
+}

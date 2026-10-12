@@ -1,0 +1,51 @@
+probability of equal signs between the trading rule signal and next period’s intervention. The values
+for both the DM and JY are very large, close to 0.8, which is significantly different from a random
+sign pattern of 0.5. This connection shows that when the rule indicates to buy DM, the Federal
+Reserve is likely to be trying to support the dollar next period. This is consistent with the rule
+working because of a “leaning against the wind” policy with the central bank and technical traders
+moving in opposite directions. The second column shows the connection between the signal sign
+and the actual return sign next period. This connection is probably clear from some of the early
+tables. However, it is interesting that the sign connection is so dramatically large. This confirms
+that the earlier results are not driven by a few very large returns. Finally, the table presents the
+sign connection between the intervention and the return of each currency. This shows that on the
+day of the intervention it is likely that the exchange rate moves against the intervention which is
+also consistent with a “leaning against the wind” story.!”
+
+Table 7: Sign Comparisons
+
+[Series || N | Signal - Intervention | Signal - Return | Intervention - Return ||
+
+DM Daily || 402 0.806
+(0.025)
+
+JY Daily 189 0.868
+(0.036)
+
+Sign comparisons between the mae Spree} signal, s¢, and intervention, J:41, the buy(+) /sell(-)
+signal and returns, (t,t+1), and intervention a returns. All are conditional on Iy4, #0. Numbers
+in parenthesis are standard errors under sign independence.
+
+One final question that might be interesting to ask is whether there is a different impact depend-
+ing on whether the interventions are known or unknown. This issue is addressed in terms of the
+effectiveness of foreign exchange intervention in Dominguez & Frankel (1993). The previous tests
+are recreated in shortened form in table 8 using their news reports of intervention. The reduction
+in predictability seen previously is repeated using this reported intervention series. These results
+should be taken with a little caution since this is a shorter series, but it appears to not be critical
+whether the actual or reported interventions are removed. Another interesting extension allowed
+by the news series is that interventions from both the German and Japanese central banks can now
+be removed from the series as well. Removal of both central bank interventions reduced the Sharpe
+ratios to their lowest levels for both series. The changes to the JY were especially dramatic with
+the t-ratio dropping to 0.917 when both interventions were removed.
+
+The results in this section can be summarized graphically in figure 3. This picture clearly shows
+the dramatic reduction in Sharpe ratios for the trading rules for each of the series. While conclusions
+about causality cannot be made, these results are very suggestive that Federal Reserve activity has
+something to do with the observed predictability. The next section explores the possibility that
+there is a common driving processes causing the correlation between technical predictability and
+intervention.
+
+"For this last experiment the simultaneity bias may be severe in that the Federal Reserve intervention may be
+induced by a desire to reverse the direction of the exchange rate. This finding has been documented by many other
+authors including Dominguez & Frankel (1993).
+
+10

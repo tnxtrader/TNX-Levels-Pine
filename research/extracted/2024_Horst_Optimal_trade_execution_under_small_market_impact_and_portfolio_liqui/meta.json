@@ -1,0 +1,28 @@
+{
+  "file": "trading/execution/2024 - Horst - Optimal trade execution under small market impact and portfolio liquidation with semimartingale.pdf",
+  "slug": "2024_Horst_Optimal_trade_execution_under_small_market_impact_and_portfolio_liqui",
+  "pages": 55,
+  "metadata": {
+    "format": "PDF 1.4",
+    "title": "Optimal trade execution under small market impact and portfolio liquidation with semimartingale strategies",
+    "author": "Horst, Ulrich; Kivman, Evgueni",
+    "subject": "Economics: 330",
+    "keywords": "Portfolio liquidation, Singular BSDE, Stochastic liquidity, Singular control, G11, G12, G19",
+    "creator": "Apache FOP Version 2.8",
+    "producer": "Apache FOP Version 2.8",
+    "creationDate": "D:20261008030007+02'00'",
+    "modDate": "D:20240626135150+03'00'",
+    "trapped": "",
+    "encryption": null
+  },
+  "embedded_images": 0,
+  "figure_pages": [
+    1,
+    13,
+    21,
+    38
+  ],
+  "tables": 0,
+  "text_chars": 99036,
+  "needs_ocr": false
+}

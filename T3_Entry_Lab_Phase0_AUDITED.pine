@@ -1,0 +1,568 @@
+//@version=6
+
+strategy("T3 Entry Lab — Phase 0 AUDITED", overlay=true, pyramiding=0, calc_on_every_tick=false, process_orders_on_close=false, default_qty_type=strategy.fixed, default_qty_value=1)
+
+
+
+// ============================================================
+
+// AUDITED Phase 0 — test ONE entry ID at a time with a neutral triple barrier
+
+// Signal on CLOSED bar -> market entry fills at NEXT bar open.
+
+// Configure realistic commission/slippage in Strategy Properties before any test.
+// Important: rule expressions are preserved from the supplied source; comments are corrected where misleading.
+
+// ============================================================
+
+
+
+// ---------- Inputs ----------
+
+entryId  = input.int(1, "Entry ID (1-103)", minval=1, maxval=103, group="Entry")
+
+dirMode  = input.string("Long", "Direction", options=["Long", "Short"], group="Entry")
+
+
+
+t3Len    = input.int(3, "T3 Length", minval=2, maxval=100, group="T3")
+
+t3VF     = input.float(0.9, "T3 Volume Factor", minval=0.5, maxval=1.0, step=0.05, group="T3")
+
+
+
+atrLen   = input.int(14, "ATR Length", minval=1, group="Triple barrier")
+
+tpMult   = input.float(1.0, "Take profit (x ATR)", minval=0.1, step=0.25, group="Triple barrier")
+
+slMult   = input.float(1.0, "Stop loss (x ATR)", minval=0.1, step=0.25, group="Triple barrier")
+
+maxBars  = input.int(16, "Time limit (bars)", minval=1, group="Triple barrier")
+
+
+
+// ---------- T3 ----------
+
+f_t3(src, length, v) =>
+
+    e1 = ta.ema(src, length)
+
+    e2 = ta.ema(e1, length)
+
+    e3 = ta.ema(e2, length)
+
+    e4 = ta.ema(e3, length)
+
+    e5 = ta.ema(e4, length)
+
+    e6 = ta.ema(e5, length)
+
+    c1 = -v * v * v
+
+    c2 = 3 * v * v + 3 * v * v * v
+
+    c3 = -6 * v * v - 3 * v - 3 * v * v * v
+
+    c4 = 1 + 3 * v + v * v * v + 3 * v * v
+
+    c1 * e6 + c2 * e5 + c3 * e4 + c4 * e3
+
+
+
+t3   = f_t3(close, t3Len, t3VF)
+
+atrv = ta.atr(atrLen)
+
+hh3  = ta.highest(high, 3)
+
+ll3  = ta.lowest(low, 3)
+
+
+
+// ---------- Entry conditions (closed bar = [0], older = [1], [2] ...) ----------
+
+bool longCond = switch entryId
+
+    1 => (open < t3 and close > t3)   // BodyCross
+
+    2 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2])   // TwoCloseConfirm
+
+    3 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1])   // PullbackHold
+
+    4 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3)   // SlopeFlipAbove
+
+    5 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3)   // WickReject
+
+    6 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3])   // ThreeAbove
+
+    7 => (low > t3 and low[1] <= t3[1])   // CleanCandle
+
+    8 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1])   // CrossThenHighBreak
+
+    9 => (close[1] <= t3[1] and close > t3 and open >= t3)   // CloseCross
+
+    10 => (open < t3 and close > t3) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.75)   // BodyCross+CLV75
+
+    11 => (open < t3 and close > t3) and (close > high[1])   // BodyCross+CloseGtPrevHigh
+
+    12 => (open < t3 and close > t3) and (close[1] < open[1])   // BodyCross+PrevBear
+
+    13 => (open < t3 and close > t3) and (high - low >= atrv[1])   // BodyCross+BigRange
+
+    14 => (open < t3 and close > t3) and (close - t3 >= 0.3 * atrv[1])   // BodyCross+FarT3
+
+    15 => (open < t3 and close > t3) and (open > close[1])   // BodyCross+GapUp
+
+    16 => (open < t3 and close > t3) and (t3 > t3[1] and t3[1] > t3[2] and t3[2] > t3[3])   // BodyCross+Slope3Up
+
+    17 => (open < t3 and close > t3) and (math.min(open, close) - low >= 0.5 * math.abs(close - open))   // BodyCross+LowerWick
+
+    18 => (open < t3 and close > t3) and (close > hh3[1])   // BodyCross+CloseGt3High
+
+    19 => (open < t3 and close > t3) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.5 and (close - low) / math.max(high - low, syminfo.mintick) < 0.75)   // BodyCross+CLV50
+
+    20 => (open < t3 and close > t3) and (high[1] <= high[2] and low[1] >= low[2])   // BodyCross+PrevInside
+
+    21 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and (math.min(open, close) - low >= 0.5 * math.abs(close - open))   // TwoCloseConfirm+LowerWick
+
+    22 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.75)   // PullbackHold+CLV75
+
+    23 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.75)   // SlopeFlipAbove+CLV75
+
+    24 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (open > close[1])   // WickReject+GapUp
+
+    25 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (close > open)   // WickReject+BullBar
+
+    26 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and (t3 > t3[1] and t3[1] > t3[2] and t3[2] > t3[3])   // PullbackHold+Slope3Up
+
+    27 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and (high - low >= atrv[1])   // PullbackHold+BigRange
+
+    28 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and (open > close[1])   // TwoCloseConfirm+GapUp
+
+    29 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3) and (high - low >= atrv[1])   // SlopeFlipAbove+BigRange
+
+    30 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and (open > close[1])   // PullbackHold+GapUp
+
+    31 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and (close - t3 >= 0.3 * atrv[1])   // TwoCloseConfirm+FarT3
+
+    32 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3) and (open > close[1])   // SlopeFlipAbove+GapUp
+
+    33 => (open < t3 and close > t3) and (high - low <= 0.6 * atrv[1])   // BodyCross+SmallRange
+
+    34 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3) and (close[1] < open[1])   // SlopeFlipAbove+PrevBear
+
+    35 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and (math.min(open, close) - low >= 0.5 * math.abs(close - open))   // PullbackHold+LowerWick
+
+    36 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3) and (math.min(open, close) - low >= 0.5 * math.abs(close - open))   // SlopeFlipAbove+LowerWick
+
+    37 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (math.min(open, close) - low >= 0.5 * math.abs(close - open))   // ThreeAbove+LowerWick
+
+    38 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.75)   // TwoCloseConfirm+CLV75
+
+    39 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and (high - low >= atrv[1])   // TwoCloseConfirm+BigRange
+
+    40 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and (high - low <= 0.6 * atrv[1])   // TwoCloseConfirm+SmallRange
+
+    41 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (high - low >= atrv[1])   // WickReject+BigRange
+
+    42 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.5 and (close - low) / math.max(high - low, syminfo.mintick) < 0.75)   // WickReject+CLV50
+
+    43 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (open > close[1])   // ThreeAbove+GapUp
+
+    44 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.5 and (close - low) / math.max(high - low, syminfo.mintick) < 0.75)   // PullbackHold+CLV50
+
+    45 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (t3 > t3[1] and t3[1] > t3[2] and t3[2] > t3[3])   // WickReject+Slope3Up
+
+    46 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (close - t3 >= 0.3 * atrv[1])   // ThreeAbove+FarT3
+
+    47 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.5 and (close - low) / math.max(high - low, syminfo.mintick) < 0.75)   // TwoCloseConfirm+CLV50
+
+    48 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and (high - math.max(open, close) <= 0.15 * (high - low))   // TwoCloseConfirm+NoUpperWick
+
+    49 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (t3 > t3[1] and t3[1] > t3[2] and t3[2] > t3[3])   // ThreeAbove+Slope3Up
+
+    50 => (low > t3 and low[1] <= t3[1]) and (close > open)   // CleanCandle+BullBar
+
+    51 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and (math.abs(close - open) >= 0.6 * (high - low))   // TwoCloseConfirm+BigBody
+
+    52 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (close > high[1])   // ThreeAbove+CloseGtPrevHigh
+
+    53 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (close - t3 >= 0.3 * atrv[1])   // WickReject+FarT3
+
+    54 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3) and (high[1] <= high[2] and low[1] >= low[2])   // SlopeFlipAbove+PrevInside
+
+    55 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.5 and (close - low) / math.max(high - low, syminfo.mintick) < 0.75)   // SlopeFlipAbove+CLV50
+
+    56 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (high - low <= 0.6 * atrv[1])   // WickReject+SmallRange
+
+    57 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.75)   // ThreeAbove+CLV75
+
+    58 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1]) and (close - t3 <= 0.5 * atrv[1])   // CrossThenHighBreak+NearT3
+
+    59 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (close > high[1])   // WickReject+CloseGtPrevHigh
+
+    60 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (high - low <= 0.6 * atrv[1])   // ThreeAbove+SmallRange
+
+    61 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (high - low >= atrv[1])   // ThreeAbove+BigRange
+
+    62 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1]) and (close > hh3[1])   // CrossThenHighBreak+CloseGt3High
+
+    63 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and (high[1] <= high[2] and low[1] >= low[2])   // TwoCloseConfirm+PrevInside
+
+    64 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and (high[1] <= high[2] and low[1] >= low[2])   // PullbackHold+PrevInside
+
+    65 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1]) and (open > close[1])   // CrossThenHighBreak+GapUp
+
+    66 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.75)   // WickReject+CLV75
+
+    67 => (low > t3 and low[1] <= t3[1]) and (math.min(open, close) - low >= 0.5 * math.abs(close - open))   // CleanCandle+LowerWick
+
+    68 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (high - math.max(open, close) <= 0.15 * (high - low))   // ThreeAbove+NoUpperWick
+
+    69 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.5 and (close - low) / math.max(high - low, syminfo.mintick) < 0.75)   // ThreeAbove+CLV50
+
+    70 => (low > t3 and low[1] <= t3[1]) and (close - t3 >= 0.3 * atrv[1])   // CleanCandle+FarT3
+
+    71 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1]) and (math.min(open, close) - low >= 0.5 * math.abs(close - open))   // CrossThenHighBreak+LowerWick
+
+    72 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and (high - low <= 0.6 * atrv[1])   // PullbackHold+SmallRange
+
+    73 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3) and (close > hh3[1])   // SlopeFlipAbove+CloseGt3High
+
+    74 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (math.abs(close - open) >= 0.6 * (high - low))   // ThreeAbove+BigBody
+
+    75 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (high[1] <= high[2] and low[1] >= low[2])   // WickReject+PrevInside
+
+    76 => (t3 > t3[1] and t3[1] <= t3[2] and close > t3) and (high - low <= 0.6 * atrv[1])   // SlopeFlipAbove+SmallRange
+
+    77 => (low > t3 and low[1] <= t3[1]) and (math.abs(close - open) >= 0.6 * (high - low))   // CleanCandle+BigBody
+
+    78 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (high - math.max(open, close) <= 0.15 * (high - low))   // WickReject+NoUpperWick
+
+    79 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (close[1] < open[1])   // ThreeAbove+PrevBear
+
+    80 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1]) and (high - math.max(open, close) <= 0.15 * (high - low))   // CrossThenHighBreak+NoUpperWick
+
+    81 => (close > t3 and close[1] > t3[1] and close[2] > t3[2] and close[3] <= t3[3]) and (high[1] <= high[2] and low[1] >= low[2])   // ThreeAbove+PrevInside
+
+    82 => (close > t3 and close[1] > t3[1] and close[2] <= t3[2]) and (t3 > t3[1] and t3[1] > t3[2] and t3[2] > t3[3])   // TwoCloseConfirm+Slope3Up
+
+    83 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1]) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.5 and (close - low) / math.max(high - low, syminfo.mintick) < 0.75)   // CrossThenHighBreak+CLV50
+
+    84 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (close > hh3[1])   // WickReject+CloseGt3High
+
+    85 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1]) and (high[1] <= high[2] and low[1] >= low[2])   // CrossThenHighBreak+PrevInside
+
+    86 => (low > t3 and low[1] <= t3[1]) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.75)   // CleanCandle+CLV75
+
+    87 => (close[1] <= t3[1] and close > t3 and open >= t3) and (close > open)   // CloseCross+BullBar
+
+    88 => (low > t3 and low[1] <= t3[1]) and (close > high[1])   // CleanCandle+CloseGtPrevHigh
+
+    89 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (close[1] < open[1])   // WickReject+PrevBear
+
+    90 => (close[1] <= t3[1] and close > t3 and open >= t3) and (low > low[1])   // CloseCross+HigherLow
+
+    91 => (close[1] <= t3[1] and close > t3 and open >= t3) and (high - low <= 0.6 * atrv[1])   // CloseCross+SmallRange
+
+    92 => (low > t3 and low[1] <= t3[1]) and (t3 > t3[1] and t3[1] > t3[2] and t3[2] > t3[3])   // CleanCandle+Slope3Up
+
+    93 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1]) and (high - low <= 0.6 * atrv[1])   // CrossThenHighBreak+SmallRange
+
+    94 => (low > t3 and low[1] <= t3[1]) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.5 and (close - low) / math.max(high - low, syminfo.mintick) < 0.75)   // CleanCandle+CLV50
+
+    95 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and (close[1] < open[1])   // PullbackHold+PrevBear
+
+    96 => (close[1] > t3[1] and close[2] <= t3[2] and close > high[1]) and (t3 > t3[1] and t3[1] > t3[2] and t3[2] > t3[3])   // CrossThenHighBreak+Slope3Up
+
+    97 => (low > t3 and low[1] <= t3[1]) and (high[1] <= high[2] and low[1] >= low[2])   // CleanCandle+PrevInside
+
+    98 => (close[1] <= t3[1] and close > t3 and open >= t3) and ((close - low) / math.max(high - low, syminfo.mintick) >= 0.5 and (close - low) / math.max(high - low, syminfo.mintick) < 0.75)   // CloseCross+CLV50
+
+    99 => (close[1] > t3[1] and low <= t3 and open > t3 and close > t3) and (math.abs(close - open) >= 0.6 * (high - low))   // WickReject+BigBody
+
+    100 => (low > t3 and low[1] <= t3[1]) and (close > hh3[1])   // CleanCandle+CloseGt3High
+
+    101 => (open < t3 and close > t3) and (math.abs(close - open) >= 0.6 * (high - low))   // BodyCross+BigBody
+
+    102 => (t3 > t3[1] and low[1] <= t3[1] and close[1] > t3[1] and close > high[1]) and (close - t3 <= 0.5 * atrv[1])   // PullbackHold+NearT3
+
+    103 => (low > t3 and low[1] <= t3[1]) and (high - math.max(open, close) <= 0.15 * (high - low))   // CleanCandle+NoUpperWick
+
+    => false
+
+
+
+bool shortCond = switch entryId
+
+    1 => (open > t3 and close < t3)   // BodyCross
+
+    2 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2])   // TwoCloseConfirm
+
+    3 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1])   // PullbackHold
+
+    4 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3)   // SlopeFlipBelow
+
+    5 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3)   // WickReject
+
+    6 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3])   // ThreeBelow
+
+    7 => (high < t3 and high[1] >= t3[1])   // CleanCandle
+
+    8 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1])   // CrossThenDirectionalBreak
+
+    9 => (close[1] >= t3[1] and close < t3 and open <= t3)   // CloseCross
+
+    10 => (open > t3 and close < t3) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.75)   // BodyCross+CLV75
+
+    11 => (open > t3 and close < t3) and (close < low[1])   // BodyCross+CloseBelowPrevLow
+
+    12 => (open > t3 and close < t3) and (close[1] > open[1])   // BodyCross+PrevBear
+
+    13 => (open > t3 and close < t3) and (high - low >= atrv[1])   // BodyCross+BigRange
+
+    14 => (open > t3 and close < t3) and (t3 - close >= 0.3 * atrv[1])   // BodyCross+FarT3
+
+    15 => (open > t3 and close < t3) and (open < close[1])   // BodyCross+GapDown
+
+    16 => (open > t3 and close < t3) and (t3 < t3[1] and t3[1] < t3[2] and t3[2] < t3[3])   // BodyCross+Slope3Down
+
+    17 => (open > t3 and close < t3) and (high - math.max(open, close) >= 0.5 * math.abs(close - open))   // BodyCross+UpperWick
+
+    18 => (open > t3 and close < t3) and (close < ll3[1])   // BodyCross+CloseBelowPrior3BarLow
+
+    19 => (open > t3 and close < t3) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.5 and (high - close) / math.max(high - low, syminfo.mintick) < 0.75)   // BodyCross+CLV50
+
+    20 => (open > t3 and close < t3) and (high[1] <= high[2] and low[1] >= low[2])   // BodyCross+PrevInside
+
+    21 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and (high - math.max(open, close) >= 0.5 * math.abs(close - open))   // TwoCloseConfirm+UpperWick
+
+    22 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.75)   // PullbackHold+CLV75
+
+    23 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.75)   // SlopeFlipBelow+CLV75
+
+    24 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (open < close[1])   // WickReject+GapDown
+
+    25 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (close < open)   // WickReject+BearBar
+
+    26 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and (t3 < t3[1] and t3[1] < t3[2] and t3[2] < t3[3])   // PullbackHold+Slope3Up
+
+    27 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and (high - low >= atrv[1])   // PullbackHold+BigRange
+
+    28 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and (open < close[1])   // TwoCloseConfirm+GapDown
+
+    29 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3) and (high - low >= atrv[1])   // SlopeFlipBelow+BigRange
+
+    30 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and (open < close[1])   // PullbackHold+GapDown
+
+    31 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and (t3 - close >= 0.3 * atrv[1])   // TwoCloseConfirm+FarT3
+
+    32 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3) and (open < close[1])   // SlopeFlipBelow+GapUp
+
+    33 => (open > t3 and close < t3) and (high - low <= 0.6 * atrv[1])   // BodyCross+SmallRange
+
+    34 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3) and (close[1] > open[1])   // SlopeFlipBelow+PrevBear
+
+    35 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and (high - math.max(open, close) >= 0.5 * math.abs(close - open))   // PullbackHold+UpperWick
+
+    36 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3) and (high - math.max(open, close) >= 0.5 * math.abs(close - open))   // SlopeFlipBelow+LowerWick
+
+    37 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (high - math.max(open, close) >= 0.5 * math.abs(close - open))   // ThreeBelow+LowerWick
+
+    38 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.75)   // TwoCloseConfirm+CLV75
+
+    39 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and (high - low >= atrv[1])   // TwoCloseConfirm+BigRange
+
+    40 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and (high - low <= 0.6 * atrv[1])   // TwoCloseConfirm+SmallRange
+
+    41 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (high - low >= atrv[1])   // WickReject+BigRange
+
+    42 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.5 and (high - close) / math.max(high - low, syminfo.mintick) < 0.75)   // WickReject+CLV50
+
+    43 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (open < close[1])   // ThreeBelow+GapUp
+
+    44 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.5 and (high - close) / math.max(high - low, syminfo.mintick) < 0.75)   // PullbackHold+CLV50
+
+    45 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (t3 < t3[1] and t3[1] < t3[2] and t3[2] < t3[3])   // WickReject+Slope3Up
+
+    46 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (t3 - close >= 0.3 * atrv[1])   // ThreeBelow+FarT3
+
+    47 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.5 and (high - close) / math.max(high - low, syminfo.mintick) < 0.75)   // TwoCloseConfirm+CLV50
+
+    48 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and (math.min(open, close) - low <= 0.15 * (high - low))   // TwoCloseConfirm+NoLowerWick
+
+    49 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (t3 < t3[1] and t3[1] < t3[2] and t3[2] < t3[3])   // ThreeBelow+Slope3Up
+
+    50 => (high < t3 and high[1] >= t3[1]) and (close < open)   // CleanCandle+BearBar
+
+    51 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and (math.abs(close - open) >= 0.6 * (high - low))   // TwoCloseConfirm+BigBody
+
+    52 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (close < low[1])   // ThreeBelow+CloseGtPrevHigh
+
+    53 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (t3 - close >= 0.3 * atrv[1])   // WickReject+FarT3
+
+    54 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3) and (high[1] <= high[2] and low[1] >= low[2])   // SlopeFlipBelow+PrevInside
+
+    55 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.5 and (high - close) / math.max(high - low, syminfo.mintick) < 0.75)   // SlopeFlipBelow+CLV50
+
+    56 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (high - low <= 0.6 * atrv[1])   // WickReject+SmallRange
+
+    57 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.75)   // ThreeBelow+CLV75
+
+    58 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1]) and (t3 - close <= 0.5 * atrv[1])   // CrossThenDirectionalBreak+NearT3
+
+    59 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (close < low[1])   // WickReject+CloseGtPrevHigh
+
+    60 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (high - low <= 0.6 * atrv[1])   // ThreeBelow+SmallRange
+
+    61 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (high - low >= atrv[1])   // ThreeBelow+BigRange
+
+    62 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1]) and (close < ll3[1])   // CrossThenDirectionalBreak+CloseGt3High
+
+    63 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and (high[1] <= high[2] and low[1] >= low[2])   // TwoCloseConfirm+PrevInside
+
+    64 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and (high[1] <= high[2] and low[1] >= low[2])   // PullbackHold+PrevInside
+
+    65 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1]) and (open < close[1])   // CrossThenDirectionalBreak+GapUp
+
+    66 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.75)   // WickReject+CLV75
+
+    67 => (high < t3 and high[1] >= t3[1]) and (high - math.max(open, close) >= 0.5 * math.abs(close - open))   // CleanCandle+UpperWick
+
+    68 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (math.min(open, close) - low <= 0.15 * (high - low))   // ThreeBelow+NoUpperWick
+
+    69 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.5 and (high - close) / math.max(high - low, syminfo.mintick) < 0.75)   // ThreeBelow+CLV50
+
+    70 => (high < t3 and high[1] >= t3[1]) and (t3 - close >= 0.3 * atrv[1])   // CleanCandle+FarT3
+
+    71 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1]) and (high - math.max(open, close) >= 0.5 * math.abs(close - open))   // CrossThenDirectionalBreak+LowerWick
+
+    72 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and (high - low <= 0.6 * atrv[1])   // PullbackHold+SmallRange
+
+    73 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3) and (close < ll3[1])   // SlopeFlipBelow+CloseGt3High
+
+    74 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (math.abs(close - open) >= 0.6 * (high - low))   // ThreeBelow+BigBody
+
+    75 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (high[1] <= high[2] and low[1] >= low[2])   // WickReject+PrevInside
+
+    76 => (t3 < t3[1] and t3[1] >= t3[2] and close < t3) and (high - low <= 0.6 * atrv[1])   // SlopeFlipBelow+SmallRange
+
+    77 => (high < t3 and high[1] >= t3[1]) and (math.abs(close - open) >= 0.6 * (high - low))   // CleanCandle+BigBody
+
+    78 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (math.min(open, close) - low <= 0.15 * (high - low))   // WickReject+NoUpperWick
+
+    79 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (close[1] > open[1])   // ThreeBelow+PrevBear
+
+    80 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1]) and (math.min(open, close) - low <= 0.15 * (high - low))   // CrossThenDirectionalBreak+NoUpperWick
+
+    81 => (close < t3 and close[1] < t3[1] and close[2] < t3[2] and close[3] >= t3[3]) and (high[1] <= high[2] and low[1] >= low[2])   // ThreeBelow+PrevInside
+
+    82 => (close < t3 and close[1] < t3[1] and close[2] >= t3[2]) and (t3 < t3[1] and t3[1] < t3[2] and t3[2] < t3[3])   // TwoCloseConfirm+Slope3Down
+
+    83 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1]) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.5 and (high - close) / math.max(high - low, syminfo.mintick) < 0.75)   // CrossThenDirectionalBreak+CLV50
+
+    84 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (close < ll3[1])   // WickReject+CloseGt3High
+
+    85 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1]) and (high[1] <= high[2] and low[1] >= low[2])   // CrossThenDirectionalBreak+PrevInside
+
+    86 => (high < t3 and high[1] >= t3[1]) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.75)   // CleanCandle+CLV75
+
+    87 => (close[1] >= t3[1] and close < t3 and open <= t3) and (close < open)   // CloseCross+BearBar
+
+    88 => (high < t3 and high[1] >= t3[1]) and (close < low[1])   // CleanCandle+CloseBelowPrevLow
+
+    89 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (close[1] > open[1])   // WickReject+PrevBull
+
+    90 => (close[1] >= t3[1] and close < t3 and open <= t3) and (high < high[1])   // CloseCross+HigherLow
+
+    91 => (close[1] >= t3[1] and close < t3 and open <= t3) and (high - low <= 0.6 * atrv[1])   // CloseCross+SmallRange
+
+    92 => (high < t3 and high[1] >= t3[1]) and (t3 < t3[1] and t3[1] < t3[2] and t3[2] < t3[3])   // CleanCandle+Slope3Down
+
+    93 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1]) and (high - low <= 0.6 * atrv[1])   // CrossThenDirectionalBreak+SmallRange
+
+    94 => (high < t3 and high[1] >= t3[1]) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.5 and (high - close) / math.max(high - low, syminfo.mintick) < 0.75)   // CleanCandle+CLV50
+
+    95 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and (close[1] > open[1])   // PullbackHold+PrevBull
+
+    96 => (close[1] < t3[1] and close[2] >= t3[2] and close < low[1]) and (t3 < t3[1] and t3[1] < t3[2] and t3[2] < t3[3])   // CrossThenDirectionalBreak+Slope3Up
+
+    97 => (high < t3 and high[1] >= t3[1]) and (high[1] <= high[2] and low[1] >= low[2])   // CleanCandle+PrevInside
+
+    98 => (close[1] >= t3[1] and close < t3 and open <= t3) and ((high - close) / math.max(high - low, syminfo.mintick) >= 0.5 and (high - close) / math.max(high - low, syminfo.mintick) < 0.75)   // CloseCross+CLV50
+
+    99 => (close[1] < t3[1] and high >= t3 and open < t3 and close < t3) and (math.abs(close - open) >= 0.6 * (high - low))   // WickReject+BigBody
+
+    100 => (high < t3 and high[1] >= t3[1]) and (close < ll3[1])   // CleanCandle+CloseBelowPrior3BarLow
+
+    101 => (open > t3 and close < t3) and (math.abs(close - open) >= 0.6 * (high - low))   // BodyCross+BigBody
+
+    102 => (t3 < t3[1] and high[1] >= t3[1] and close[1] < t3[1] and close < low[1]) and (t3 - close <= 0.5 * atrv[1])   // PullbackHold+NearT3
+
+    103 => (high < t3 and high[1] >= t3[1]) and (math.min(open, close) - low <= 0.15 * (high - low))   // CleanCandle+NoLowerWick
+
+    => false
+
+
+
+// ---------- Execution ----------
+
+var int entryBar = na
+
+flat = strategy.position_size == 0
+
+
+
+goLong  = dirMode == "Long"  and longCond  and flat and barstate.isconfirmed and not na(atrv) and atrv > 0
+
+goShort = dirMode == "Short" and shortCond and flat and barstate.isconfirmed and not na(atrv) and atrv > 0
+
+
+
+tpTicks = int(math.max(1, math.round(tpMult * atrv / syminfo.mintick)))
+
+slTicks = int(math.max(1, math.round(slMult * atrv / syminfo.mintick)))
+
+
+
+if goLong
+
+    strategy.entry("L", strategy.long)
+
+    strategy.exit("L-X", "L", profit=tpTicks, loss=slTicks)   // measured from the fill price
+
+if goShort
+
+    strategy.entry("S", strategy.short)
+
+    strategy.exit("S-X", "S", profit=tpTicks, loss=slTicks)
+
+
+
+// time barrier
+
+if strategy.position_size != 0 and strategy.position_size[1] == 0
+
+    entryBar := bar_index
+
+if strategy.position_size != 0 and not na(entryBar) and bar_index - entryBar >= maxBars - 1
+
+    strategy.close_all(comment="Time")
+
+
+
+// ---------- Visuals ----------
+
+plot(t3, "T3", color=t3 > t3[1] ? color.lime : color.red, linewidth=2)
+
+plotshape(goLong,  "Long signal",  shape.triangleup,   location.belowbar, color.lime, size=size.tiny)
+
+plotshape(goShort, "Short signal", shape.triangledown, location.abovebar, color.red,  size=size.tiny)
+
+// AUDIT NOTES
+// - The 103 original boolean expressions are retained; this avoids silently inventing your intended rules.
+// - Some original rule IDs have misleading names/comments; corrected directional comments do not alter logic.
+// - Signal is evaluated at confirmed bar close; market entry normally fills at next available tick (historically next bar open).
+// - ATR distance is sampled on the signal bar, rounded to whole ticks, and applied relative to actual fill price.
+// - Time exit is issued after maxBars bars are counted from the bar where the filled position is first observed; market close fills at next eligible tick.
+// - OHLC-only backtests cannot always determine whether TP or SL happened first inside a bar. Use Bar Magnifier/lower timeframe or conservative ambiguity handling.

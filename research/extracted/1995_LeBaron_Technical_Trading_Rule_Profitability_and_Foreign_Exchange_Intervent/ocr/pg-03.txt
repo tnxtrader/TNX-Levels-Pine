@@ -1,0 +1,54 @@
+1 Introduction
+
+One of the biggest controversies between academic and applied finance is the usefulness of technical
+trading strategies. These rules, which intend to find patterns in past prices capable of giving some
+prediction of future price movements are sold as easy ways to make money, and scoffed at as
+charlatanism. Since the publication of Fama & Blume (1966) most academics have agreed that the
+usefulness of these ad hoc forecasting techniques was probably close to zero. However, evidence
+in foreign exchange markets has been much more favorable toward the usefulness of technical
+indicators.! This technical rule predictability is strengthened by other foreign exchange puzzles
+such as the forward bias and deviations from uncovered interest parity.”
+
+This paper looks at a possible explanation for some of the predictability found in foreign ex-
+change markets. Using intervention series available from the Federal Reserve, predictability will be
+compared during periods with and without intervention.*4 The results of this paper are foreshad-
+owed in this quotation from Dooley & Shafer (1983).
+
+At worst, central bank intervention would introduce noticeable trends into the evolution
+of exchange rates and create opportunities for alert private market participants to profit
+from speculating against the central bank.
+
+Studies of the profitability of intervention for central banks such as Taylor (1982) and Leahy
+(1989) are also related. However, the connection is probably not as strong as one might think
+initially. It depends critically on what positions the bank is taking as the foreign exchange price
+process moves through time. This will be discussed further in the conclusions. A related question
+is whether the central bank is operating to stabilize or destabilize exchange rate movements, which
+is indirectly related to the profitability of the central bank, or technical traders, and wont be
+addressed here.®
+
+The paper follows in four sections. First, the data series are summarized in section two. The
+third section reviews the results of previous work, and clearly demonstrates the magnitude of
+predictability in these series. The next section looks at predictability when the Federal Reserve
+is not active in the market, and the fifth section addresses some issues related to simultaneity,
+followed by conclusions in the final section.
+
+1The earliest tests were in Dooley & Shafer (1983), and Sweeney (1986) which present results consistent with some
+trading rule predictability. More recent studies have included Taylor (1992), LeBaron (1991), and Levich & Thomas
+(1993). The latter two employed bootstrap techniques to further emphasize the magnitude of the forecastability.
+Other related evidence includes that of Taylor & Allen (1992) which shows that a large fraction of traders continue
+to use technical analysis, and Frankel & Froot (1987) which shows that short term forecasts often extrapolate recent
+price moves.
+
+?Hodrick (1987) and Engel (1995) provide surveys of the large literature in this area.
+
+Silber (1994) performs a similar test, but in a cross sectional context. He shows that technical rules have value
+in markets where governments are present as major players.
+
+4For extensive surveys on the large literature on foreign exchange intervention see Edison (1993) and Almekinders
+(1995).
+
+°This debate, which goes back to Friedman (1953), is a delicate one and depends critically the types of speculative
+trading going on along with many other variables. The debate on this subject began with Baumol (1957), and
+continues through papers such as Szpiro (1994), where an intervening central bank can actually introduce chaos into
+a foreign exchange rate. Hart & Kreps (1986) provide a modern treatment displaying the full delicacy of the problem
+of stabilizing or destabilizing speculation.

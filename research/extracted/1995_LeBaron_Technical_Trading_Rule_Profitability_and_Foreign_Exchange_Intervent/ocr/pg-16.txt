@@ -1,0 +1,41 @@
+Table 11: Trading Rule Tests: 1981-1984
+
+[Series «dN | Mean | Std [ ratio | Sharpe [ T Fraction |
+"DM Daily: No Interest || 862 [-0.007 [ 0.685 -0.819 | -0.173 | 0.039 _|
+"DM Daily: Interest || 862| 0.001 | 0.686 | 0.025 [0.013 | 0.039 _|
+
+IY Daily: No Interest || 862 | 0.010 | 0.624 | 0.493 | 0.208 | 0.019
+IY Daily: Interest | 862 | 0.018 | 0.625 | 0.842 | 0.457
+
+Trading rule tests during low intervention period.
+
+their resiliency to the adjustment for transactions costs, makes it difficult to imagine a representative
+agent rational expectations model capable of explaining these results. However, foreign exchange
+markets differ from most other major asset markets in that there are several major players whose
+objectives may differ greatly from those of maximizing economic agents. The results in this paper
+show that this predictability puzzle is greatly reduced, if not eliminated, when days in which the
+Federal Reserve was actively intervening are eliminated.
+
+Before quickly concluding a causal relationship between intervention and trading rule profitabil-
+ity there is a serious simultaneity problem that needs to be addressed. Interventions and profits
+may be driven by the same common factor and therefore the apparent causal relation might be
+spurious. This hidden factor can never be completely eliminated as a potential cause, but this
+paper explored several possible ways in which it might appear. The results of these experiments
+make it look unlikely that a common factor will be easy to find.
+
+The policy recommendations are not as clear cut as they might seem. If the Federal Reserve is
+transferring money to traders, it may be worthwhile in that it has other variables in its objective
+function such as overall price stability. Stopping a potential trade war may far outweigh a few
+losses in the foreign exchange market. It is also interesting that other studies such as Leahy (1989)
+find that the Federal Reserve is making money on its foreign exchange intervention operations.
+This fact, while an interesting contrast to the results here, is not exactly a contradiction since the
+magnitudes of interventions or total bank positions have not been analyzed here.
+
+Understanding the causes and structure of this apparent predictability in foreign exchange mar-
+kets is important both from the standpoint of understanding the forces that drive exchange rate
+movements, but also for implementing appropriate policies. These results are still far from impli-
+cating the Federal Reserve in this puzzle, but they may make those whose biases are toward efficient
+markets a little more comfortable, while revealing a troubling lack of robustness for technical signal
+predictability.
+
+14

@@ -1,0 +1,4225 @@
+
+
+===== PAGE 1 =====
+ 
+ 
+Xin Guo and Mihael Zervos 
+Optimal execution with multiplicative price 
+impact 
+Article (Published version) 
+(Refereed) 
+Original citation: 
+Guo, Xin and Zervos, Mihail (2015) Optimal execution with multiplicative price impact. SIAM 
+Journal on Financial Mathematics, 6 (1). pp. 281-306. ISSN 1945-497X  
+DOI: 10.1137/120894622  
+ 
+© 2015 Society for Industrial and Applied Mathematics 
+ 
+This version available at: http://eprints.lse.ac.uk/65409/ 
+Available in LSE Research Online: February 2016 
+ 
+LSE has developed LSE Research Online so that users may access research output of the 
+School. Copyright © and Moral Rights for the papers on this site are retained by the individual 
+authors and/or other copyright owners. Users may download and/or print one copy of any 
+article(s) in LSE Research Online to facilitate their private study or for non-commercial research. 
+You may not engage in further distribution of the material or use it for any profit-making activities 
+or any commercial gain. You may freely distribute the URL (http://eprints.lse.ac.uk) of the LSE 
+Research Online website.  
+
+
+===== PAGE 2 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+SIAM J. FINANCIAL MATH.
+c⃝2015 Society for Industrial and Applied Mathematics
+Vol. 6, pp. 281–306
+Optimal Execution with Multiplicative Price Impact∗
+Xin Guo† and Mihail Zervos‡
+Abstract. We consider the so-called optimal execution problem in algorithmic trading, which is the problem
+faced by an investor who has a large number of stock shares to sell over a given time horizon and
+whose actions have an impact on the stock price.
+In particular, we develop and study a price
+model that presents the stochastic dynamics of a geometric Brownian motion and incorporates a
+log-linear eﬀect of the investor’s transactions. We then formulate the optimal execution problem as
+a degenerate singular stochastic control problem. Using both analytic and probabilistic techniques,
+we establish simple conditions for the market to allow for no arbitrage or price manipulation and
+develop a detailed characterization of the value function and the optimal strategy. In particular, we
+derive an explicit solution to the problem if the time horizon is inﬁnite.
+Key words. optimal execution problem, multiplicative price impact, singular stochastic control
+AMS subject classiﬁcations. 93E20, 91G80, 49L20
+DOI. 10.1137/120894622
+1. Introduction. We consider an investor who has a large number of stock shares to sell
+within a given time frame.
+Rapid selling of the stock may depress the stock price, while
+slicing the big order into many smaller blocks of orders to be executed sequentially over time
+may take too long to realize. Such an investor is therefore faced with the problem of how to
+slice the order, when to trade and at what price, etc. This problem, known as the “optimal
+execution problem” in algorithmic trading, is concerned with ﬁnding a trading strategy that
+maximizes an appropriate objective function. A key issue of the problem is concerned with
+modeling the price impact of stock transactions.
+The study of the optimal execution problem was initiated by Bertsimas and Lo [8], who
+analyzed a discrete random walk model and by Almgren and Chriss [5, 6] and Almgren [4],
+who considered continuous time Bachelier-type models with additive price impact.
+Since
+then, the area has attracted considerable interest; an incomplete list of notable contributions
+in the mathematics literature includes Huberman and Stanzl [21], He and Mamaysky [20],
+Gatheral, Schied, and Slynko [19], Obizhaeva and Wang [25], Almgren and Lorenz [7], Engle
+and Ferstenberg [13], Schied and Sch¨oneborn [29], Alfonsi, Fruth, and Schied [1, 2], Schied,
+Sch¨oneborn, and Tehranchi [30], Predoiu, Shaikhet, and Shreve [27], and Løkka [23].
+Modeling stock prices by an arithmetic Brownian motion/random walk with additive
+impact of large stock sales is a common feature in the references on the optimal execution
+∗Received by the editors October 10, 2012; accepted for publication (in revised form) February 2, 2015; published
+electronically April 14, 2015.
+http://www.siam.org/journals/siﬁn/6/89462.html
+†Department of Industrial Engineering and Operations Research, UC at Berkeley, Berkeley, CA 94720 (xinguo@
+ieor.berkeley.edu). This author’s research was partially supported by NSF grant DMS 1008759.
+‡Department of Mathematics, London School of Economics, London, WC2A 2AE, UK (mihalis.zervos@gmail.
+com).
+281
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 3 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+282
+XIN GUO AND MIHAIL ZERVOS
+problem discussed above. An intriguing consequence of this modeling approach is that optimal
+strategies turn out to be more or less static or deterministic. Such strategies may lead to
+predictable trading patterns, which can give rise to market manipulation with techniques
+such as predatory trading (to this end, see the game formulations studied by Schied and
+Sch¨oneborn [28] and Moallemi, Park, and Van Roy [24]). Recent work by Schied, Sch¨oneborn,
+and Tehranchi [30], Gatheral and Schied [17], and Predoiu, Shaikhet, and Shreve [27] has
+revealed that such deterministic optimal strategies can be recovered by a simple argument
+involving an integration by parts calculation and an appropriate Euler–Lagrange equation,
+establishing an eﬀective equivalence between minimizing costs and minimizing the price impact
+of trading strategies.
+Beyond the context of Bachelier-type models, Gatheral and Schied [17] studied a contin-
+uous time Black–Scholes-type model with additive price impact. Discrete time models with
+multiplicative price impact have been considered by Bertsimas and Lo [8] and Bertsimas, Lo,
+and Hummel [9].
+Also, Forsyth et al. [14, 15] proposed a continuous time Black–Scholes-
+type model with multiplicative price impact and derived its Hamilton–Jacobi–Bellman (HJB)
+equation using heuristic arguments, which they studied by means of numerical techniques. In
+these references, it is argued that such models are more natural than those with additive price
+impact because, e.g., they do not allow for strictly negative prices with nonzero probability.
+In this paper, we study the optimal execution problem in the context of a continuous
+time model with multiplicative price impact. To the best of our knowledge, this model is the
+very ﬁrst one in the continuous time optimal execution literature involving singular control
+rather than absolutely continuous control: this setting does not restrict stock transactions to
+be realized at a rate over time; instead, it allows for block sales of stock. The objective of the
+paper is to exhaustively study the model’s analytical properties. The development of further
+realistic and applicable models can be motivated by the one we study here (see Remark 1 for
+such a generalization).
+In particular, we consider an investor who holds Yt ≥0 shares of stock at time t, not
+including any transactions made at t. The investor can buy or sell any amount of shares at
+any time, but short-selling is not allowed. We denote by ξs
+t (resp., ξb
+t ) the total amount of
+shares the investor has sold (resp., bought) up to time t, so that
+Yt = y −ξs
+t + ξb
+t ,
+where y ≥0 is the number of shares held by the investor at time 0.
+We assume that, in the absence of any transactions, stock prices follow a geometric Brow-
+nian motion. Also, we assume that (a) the price impact of small transactions is proportional
+to the stock price at which they are executed as well as proportional to their size, and (b) the
+price impact of a large transaction is the same as that of any number of smaller transactions
+of the same total size that are executed at the same time. In section 2, we show that such
+requirements give rise to the stock price dynamics
+dXt = μXt dt −λXt ◦s dξs
+t + λXt ◦b dξb
+t + σXt dWt,
+where λ > 0 is a constant and the operators ◦s, ◦b are deﬁned by (2.5)–(2.6) below. Eﬀectively,
+this is a model with multiplicative price impact: the impact of a transaction is additive to
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 4 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+283
+the logarithm of the stock price (see (2.7) below). There are several possible generalizations
+of these dynamics that exhibit resilience, namely, allowing the eﬀect of transactions on the
+stock price to fade over time (we brieﬂy discuss one in Remark 1).
+The investor has a horizon T ∈(0, ∞], by which time she exits the market by clearing all
+her shares. The investor’s objective is to maximize the performance criterion
+E
+
+[0,T]∩R+
+e−δt 
+Xt ◦s dξs
+t −Xt ◦b dξb
+t −Cs dξs
+t −Cb dξb
+t
+
+over all admissible strategies (ξs, ξb). Here, the constant δ ≥0 reﬂects the investor’s im-
+patience, while the constants Cs, Cb ≥0 provide for a bid-ask spread or for proportional
+transaction costs. The choice δ = 0 is the most natural one if the time horizon T is very
+short. We allow for choices δ > 0 because these might be appropriate for execution problems
+lasting several days (see Lebedeva, Maug, and Schneider [22] for real-world examples of such
+executions) and are essential for a nontrivial solution if T = ∞. Also, strictly positive values
+of Cs, Cb can arise from the existence of a bid-ask spread. Indeed, if we interpret Xt as the
+midprice of the stock price at time t, then we can view Xt −Cs (resp., Xt + Cb) as the bid
+(resp., ask) price of the stock at time t. Such a modeling context has been considered in the
+literature, e.g., by Cont and de Larrard [10], who, based on empirical evidence, assume that
+the bid-ask spread is equal to one tick.
+The performance criterion we have adopted is the expected revenue one featured in the
+models studied by, e.g., Bertsimas and Lo [8] and Gatheral [16]. Other choices of performance
+criteria that have been considered in the literature include the mean-variance criterion in
+Almgren and Chriss [5, 6], the expected utility criterion in Schied and Sch¨oneborn [28], and
+the mean-quadratic variation criterion in Forsyth et al. [14]. Such alternative performance
+indices give rise to several variants of the model we study that could be the subject of future
+research. It is worth noting that Gatheral and Schied [18] have argued that a risk-neutral
+expected revenue or cost optimization objective is a reasonable choice, especially in contexts
+where market regularity conditions should be independent of investor preferences.
+Mathematically, the optimization problem above takes the form of a singular stochastic
+control problem. Its HJB equation is a degenerate parabolic (if T < ∞) or elliptic (if T = ∞)
+PDE with state-dependent gradient constraints. Although the literature of singular stochastic
+control is rich and long, we are unaware of any results that characterize the value function or
+the optimal strategies in a context similar to the one we consider here; models that are closest
+to the one we analyze have been studied by Shreve and Soner [31] Soner and Shreve [32],
+Davis and Norman [12], Zhu [33], Ocone and Weerasinghe [26], and Dai and Yi [11].
+Our analysis involves probabilistic as well as analytic techniques. A brief summary of our
+main results is as follows. First, we show that if we allowed for asymmetric price impact of
+buying and selling, then the market would present arbitrage opportunities (see Deﬁnition 3.2
+and Proposition 3.4(I)–(II)). On the other hand, we prove that there are no arbitrage oppor-
+tunities in the model with symmetric price impact that we consider (see Proposition 3.6(I)).
+In the spirit of Huberman and Stanzl [21], we deﬁne a price manipulation to be a round-trip
+trade, namely, a 0 net buying and selling trading strategy, that results in a strictly positive
+expected revenue (see Deﬁnition 3.3). It is worth noting here that the deﬁnitions of arbitrage
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 5 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+284
+XIN GUO AND MIHAIL ZERVOS
+and price manipulation that we have adopted involve no discounting, namely, δ = 0, because
+the choice of a discounting rate characterizes speciﬁc investors rather than the market itself.
+We show that there is no price manipulation if and only if μ = 0 (see Proposition 3.4(III)
+and Proposition 3.6(II)). This result is not surprising: given its deﬁnition and the symmetric
+nature of the market in terms of buying and selling, one can argue that a price manipulation
+cannot exist if and only if the stock price process is a martingale in the absence of transactions
+by a big investor. Indeed, in any model incorporating no price impact, the strategy that buys
+(resp., short-sells) one share of stock at time 0 and then sells it (resp., buys it back) at time
+1 is a price manipulation if the stock price is a submartingale (resp., supermartingale) such
+as, e.g., a geometric Brownian motion with strictly positive (resp., negative) drift. Although
+the absence of a price manipulation is a desirable property of a model involving very short
+time scales (such as seconds or minutes), it could be viewed as rather restrictive for models
+involving long time scales (such as days or weeks) where the time-value of money and issues
+involving investor preferences come into play. From a mathematical perspective, our results
+are consistent with those of Huberman and Stanzl [21] and Gatheral [16], who showed that
+permanent price impact must be linear and symmetric to exclude price manipulation in the
+zero-drift models with additive price impact that they studied.
+In our analysis of possible arbitrage opportunities and price manipulation, we naturally
+consider trading strategies that involve short-selling subject to the constraint that short po-
+sitions are bounded by a constant. On the other hand, we assume that short-selling is not
+permitted in our analysis of the optimal execution problem itself (see, however, the paragraph
+above the statement of Proposition 3.5). In this context, we ﬁrst prove that the investor would
+be able to realize arbitrarily high expected payoﬀs by means of simple round-trip trades if her
+discounting rate were strictly less than the drift of the stock price (see Proposition 3.4(IV)). To
+avoid unrealistic trivialities, we therefore assume that δ ≥max{μ, 0}. In this case, we show
+that the optimal liquidation strategy involves no buying of shares (see Proposition 3.5(I)),
+namely, there is no transaction-triggered price manipulation in the sense of Alfonsi, Schied,
+and Slynko [3].
+In the case when T < ∞, we prove a veriﬁcation theorem (Proposition 4.1) that relates
+an appropriate solution to the problem’s HJB equation to the problem’s value function. Such
+a solution to the HJB equation, which can be computed numerically oﬄine, fully determines
+the optimal liquidation strategy. Indeed, its nature is such that the state space splits into two
+regions, the “waiting” one and the “selling” one. Beyond a possible sale of an appropriate
+amount of stock that positions the state process at the boundary of the two regions at time
+0, the optimal strategy involves minimal action to keep the state process inside the closure of
+the waiting region and takes no action while the state process is in the interior of the waiting
+region.
+If T = ∞, then we derive the solution to the problem in an explicit form (see Proposi-
+tion 5.1). An interesting feature of this solution is that an optimal strategy may not exist even
+though the value function is ﬁnite (see Proposition 5.1(II)). If it exists, the optimal strategy
+can be described informally as follows (see also Figure 1). If the stock price is below a critical
+level F◦, then it is optimal to take no action. If the stock price at time 0 is above F◦, then
+it is optimal to either sell all available shares immediately or liquidate an amount that would
+cause the stock price to drop to F◦and then keep on selling until all shares are exhausted by
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 6 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+285
+Figure 1. The regions providing the optimal strategy when T = ∞. If the stock price takes values in the
+“waiting” region W, then it is optimal to take no action. If the stock price at time 0 is inside the “selling”
+region S1, then it is optimal to sell all available shares immediately. If the stock price at time 0 is inside the
+“selling” region S2, then it is optimal to liquidate an amount that would cause the stock price to drop to F◦
+and then keep on selling until all shares are exhausted by just preventing the stock price from rising above F◦.
+just preventing the stock price from rising above F◦.
+2. The market model and the control problem. We ﬁx a ﬁltered probability space
+(Ω, F, Ft, P) satisfying the usual conditions and carrying a standard (Ft)-Brownian motion
+W.
+We denote by Yt the total number of shares held by the investor at time t. Also, we denote
+by ξs
+t (resp., ξb
+t ) the total number of shares that the investor has sold (resp., bought) up to
+time t, so that Yt = y −ξs
+t + ξb
+t , where y ≥0 is the number of shares held by the investor
+at time 0. We assume that ξs and ξb are (Ft)-adapted increasing c`agl`ad processes such that
+ξs
+0 = ξb
+0 = 0. Also, we assume that the investor does not simultaneously buy and sell. In
+particular, we restrict our attention to strategies (ξs, ξb) such that
+(2.1)
+if we deﬁne ξt = ξs
+t −ξb
+t , then ˇξt = ξs
+t + ξb
+t for all t ≥0,
+where ˇξ is the total variation process of ξ.
+The investor’s aim is to liquidate all share holdings by a time horizon T ∈(0, ∞]. We
+therefore consider trading strategies (ξs, ξb) such that
+(2.2)
+YT+ = 0 if T < ∞
+and
+lim
+T→∞YT = 0 if T = ∞.
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 7 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+286
+XIN GUO AND MIHAIL ZERVOS
+In the absence of any transactions from the investor, we model the stock price by the
+geometric Brownian motion X0 given by
+(2.3)
+dX0
+t = μX0
+t dt + σX0
+t dWt,
+X0
+0 = x > 0
+for some constants μ and σ̸ = 0. We assume that small transactions made by the investor
+aﬀect the share price proportionally to its value. In particular, if the investor sells (resp.,
+buys) a small amount ε > 0 of shares at time t, then the share price exhibits a jump of size
+ΔXt = Xt+ −Xt = −λεXt
+(resp., ΔXt = Xt+ −Xt = λεXt)
+for some constant λ > 0, where we have assumed that X is c`agl`ad. In this context, a small
+sale (resp., buy) of size ε > 0 is associated with the expressions
+Xt+ = (1 −λε)Xt ≃e−λεXt
+
+resp., Xt+ = (1 + λε)Xt ≃eλεXt
+
+.
+If we view the sale of Δξs
+t shares as N individual sales of ε = Δξs
+t/N shares each, then, for N
+large enough, we obtain
+Xt+ = e−λNεXt = e−λΔξs
+tXt.
+Similarly, we can see that buying Δξb
+t shares is associated with the jump Xt+ = eλΔξs
+tXt.
+In view of the above considerations, we model the stock price dynamics by the stochastic
+equation
+(2.4)
+dXt = μXt dt −λXt ◦s dξs
+t + λXt ◦b dξb
+t + σXt dWt,
+where
+Xt ◦s dξs
+t = Xt d(ξs)c
+t + 1
+λXt
+
+1 −e−λΔξs
+t
+
+= Xt d(ξs)c
+t + Xt
+ Δξs
+t
+0
+e−λu du
+(2.5)
+and
+Xt ◦b dξb
+t = Xt d(ξb)c
+t + 1
+λXt
+
+eλΔξb
+t −1
+
+= Xt d(ξb)c
+t + Xt
+ Δξb
+t
+0
+eλu du,
+(2.6)
+where the process (ξs)c (resp., (ξb)c) is the continuous part of the process ξs (resp., ξb). Using
+Itˆo’s formula, we can verify that the solution to (2.4) is given by
+(2.7)
+Xt = x exp
+		
+μ −1
+2σ2
+
+t −λξs
+t + λξb
+t + σWt
+
+= X0
+t exp
+
+−λξs
+t + λξb
+t
+
+,
+where X0 is the solution to (2.3).
+If we consider the sale of Δξs
+t shares at time t as equivalent to the sale of N packets of
+shares of small size ε = Δξs
+t/N, then we can see that such a sale should result in a revenue of
+N−1
+
+j=0
+e−λjεXtε ≃
+ Δξs
+t
+0
+Xte−λu du = 1
+λXt
+
+1 −e−λΔξs
+t
+
+.
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 8 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+287
+In view of this observation and a similar one concerning the buying of Δξb
+t shares at time t,
+we associate the performance criterion
+(2.8)
+IT,x,y(ξs, ξb) =
+
+JT ,x,y(ξs, ξb)
+if T < ∞,
+lim supT→∞JT,x,y(ξs, ξb)
+if T = ∞
+with each liquidation strategy (ξs, ξb), where JT,x,y(ξs, ξb) is deﬁned by
+JT,x,y(ξs, ξb) = E
+
+[0,T]
+e−δt 
+Xt ◦s dξs
+t −Xt ◦b dξb
+t −Cs dξs
+t −Cb dξb
+t
+
+for (T, x, y) ∈R+ × R∗
++ × R+.1 Here, the discounting rate δ ≥0 reﬂects the investor’s “impa-
+tience,” while the constants Cs, Cb ≥0 may account for a constant bid-ask spread or provide
+for proportional transaction costs.
+The investor’s objective is to maximize IT,x,y(ξs, ξb) over all liquidation strategies (ξs, ξb).
+Accordingly, we deﬁne the problem’s value function v by
+v(T, x, y) =
+sup
+(ξs,ξb)∈AT ,y
+IT,x,y(ξs, ξb),
+where AT,y is the family of all admissible strategies, which is introduced by the following
+deﬁnition.
+Deﬁnition 2.1. Given a time horizon T ∈(0, ∞] and an initial holding of y ≥0 shares, the
+family AT,y of all admissible liquidation strategies is the set of all pairs (ξs, ξb) composed by
+(Ft)-adapted increasing c`agl`ad processes ξs and ξb such that ξs
+0 = ξb
+0 = 0, (2.1) and (2.2) hold
+true, and
+Yt = y −ξs
+t + ξb
+t ≥0
+and
+E
+
+e4λξb
+t+
+
+< ∞
+for all t ∈[0, T ] ∩R+.
+(2.9)
+We denote by As
+T,y the family of all processes ξs such that (ξs, 0) ∈AT,y.
+The integrability assumption that we make in (2.9) is quite general and ensures that the
+optimization problem is well-posed. In particular, it would plainly be satisﬁed if we imposed
+an upper bound on the process ξb, which would rule out unbounded total buying and selling
+over a ﬁnite time horizon. On the other hand, the inequality Yt ≥0 for all t ≥0 reﬂects the
+idea that the possibility of short-selling is not permitted.
+In the next assumption we summarize the possible values that the various constants we
+have considered may take.
+Assumption 1. μ, σ̸ = 0, δ ≥max{μ, 0}, and λ > 0 are constants.
+Remark 1. In the model that we have developed, transactions made by the investor have a
+permanent impact. There are several extensions of the model that can accommodate transient
+impact. For instance, we can replace the dynamics given by (2.7) by Xt = X0
+t eZt, where
+Zt = −λ
+
+[0,t[
+G(t −s) d
+
+dξs
+s −dξb
+s
+
+1Throughout the paper, we use the notation R+ = [0, ∞) and R∗
++ = (0, ∞).
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 9 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+288
+XIN GUO AND MIHAIL ZERVOS
+for some kernel G. In this context, if we choose G(t −s) = e−γteγs for some constant γ > 0,
+then
+dZt = −γZt dt −λ dξs
+t + λ dξb
+t .
+In such extensions, the resulting optimization problem’s state space would involve four vari-
+ables (namely, t, x, y, and z) instead of three (namely, t, x, and y). We leave this as well as
+other extensions accommodating resilience of the stock price for future research.
+3. Study of the market and preliminary results. In this section, we establish a range of
+results that characterize the market we study as well as some estimates we will need. To this
+end, we ﬁrst consider the so-called round-trip trades, which are trading strategies that involve
+0 net buying or selling of shares over a given ﬁnite time horizon. It is worth noting that the
+inequality in (3.1) is an admissibility condition that requires the maximum number of stock
+shares that a round trip can be short to be bounded by a constant.
+Deﬁnition 3.1. An admissible round-trip trade with time horizon T ∈R∗
++ is any pair (ζs, ζb)
+of (Ft)-adapted increasing c`agl`ad processes such that ζs
+0 = ζb
+0 = 0 and
+(3.1)
+ζs
+T+ = ζb
+T+
+and
+sup
+t∈[0,T]
+
+ζs
+t+ −ζb
+t+
+
+≤Γ
+for some constant Γ > 0, which may depend on the trading strategy itself.
+Our ﬁrst result shows that the model we consider would be unviable if we allowed for
+asymmetric impact of buying and selling. In particular, we prove that if we model the stock
+price dynamics by
+(3.2)
+dXt = μXt dt −λXt ◦λ
+s dξs
+t + κXt ◦κ
+b dξb
+t + σXt dWt,
+where ◦λ
+s (resp., ◦κ
+b) is deﬁned by (2.5) (resp., (2.6) with κ in place of λ), for some κ̸ = λ, then
+the market may present arbitrage opportunities in the following sense.
+Deﬁnition 3.2. The market allows for arbitrage opportunities if there exists a round-trip
+trade with resulting revenue that is positive and strictly positive with strictly positive probabil-
+ity, namely, if there exists a round-trip trade (ζs, ζb) such that
+(3.3)
+R(ζs, ζb) =
+
+[0,T]
+
+Xt ◦λ
+s dζs
+t −Xt ◦κ
+b dζb
+t −Cs dζs
+t −Xt dζb
+t
+
+≥0
+and P
+
+R(ζs, ζb) > 0
+
+> 0.
+We also prove that price manipulation exists if and only if μ̸ = 0.
+Deﬁnition 3.3. A price manipulation is a round-trip trade (ζs, ζb) resulting in a strictly pos-
+itive expected revenue, namely, E
+
+R(ζs, ζb)
+
+> 0, where R is deﬁned by (3.3). An unbounded
+price manipulation is a sequence of round-trip trades (ζs,n, ζb,n) such that limn→∞E
+
+R(ζs,n,
+ζb,n)
+
+= ∞.
+In these deﬁnitions, we have taken δ = 0 because the choice of a discounting rate is investor
+speciﬁc. In this way, the existence or not of arbitrage and/or price manipulation characterizes
+a market of risk-neutral investors as a whole.
+The next result, which is complemented by Proposition 3.6 below, is concerned with these
+issues. We also show here that the investor’s optimization problem would be trivial if the
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 10 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+289
+investor’s discounting rate δ were strictly less than the stock price drift μ, which we have
+excluded as a possibility in Assumption 1.
+Proposition 3.4. The following statements are true:
+(I) If the price process dynamics are given by (3.2) for some κ > λ > 0, then the market
+presents arbitrage opportunities and arbitrarily high risk-free proﬁts can be realized by simple
+round-trip strategies.
+(II) If the price process dynamics are given by (3.2) for some λ > κ > 0, then the market
+may present arbitrage opportunities.
+(III) Suppose that the price process dynamics are given by (3.2) for some κ = λ > 0,
+namely, by (2.4). If μ < 0, then price manipulation may exist, while if μ > 0, then unbounded
+price manipulation exists.
+(IV) Consider the optimal execution problem formulated in section 2, in which the price
+process dynamics are given by (3.2) for some κ = λ > 0, namely, by (2.4). If 0 ≤δ < μ
+in violation of Assumption 1, then round-trip trades involving no short-selling can realize
+arbitrarily high expected payoﬀs and
+(3.4)
+v(T, x, y) = ∞
+for all (T, x, y) ∈R+ × R∗
++ × R+.
+Proof. Suppose that the price process dynamics are given by (3.2) for some κ > λ, and
+let (ϱn) be any sequence of strictly positive numbers such that limn→∞ϱn = ∞.
+Given
+ε ∈(0, (κ −λ) ∧λ), we deﬁne the (Ft)-stopping time
+τ = inf
+
+t ≥0
+ X0
+t
+x
+/∈
+λ + ε
+κ
+,
+λ
+λ −ε
+
+∧1 > 0,
+and we note that
+(3.5)
+κX0
+τ −λx
+λx
+≥ε
+λ
+and
+−κX0
+τ
+λx ≥−
+κ
+λ −ε.
+The round-trip trade (ζs,n, ζb,n) that buys ϱn shares at time 0 and then sells them at time
+τ ∈(0, 1] results in the revenue
+R(ζs,n, ζb,n) = −1
+κx [eκϱn −1] + 1
+λX0
+τ eκϱn 
+1 −e−λϱn
+−(Cb + Cs) ϱn
+= 1
+κ
+
+1 + κX0
+τ −λx
+λx
+eκϱn −κX0
+τ
+λx e(κ−λ)ϱn
+
+x −(Cb + Cs) ϱn
+(3.5)
+≥
+1
+κ
+
+1 + ε
+λeκϱn −
+κ
+λ −εe(κ−λ)ϱn
+
+x −(Cs + Cb) ϱn.
+The last expression tends to ∞as n →∞, and (I) follows.
+To show (II), we assume that the price process dynamics are given by (3.2) for some κ < λ,
+we deﬁne the (Ft)-stopping time
+τ =
+
+t ≥0
+ X0
+t
+x
+/∈
+κ + ε
+λ
+,
+κ
+κ −ε
+
+∧1 > 0
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 11 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+290
+XIN GUO AND MIHAIL ZERVOS
+for some ε ∈(0, (λ −κ) ∧κ), and we note that
+(3.6)
+λX0
+τ −κx
+κx
+≥ε
+κ
+and
+−λX0
+τ
+κx ≥−
+λ
+κ −ε.
+The round-trip trade (ζs, ζb) that short-sells ϱ > 0 shares at time 0 and then buys them back
+at time τ ∈(0, 1] results in the revenue
+R(ζs, ζb) = 1
+λx
+
+1 −e−λϱ
+−1
+κX0
+τ e−λϱ [eκϱ −1] −(Cs + Cb) ϱ
+= 1
+λ
+
+1 + λX0
+τ −κx
+κx
+e−λϱ −λX0
+τ
+κx e−(λ−κ)ϱ
+
+x −(Cs + Cb) ϱ
+(3.6)
+≥
+1
+λ
+
+1 + ε
+κe−λϱ −
+λ
+κ −εe−(λ−κ)ϱ
+
+x −(Cs + Cb) ϱ.
+The coeﬃcient of x in the last expression is strictly positive for all ϱ > 0 suﬃciently large.
+Given any such ϱ, the revenue R(ζs, ζb) is strictly positive for all x suﬃciently large, and the
+claim that the market may present arbitrage opportunities follows.
+To see (IV), suppose that δ < μ and consider the round-trip trade that buys ϱ > 0 shares
+at time 0 and sells them at time T > 0. This strategy has expected payoﬀ
+−1
+λx
+
+eλϱ −1
+
++ 1
+λE
+
+e−δT X0
+T eλϱ 
+1 −e−λϱ
+−
+
+Cb + e−δT Cs
+
+ϱ
+= 1
+λxeλϱ 
+1 −e−λϱ 
+e(μ−δ)T −1
+
+−
+
+Cb + e−δT Cs
+
+ϱ,
+which tends to ∞as ϱ →∞. In particular, (3.4) holds true.
+To prove (III), suppose ﬁrst that μ < 0. The round-trip trade (ζs, ζb) that short-sells
+ϱ > 0 shares at time 0 and buys them back at time T > 0 results in the expected revenue
+E
+
+R(ζs, ζb)
+
+= 1
+λx
+
+1 −e−λϱ
+−1
+λE
+
+X0
+T e−λϱ 
+eλϱ −1
+
+−(Cs + Cb) ϱ
+= 1
+λxe−λϱ 
+eλϱ −1
+ 
+1 −e−|μ|T 
+−(Cs + Cb) ϱ,
+which is strictly positive for all ϱ > 0 provided x is suﬃciently large. On the other hand, if
+μ > 0, then the round-trip trade (ζs, ζb) we considered in the proof of (IV) above results in
+the expected revenue
+E
+
+R(ζs, ζb)
+
+= 1
+λxeλϱ 
+1 −e−λϱ 
+eμT −1
+
+−(Cb + Cs) ϱ,
+which tends to ∞as ϱ →∞for all x and T .
+We now switch our attention to the actual optimal execution problem. It is worth recalling
+that, contrary to our analysis thus far, short-selling is not permitted in this problem. However,
+a simple inspection of the proof of part (IV) reveals that its conclusions remain true if short-
+selling is indeed allowed. Furthermore, it is worth noting that if the conditions of parts (III)
+and (IV) are both satisﬁed, then every admissible liquidation strategy is optimal.
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 12 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+291
+Proposition 3.5. Consider the optimal execution problem formulated in section 2. Given a
+time horizon T ∈(0, ∞] and any (x, y) ∈R∗
++ × R+, the following statements are true:
+(I) The optimal liquidation strategy involves no buying of shares, namely,
+(3.7)
+v(T, x, y) =
+sup
+ξs∈As
+T ,y
+IT,x,y(ξs, 0).
+In particular, the market does not allow for transaction-triggered price manipulation.
+(II) The value function satisﬁes
+(3.8)
+1
+λx
+
+1 −e−λy
+−Csy ≤v(T, x, y) ≤1
+λx
+
+1 −e−λy
+for all T ∈(0, ∞] and (x, y) ∈R∗
++ × R+.
+(III) If Cs = 0, then it is optimal to sell all shares at time 0, and the value function is
+given by v(T, x, y) = 1
+λx
+
+1 −e−λy
+for all T ∈(0, ∞] and (x, y) ∈R∗
++ × R+.
+(IV) Suppose that δ = μ ≥0. If T ∈R∗
++, then it is optimal to sell all available shares at
+T. On the other hand, if T = ∞, then selling all available shares at time n = 1, 2, . . . provides
+a sequence of ε-optimal strategies. In this case, the value function is given by
+(3.9)
+v(T , x, y) =
+
+1
+λx
+
+1 −e−λy
+−e−δT Csy
+if T ∈R∗
++,
+1
+λx
+
+1 −e−λy
+if T = ∞
+for all (x, y) ∈R∗
++ × R+.
+Proof. Given a liquidation strategy (ξs, ξb) ∈AT,y, we deﬁne
+(3.10)
+˜ξs
+t = sup
+0≤u≤t
+
+ξs
+u −ξb
+u
++
+for t ≥0,
+and we note that
+(3.11)
+˜ξs
+t ≤sup
+0≤u≤t
+ξs
+u = ξs
+t
+for all t ≥0.
+In view of (2.9), we can see that
+y ≥ξs
+t −ξb
+t
+for all t ∈[0, T ] ∩R+
+⇒
+y ≥sup
+0≤u≤t
+
+ξs
+u −ξb
+u
++
+= ˜ξs
+t for all t ∈[0, T ] ∩R+.
+Also, (2.2) and this observation imply that if T < ∞, then
+y = ξs
+T+ −ξb
+T+ ≤˜ξs
+T+ ≤y
+⇒
+˜YT+ = y −˜ξs
+T+ = 0,
+while if T = ∞, then
+y = lim
+T→∞
+
+ξs
+T −ξb
+T
+
+≤lim
+T→∞
+˜ξs
+T ≤y
+⇒
+lim
+T→∞
+˜YT = lim
+T→∞
+
+y −˜ξs
+T
+
+= 0.
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 13 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+292
+XIN GUO AND MIHAIL ZERVOS
+It follows that (˜ξs, 0) ∈AT,y, namely, ˜ξs ∈As
+T,y. For future reference, we also note that (3.11)
+implies that
+(3.12)
+
+[0,T]
+e−δt d
+
+ξs
+t −˜ξs
+t
+
+= e−δT 
+ξs
+T+ −˜ξs
+T+
+
++ δ
+ T
+0
+e−δt 
+ξs
+t −˜ξs
+t
+
+dt ≥0.
+In view of the observations that
+de−λξs
+t = −λe−λξs
+t d(ξs)c
+t −e−λξs
+t
+
+1 −e−λΔξs
+t
+
+= −λe−λξs
+t ◦s dξs
+t,
+deλξb
+t = λeλξb
+t d(ξb)c
+t + eλξb
+t
+
+eλΔξb
+t −1
+
+= λeλξb
+t ◦b ξb
+t ,
+which follow from Itˆo’s formula and (2.5)–(2.6), and the calculation
+d
+
+e−δtXt
+
+= d
+
+e−δtX0
+t e−λ(ξs
+t−ξb
+t )
+= −(δ −μ)e−δtX0
+t e−λ(ξs
+t−ξb
+t ) dt + e−δtX0
+t eλξb
+t de−λξs
+t
++ e−δtX0
+t e−λξs
+t deλξb
+t + σe−δtX0
+t e−λ(ξs
+t−ξb
+t ) dWt,
+which follows from an application of the integration by parts formula, we can see that, given
+any T ∈[0, T ] ∩R+,
+
+[0,T]
+e−δt 
+Xt ◦s dξs
+t −Xt ◦b dξb
+t −Cs dξs
+t −Cb dξb
+t
+
+= −
+
+[0,T]
+e−δt
+ 1
+λX0
+t eλξb
+t de−λξs
+t + 1
+λX0
+t e−λξs
+t deλξb
+t + Cs dξs
+t + Cb dξb
+t
+
+= −δ −μ
+λ
+ T
+0
+e−δtX0
+t e−λ(ξs
+t−ξb
+t ) dt + x
+λ −1
+λe−δT X0
+T e−λ(ξs
+T +−ξb
+T +)
+−
+
+[0,T]
+e−δt 
+Cs dξs
+t + Cb dξb
+t
+
++ σ
+λ
+ T
+0
+e−δtX0
+t e−λ(ξs
+t−ξb
+t ) dWt.
+(3.13)
+In view of these identities, the assumption that δ ≥μ, the deﬁnition (3.10) of ˜ξs, and (3.12),
+we can see that
+
+[0,T]
+e−δt 
+Xt ◦s dξs
+t −Xt ◦b dξb
+t −Cs dξs
+t −Cb dξb
+t
+
+≤−δ −μ
+λ
+ T
+0
+e−δtX0
+t e−λ˜ξs
+t dt + x
+λ −1
+λe−δT X0
+T e−λ˜ξs
+T +
+−
+
+[0,T]
+e−δtCs d˜ξs
+t + σ
+λ
+ T
+0
+e−δtX0
+t e−λ(ξs
+t−ξb
+t ) dWt
+=
+
+[0,T]
+e−δt 
+˜Xt ◦s d˜ξs
+t −Cs d˜ξs
+t
+
++ σ
+λ
+ T
+0
+e−δtX0
+t
+
+e−λ(ξs
+t−ξb
+t ) −e−λ˜ξs
+t
+
+dWt,
+(3.14)
+where ˜X is the solution to (2.4) with ˜ξs and 0 in place of ξs and ξb, respectively.
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 14 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+293
+Using Itˆo’s isometry, H¨older’s inequality, and (2.9) in Deﬁnition 2.1, we calculate
+E
+	 T
+0
+e−δtX0
+t
+
+e−λ(ξs
+t−ξb
+t ) −e−λ˜ξs
+t
+
+dWt
+
+2
+=
+ T
+0
+E
+
+e−δtX0
+t
+
+e−λ(ξs
+t−ξb
+t ) −e−λ˜ξs
+t
+2
+dt
+≤2
+ T
+0
+E
+
+X0
+t eλξb
+T +
+2
+dt + 2
+ T
+0
+E
+
+X0
+t
+2
+dt
+≤2
+ T
+0
+
+E
+
+e4λξb
+T +
+
+E
+
+X0
+t
+4
+dt + 2
+ T
+0
+E
+
+X0
+t
+2
+dt
+< ∞.
+(3.15)
+Therefore, the stochastic integral in (3.14) deﬁnes a square-integrable martingale and has 0
+expectation. Taking expectations in (3.14), we therefore obtain
+JT,x,y(ξs, ξb) ≤E
+
+−δ −μ
+λ
+ T
+0
+e−δtX0
+t e−λ˜ξs
+t dt + x
+λ −1
+λe−δT X0
+T e−λ˜ξs
+T + −
+
+[0,T]
+e−δtCs d˜ξs
+t
+
+= E
+
+[0,T]
+e−δt 
+˜Xt ◦s d˜ξs
+t −Cs d˜ξs
+t
+
+= JT,x,y(˜ξs, 0),
+and (3.7) follows (see also (2.8)). Furthermore, the expression for JT,x,y(˜ξs, 0) provided here
+implies the upper bound in (3.8) as well as establishes (III) because if Cs = 0, then it is plainly
+maximized by the choice ˜ξs
+t = y for all t > 0 that corresponds to selling all shares at time 0.
+On the other hand, the lower bound in (3.8) is just the payoﬀof the strategy that sells all
+shares at time 0.
+Finally, suppose that δ = μ ≥0. Taking expectations in (3.13), we obtain
+JT,x,y(ξs, ξb) = E
+
+x
+λ −1
+λe−δT X0
+T e−λ(ξs
+T +−ξb
+T +) −
+
+[0,T]
+e−δt 
+Cs dξs
+t + Cb dξb
+t
+
+.
+If T < ∞, then this expression and the fact that ξs
+T+ −ξb
+T+ = y imply that it is optimal to
+sell all available shares at time T and
+v(T, x, y) = x
+λ −1
+λE
+
+e−δT X0
+T
+
+e−λy −e−δT Csy = 1
+λx
+
+1 −e−λy
+−e−δT Csy.
+On the other hand, if T = ∞, then we can see that selling all available shares at time
+n = 1, 2, . . . provides a sequence of ε-optimal strategies once we combine the observation that
+these strategies have expected payoﬀs such that
+lim
+n→∞
+	 1
+λE
+
+e−δnX0
+n
+ 
+1 −e−λϱ
+−e−δnCsy
+
+= 1
+λx
+
+1 −e−λϱ
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 15 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+294
+XIN GUO AND MIHAIL ZERVOS
+with the upper bound in (3.8).
+Remark 2. For future reference, we note the following estimate that we can derive using
+the integration by parts formula and Itˆo’s isometry in the same way as in (3.13) and (3.15):
+given a time horizon T ∈(0, ∞], a strategy ξs ∈As
+T,y, and any time T ∈[0, T ] ∩R+,
+E
+
+sup
+t∈[0,T]
+
+
+[0,t]
+e−δt [Xt ◦s dξs
+t −Cs dξs
+t]
+
+
+≤E
+
+[0,T]
+e−δtXt ◦s dξs
+t
+
++ Csy
+= E
+
+−δ −μ
+λ
+ T
+0
+e−δtX0
+t e−λξs
+t dt + x
+λ −1
+λe−δT X0
+T e−λξs
+T +
+
++ Csy
+≤x
+λ + Csy.
+(3.16)
+Using Proposition 3.5, we now establish the following result that complements Proposi-
+tion 3.4.
+Proposition 3.6. Consider the market model developed in section 2, and recall Deﬁnitions
+3.2 and 3.3. The following statements are true:
+(I) The market does not allow for arbitrage opportunities.
+(II) If μ = 0, then there exists no price manipulation.
+Proof. To establish (II), we assume that μ = 0 and we show that every round-trip trade
+has negative expected execution payoﬀ. To this end, we consider any round-trip trade (ζs, ζb)
+with time horizon T ∈R∗
++ and we deﬁne the liquidation strategy (ξs, ξb) ∈AT,Γ by
+(3.17)
+ξs
+t =
+⎧
+⎪
+⎨
+⎪
+⎩
+ζs
+t
+if t ≤T,
+ζs
+T+
+if t ∈(T, T],
+Γ
+if t > T
+and
+ξb
+t =
+
+ζb
+t
+if t ≤T,
+ζb
+T+
+if t > T,
+where T = T + ε for some ε > 0, and Γ > 0 is any bound as in (3.1). This strategy puts us in
+the context of an investor who starts with Γ shares, follows the round-trip trade up to time
+T, and then sells all available shares Γ at a later time T. The expected revenue resulting from
+the execution of the round-trip trade is
+E
+
+R(ζs, ζb)
+
+≤E
+
+[0,T]
+
+Xt ◦λ
+s dζs
+t −Xt ◦λ
+b dζb
+t
+
+= E
+
+[0,T]
+
+Xt ◦λ
+s dξs
+t −Xt ◦λ
+b dξb
+t
+
+−1
+λE
+
+XT
+ 
+1 −e−λΓ
+(3.8)
+≤
+1
+λx
+
+1 −e−λΓ
+−1
+λE
+
+X0
+T e
+−λ(ζs
+T+−ζb
+T+) 
+1 −e−λΓ
+= 1
+λx
+
+1 −e−λΓ
+−1
+λE
+
+X0
+T
+ 
+1 −e−λΓ
+= 0,
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 16 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+295
+and (II) follows.
+To show (I), we argue by contradiction and we assume that there exists a round-trip trade
+(ζs, ζb) with time horizon T ∈R∗
++ satisfying the requirements of Deﬁnition 3.2. We then
+deﬁne the probability measure Q on (Ω, F) by
+dQ
+dP
+
+FT
+= exp
+	
+−μ2
+2σ2 T −μ
+σWT
+
+,
+and we note that
+dXt = −λXt ◦s dξs
+t + λXt ◦b dξb
+t + σXt dW Q
+t ,
+where (W Q
+t , t ∈[0, T]) is the Q-Brownian motion deﬁned by W Q
+t = μ
+σt+Wt. The equivalence
+of P and Q implies that
+R(ζs, ζb) ≥0, Q-a.s.
+and
+Q
+
+R(ζs, ζb) > 0
+
+> 0.
+Therefore, EQ
+
+R(ζs, ζb)
+
+> 0. It follows that (ζs, ζb) is a price manipulation in a setting with
+μ = 0, which contradicts (II), and the proof is complete.
+4. The ﬁnite time horizon case (T < ∞). In view of Proposition 3.5(I), we expect that
+the value function v of the stochastic control problem formulated in section 2 identiﬁes with
+an appropriate solution w : R+ × R∗
++ × R+ →R to the HJB equation
+max
+
+−wt(t, x, y) + Lw(t, x, y), −λxwx(t, x, y) −wy(t, x, y) + x −Cs
+
+= 0,
+(4.1)
+with boundary condition
+(4.2)
+w(0, x, y) = 1
+λx
+
+1 −e−λy
+−Csy,
+where
+(4.3)
+Lw(t, x, y) = 1
+2σ2x2wxx(t, x, y) + μxwx(t, x, y) −δw(t, x, y).
+To obtain qualitative understanding of this equation, we consider the following heuristic argu-
+ments. Suppose that, at a given time, the investor’s horizon is t > 0, the share price is x > 0,
+and the investor holds an amount y > 0 of shares. At that time, the investor is faced with
+two possible actions. The ﬁrst one is to wait for a short time Δt and then continue optimally.
+Bellman’s principle of optimality implies that this possibility, which is not necessarily optimal,
+is associated with the inequality
+v(t, x, y) ≥E
+
+e−δΔtv(t −Δt, XΔt, y)
+
+.
+Applying Itˆo’s formula and dividing by Δt before letting Δt ↓0, we obtain
+(4.4)
+−vt(t, x, y) + 1
+2σ2x2vxx(t, x, y) + μxvx(t, x, y) −δv(x, y) ≤0.
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 17 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+296
+XIN GUO AND MIHAIL ZERVOS
+The second possibility is to sell a small amount ε > 0 of shares and then continue optimally.
+This action is associated with the inequality
+v(t, x, y) ≥v(t, x −λxε, y −ε) + (x −Cs)ε.
+Rearranging terms and letting ε ↓0, we obtain
+(4.5)
+−λxvx(t, x, y) −vy(t, x, y) + x −Cs ≤0.
+The Markovian character of the problem implies that one of these two possibilities should be
+optimal and one of (4.4)–(4.5) should hold with equality at any point in the state space. It
+follows that the problem’s value function v should identify with an appropriate solution w of
+the HJB equation (4.1). Also, the boundary condition in (4.2) follows from the requirement
+that the investor must liquidate all share holdings at the end of the planning horizon.
+We now prove a veriﬁcation theorem that associates a smooth solution to the HJB equation
+(4.1)–(4.2) with the control problem’s value function and can be used to identify an optimal
+liquidation strategy. To this end, we consider the sets
+W =
+
+(t, x, y) ∈[0, T] × R∗
++ × R+ | −wt(t, x, y) + Lw(t, x, y) = 0
+
+,
+S =
+
+(t, x, y) ∈[0, T] × R∗
++ × R+ | λxwx(t, x, y) + wy(t, x, y) −x + Cs = 0
+
+,
+and we call them the “waiting” region and the “selling” region, respectively, consistent with
+the heuristics that we have discussed above. Also, we note that the inequalities in (4.6) are
+consistent with the bounds (3.8) that the value function satisﬁes.
+Proposition 4.1. Consider the optimal execution problem formulated in section 2. Given a
+time horizon T ∈(0, ∞), suppose that a function w : [0, T ]×R∗
++ ×R+ →R is a C1,2,1 solution
+to the HJB equation (4.1)–(4.2) such that
+(4.6)
+−Csy ≤w(t, x, y) ≤1
+λx
+for all (t, x, y) ∈[0, T ] × R∗
++ × R+.
+If, for all initial conditions (x, y) ∈R∗
++ × R+, there exists ξs⋆∈As
+T,y such that
+(X⋆
+t , Y ⋆
+t ) ∈W
+for all t ≥0, P-a.s.,
+(4.7)
+ξs⋆
+t+ =
+
+[0,t]
+1{(X⋆
+t ,Y ⋆
+t )∈S} dξs⋆
+t
+for all t ≥0, P-a.s.,
+(4.8)
+where X⋆and Y ⋆are the share price and shares held processes associated with the liquidation
+strategy (ξs⋆, 0), then w identiﬁes with the value function v of the stochastic control problem
+formulated in section 2. In particular,
+(4.9)
+v(T , x, y) =
+sup
+ξs∈As
+T ,y
+JT,x,y(ξs, 0) = w(T , x, y)
+for all (x, y) ∈R∗
++ × R+,
+and (ξs⋆, 0) is an optimal liquidation strategy.
+Proof. We have established the ﬁrst identity in (4.9) in Proposition 3.5(I). To prove the
+second one, we ﬁx any initial condition (x, y) ∈R∗
++ × R+ and any process ξs ∈As
+T,y. In view
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 18 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+297
+of the Itˆo–Tanaka–Meyer formula and the left-continuity of the processes X, Y , we can see
+that
+e−δtw(T −t, Xt+, Yt+) = w(T , x, y) +
+ t
+0
+e−δs 
+−wt(T −s, Xs, Ys) + Lw(T −s, Xs, Ys)
+
+ds
++ Mt −
+ t
+0
+e−δs 
+λXswx(T −s, Xs, Ys) + wy(T −s, Xs, Ys)
+
+d(ξs)c
+s
++
+
+0≤s≤t
+e−δs 
+w(T −s, Xs+, Ys+) −w(T −s, Xs, Ys)
+
+,
+where
+Mt = σ
+ t
+0
+e−δsXswx(T −s, Xs, Ys) dWs.
+Combining this calculation with the observation that
+w(T −s, Xs+, Ys+) −w(T −s, Xs, Ys)
+= w(T −s, e−λΔξs
+sXs, Ys −Δξs
+s) −w(T −s, Xs, Ys)
+=
+ Δξs
+s
+0
+∂w(T −s, e−λuXs, Ys −u)
+∂u
+du
+= −
+ Δξs
+s
+0
+
+λe−λuXswx(T −s, e−λuXs, Ys −u) + wy(T −s, e−λuXs, Ys −u)
+
+du
+and (2.5), we obtain
+
+[0,t]
+e−δs [Xs ◦s dξs
+s −Cs dξs
+s] + e−δtw(T −t, Xt+, Yt+)
+= w(T , x, y) +
+ t
+0
+e−δs 
+−wt(T −s, Xs, Ys) + Lw(T −s, Xs, Ys)
+
+ds + Mt
++
+ t
+0
+e−δs 
+−λXswx(T −s, Xs, Ys) −wy(T −s, Xs, Ys) + Xs −Cs
+
+d(ξs)c
+s
++
+
+0≤s≤t
+e−δs
+ Δξs
+s
+0
+
+−λe−λuXswx(T −s, e−λuXs, Ys −u)
+−wy(T −s, e−λuXs, Ys −u) + e−λuXs −Cs
+
+du.
+(4.10)
+Since w satisﬁes (4.1) and admits the lower bound in (4.6), this calculation implies that
+
+[0,t]
+e−δs [Xs ◦s dξs
+s −Cs dξs
+s] −Cse−δtYt+ ≤w(T , x, y) + Mt
+for all t ∈[0, T].
+(4.11)
+In particular,
+(4.12)
+
+[0,T]
+e−δs [Xs ◦s dξs
+s −Cs dξs
+s] ≤w(T, x, y) + MT
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 19 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+298
+XIN GUO AND MIHAIL ZERVOS
+because YT+ = 0.
+In view of (3.16) in Remark 2, (4.11), and the fact that Yt ∈[0, y]
+for all t ∈[0, T ], we can see that inf0≤t≤T Mt is an integrable random variable. Therefore,
+the stochastic integral M is a supermartingale.
+In light of this observation, we can take
+expectations in (4.12) to obtain
+JT ,x,y(ξs, 0) = E
+
+[0,T]
+e−δs [Xs ◦s dξs
+s −Cs dξs
+s]
+
+≤w(T, x, y).
+This inequality and the ﬁrst identity in (4.9) imply that
+(4.13)
+v(T, x, y) ≤w(T , x, y)
+because ξs ∈As
+T,y has been arbitrary.
+If a strategy ξs⋆∈As
+T,y is such that (4.7)–(4.8) hold true, then we can check that (4.1)–
+(4.2), the upper bound in (4.6), (4.10), and the fact that Y ⋆
+T+ = 0 imply that
+
+[0,t]
+e−δs [X⋆
+s ◦s dξs⋆
+s −Cs dξs⋆
+s ] + 1
+λe−δtX0
+t e−λξs⋆
+t+
+≥
+
+[0,t]
+e−δs [X⋆
+s ◦s dξs⋆
+s −Cs dξs⋆
+s ] + e−δtw(T −t, X⋆
+t+, Y ⋆
+t+) = w(T , x, y) + M⋆
+t
+and
+
+[0,T]
+e−δs [X⋆
+s ◦s dξs⋆
+s −Cs dξs⋆
+s ]
+=
+
+[0,T]
+e−δs [X⋆
+s ◦s dξs⋆
+s −Cs dξs⋆
+s ] + e−δT w(0, X⋆
+T +, 0) = w(T, x, y) + M⋆
+T ,
+instead of (4.11) and (4.12), respectively. The inequality here and (3.16) in Remark 2 imply
+that sup0≤t≤T Mt is an integrable random variable. Therefore, M is a submartingale and we
+can take expectations in the identity to obtain
+JT,x,y(ξs⋆, 0) = E
+
+[0,T]
+e−δs [X⋆
+s ◦s dξs⋆
+s −Cs dξs⋆
+s ]
+
+≥w(T , x, y),
+which, combined with the ﬁrst identity in (4.9) and (4.13), implies the second identity in (4.9)
+as well as the optimality of (ξs⋆, 0).
+5. The inﬁnite time horizon case (T = ∞). Throughout this section, we write v(x, y)
+instead of v(∞, x, y) and we assume that
+(5.1)
+μ < δ
+and
+Cs > 0
+(we have solved the cases arising in the context of Assumption 1 when the problem data does
+not satisfy these inequalities in Proposition 3.5(III)–(IV)).
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 20 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+299
+In light of the heuristics we considered in the previous section that explain the structure
+of the HJB equation (4.1)–(4.2), we solve the stochastic control problem that arises when
+T = ∞and (5.1) holds true by constructing an appropriate solution w : R∗
++ × R+ →R to the
+HJB equation
+max {Lw(x, y), −λxwx(x, y) −wy(x, y) + x −Cs} = 0,
+(5.2)
+where L is deﬁned by (4.3), with boundary condition
+(5.3)
+w(x, 0) = 0
+for all x > 0.
+To this end, we look for a solution w to (5.2)–(5.3) that is characterized by a function F :
+R+ →R+ that partitions the state space R∗
++ × R+ into two regions, the “waiting” region W
+and the “selling” region S, deﬁned by
+W =
+
+(x, y) ∈R∗
++ × R+ | y > 0 and x < F(y)
+
+∪
+
+R∗
++ × {0}
+
+,
+(5.4)
+S =
+
+(x, y) ∈R∗
++ × R+ | y > 0 and x ≥F(y)
+
+.
+(5.5)
+Inside W, w should satisfy the diﬀerential equation
+1
+2σ2x2wxx(x, y) + μxwx(x, y) −δw(x, y) = 0.
+The only solution to this ODE that remains bounded as x ↓0 is given by
+(5.6)
+w(x, y) = A(y)xn
+for some function A : R+ →R, where n is the positive solution to the quadratic equation
+(5.7)
+1
+2σ2ℓ(ℓ−1) + μℓ−δ ≡1
+2σ2ℓ2 +
+	
+μ −1
+2σ2
+
+ℓ−δ = 0.
+For future reference, we note that n > 1 if and only if δ > μ. On the other hand, w should
+satisfy
+(5.8)
+−λxwx(x, y) −wy(x, y) + x −Cs = 0
+for (x, y) ∈S,
+which implies that
+(5.9)
+−λxwxx(x, y) −λwx(x, y) −wyx(x, y) + 1 = 0
+for (x, y) ∈S.
+To proceed further, we look for A and F such that w is C2,1. Such a requirement, (5.6),
+and (5.8)–(5.9) yield the system of equations
+−λnA(y)xn −˙A(y)xn + x −Cs
+
+x=F (y) = 0,
+−λn2A(y)xn−1 −n ˙A(y)xn−1 + 1
+
+x=F (y) = 0,
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 21 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+300
+XIN GUO AND MIHAIL ZERVOS
+which is equivalent to
+F(y) = nCs
+n −1 =: F◦,
+(5.10)
+˙A(y)F n
+◦= −λnA(y)F n
+◦+ F◦−Cs.
+(5.11)
+In view of the boundary condition (5.3) and (5.6), we require that A(0) = 0 and we solve
+(5.11) to obtain
+(5.12)
+A(y) = e−λny
+ y
+0
+eλnu 1
+n
+	n −1
+nCs
+
+n−1
+du =
+1
+λn2
+	n −1
+nCs
+
+n−1
+(1 −e−λny).
+The analysis thus far has fully characterized w inside the waiting region W. To determine
+w inside the selling region S, we consider the function Y deﬁned by
+(5.13)
+Y(x) = 1
+λ ln x
+F◦
+for x > 0,
+and we note that
+(5.14)
+F◦−x = −x
+
+1 −e−λY(x)
+and
+y −Y(x) > 0 ⇔x < F◦eλy.
+In particular, we note that the restriction of Y in (F◦, ∞) partitions the selling region into
+S1 =
+
+(x, y) ∈R∗
++ × R∗
++ | x ≥F◦and y ≤Y(x)
+
+,
+S2 =
+
+(x, y) ∈R∗
++ × R∗
++ | x ≥F◦and y > Y(x)
+
+(see also Figure 1). The region S1 is the part of the state space where it is optimal to sell
+all available shares at time 0. On the other hand the region S2 is the part of the state space
+where it is optimal to sell an amount Y(x) of shares at time 0 and then sell continuously in
+a manner such that the optimal joint process (X⋆, Y ⋆) is reﬂected in the line x = F◦in an
+appropriate oblong way until all shares are exhausted. These considerations and the structure
+of the performance criterion that we maximize suggest that
+w(x, y) = 1
+λx
+
+1 −e−λy
+−Csy
+if (x, y) ∈S1,
+w(x, y) = w(F◦, y −Y(x)) + 1
+λx
+
+1 −e−λY(x)
+−CsY(x)
+if (x, y) ∈S2.
+We conclude this discussion with the candidate for a solution to the HJB equations (5.2)–
+(5.3) given by
+w(x, y) =
+⎧
+⎪
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎪
+⎩
+0
+if y = 0 and x > 0,
+A(y)xn
+if y > 0 and x ≤F◦,
+A(y −Y(x))F n
+◦+ x−F◦
+λ
+−CsY(x)
+if y > 0 and F◦< x < F◦eλy,
+1
+λx
+
+1 −e−λy
+−Csy
+if y > 0 and F◦eλy ≤x.
+(5.15)
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 22 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+301
+We can now prove the main result of the section, which shows that this function is indeed the
+control problem’s value function and identiﬁes an optimal liquidation strategy.
+Proposition 5.1. Consider the optimal execution problem formulated in section 2, and sup-
+pose that T = ∞and that (5.1) holds true. The function w deﬁned by (5.15), where F◦, A
+are given by (5.10), (5.12), is a C2,1 solution to the HJB equation (5.2) that identiﬁes with
+the value function v of the stochastic control problem. In particular,
+(5.16)
+v(x, y) =
+sup
+ξs∈As∞,y
+I∞,x,y(ξs, 0) = w(x, y)
+for all (x, y) ∈R∗
++ × R+.
+Furthermore, if we deﬁne
+(5.17)
+ξs⋆
+t = y ∧sup
+0≤s≤t
+1
+λ [ln x + Bs −ln F◦]+
+for t > 0,
+where
+(5.18)
+Bt =
+	
+μ −1
+2σ2
+
+t + σWt,
+then the following statements are true:
+(I) If μ −1
+2σ2 ≥0, then (ξs⋆, 0) is an optimal liquidation strategy.
+(II) If μ −1
+2σ2 < 0, then (ξs⋆, 0) is not an admissible liquidation strategy. In this case, if
+we deﬁne
+(5.19)
+ξs⋆j
+t
+= ξs⋆
+t 1{t≤j} + y1{j<t}
+for t > 0 and j ≥1,
+then (ξs⋆j, 0) gives rise to a sequence of ε-optimal strategies.
+Proof. In view of its construction, we will prove that w is C2,1 if we show that wy, wx, and
+wxx are continuous along the free-boundary F as well as along the restriction of Y in (F◦, ∞).
+To this end, we consider any (x, y) ∈S2 and we use the ODE (5.11) that A satisﬁes as well
+as the deﬁnition (5.13) of Y to calculate
+wy(x, y) = ˙A(y −Y(x))F n
+◦,
+(5.20)
+wx(x, y) =
+
+−˙A(y −Y(x))F n
+◦−Cs
+ 1
+λx + 1
+λ
+= nA(y −Y(x))F n
+◦
+x + 1
+λ
+
+1 −F◦
+x
+
+(5.21)
+and
+wxx(x, y) = −n ˙A(y −Y(x))F n
+◦
+1
+λx2 −nA(y −Y(x))F n
+◦
+x2 + F◦
+λx2
+= n(n −1)A(y −Y(x))F n
+◦
+x2 −
+1
+λx2 [(n −1)F◦−nCs]
+= n(n −1)A(y −Y(x))F n
+◦
+x2 ,
+(5.22)
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 23 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+302
+XIN GUO AND MIHAIL ZERVOS
+where the last identity follows thanks to (5.10). These calculations imply the required con-
+tinuity results along F because limx↓F◦Y(x) = 0. Also, these calculations, the observation
+that
+˙A(0) = lim
+y↓0
+˙A(y) = (F◦−Cs)F −n
+◦
+,
+which follows from (5.11), and the fact that A(0) = 0 imply that given any point x > F◦and
+any sequence (xn, yn) ∈S2 converging to (x, Y(x)),
+lim
+n→∞wy(xn, yn) = F◦−Cs,
+lim
+n→∞wx(xn, yn) = 1
+λ
+
+1 −F◦
+x
+
+= 1
+λ
+
+1 −e−λY(x)
+and
+lim
+n→∞wxx(xn, yn) = 0.
+These expressions are the same as the corresponding ones that we derive using the deﬁnition
+(5.15) of w for a point x > F◦and any sequence (xn, yn) ∈S1 converging to (x, Y(x)), and
+the required continuity results along the restriction of Y in (F◦, ∞) follow.
+By the construction and the C2,1 continuity of w, we will show that w satisﬁes the HJB
+equation (5.2) if we prove that
+−λxwx(x, y) −wy(x, y) + x −Cs ≤0
+for all (x, y) ∈W,
+(5.23)
+1
+2σ2x2wxx(x, y) + μxwx(x, y) −δw(x, y) ≤0
+for all (x, y) ∈S.
+(5.24)
+In view of (5.11), we can see that (5.23) is equivalent to
+x −Cs
+xn
+≤F◦−Cs
+F n
+◦
+for all x ≤F◦,
+which is true thanks to the calculation
+d
+dx
+	x −Cs
+xn
+
+= n −1
+xn+1
+	 nCs
+n −1 −x
+
+> 0
+for all x < F◦= nCs
+n −1.
+To prove (5.24), we ﬁrst note that the quadratic equation (5.7), which n > 1 satisﬁes, and
+the deﬁnition of F◦in (5.10) imply that
+(5.25)
+δCs −(δ −μ)F◦= −Cs(δ −μn)
+n −1
+= −1
+2σ2nCs < 0.
+Given any (x, y) ∈S1, we use the fact that x ≥F◦eλy to calculate
+1
+2σ2x2wxx(x, y) + μxwx(x, y) −δw(x, y) = −δ −μ
+λ
+x
+
+1 −e−λy
++ δCsy
+≤−δ −μ
+λ
+F◦
+
+eλy −1
+
++ δCsy =: Q1(y).
+(5.26)
+Also, we use the fact that n satisﬁes (5.7) to see that, given any (x, y) ∈S2,
+1
+2σ2x2wxx(x, y) + μxwx(x, y) −δw(x, y) = −δ −μ
+λ
+(x −F◦) + δCsY(x) =: Q2(x).
+(5.27)
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 24 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+303
+In view of (5.25) and the deﬁnition (5.13) of Y, we can see that
+Q1(0) = 0
+and
+Q′
+1(y) = δCs −(δ −μ)F◦eλy < 0
+for all y ≥0
+and
+Q2(F◦) = 0
+and
+Q′
+2(x) = −δ −μ
+λ
++ δCs
+λx ≤δCs −(δ −μ)F◦
+λF◦
+< 0
+for all x ≥F◦.
+It follows that the right-hand side of (5.26) (resp., (5.27)) is negative for all y ≥0 (resp.,
+x ≥F◦), and (5.24) has been established.
+We have established the ﬁrst identity in (5.16) in Proposition 3.5(I). To derive the second
+one, we consider any strategy ξs ∈As
+∞,y. Arguing in the same way as in the proof of Proposi-
+tion 4.1 up to (4.11)–(4.12) and using the positivity of w instead of the lower bound in (4.6),
+we can show that
+
+[0,T]
+e−δt [Xt ◦s dξs
+t −Cs dξs
+t] ≤w(x, y) + MT ,
+(5.28)
+where
+(5.29)
+MT = σ
+ T
+0
+e−δtXtwx(Xt, Yt) dWt.
+This result and (3.16) in Remark 2 imply that the random variable inft∈[0,T] Mt is integrable
+for all T > 0. Therefore, the stochastic integral M is a supermartingale. In light of this
+observation, we can take expectations in (5.28) to obtain
+I∞,x,y(ξs, 0) = lim sup
+T→∞
+JT,x,y(ξs, 0) = lim sup
+T→∞
+E
+
+[0,T]
+e−δt [Xt ◦s dξs
+t −Cs dξs
+t]
+
+≤w(x, y).
+It follows that v(x, y) ≤w(x, y) because ξs ∈As
+∞,y has been arbitrary.
+To prove the reverse inequality and establish the optimality claims associated with (ξs⋆, 0),
+where ξs⋆is given by (5.17), we ﬁrst note that apart from a jump of size min{y, 1
+λ(ln x
+F◦)+} =
+min
+
+y, (Y(x))+
+at time 0, the process (ln x + B −λξs⋆, Y ⋆−ξs⋆) is reﬂecting in the line
+x = ln F◦in the direction deﬁned by the vector (−λ, −1). In particular,
+ln x + Bt −λξs⋆
+t ≤ln F◦
+and
+ξs⋆
+t −ξs⋆
+0 =
+
+]0,t[
+1{ln x+Bt−λξs⋆
+t =ln F◦} dξs⋆
+s
+for all t ≤τ ∗,
+where τ ∗= inf{t ≥0 | ξs⋆
+t
+= y}. In view of this observation and (2.7), if we denote by X⋆
+and Y ⋆the price process and the remaining amount of shares process associated with (ξs⋆, 0),
+then
+(X⋆
+t , Y ⋆) ∈W
+and
+ξs⋆
+t+ =
+
+[0,t]
+1{(X⋆
+t ,Y ⋆
+t )∈S} dξs⋆
+s
+for all t ≥0,
+where the waiting region W and the selling region S are given by (5.4) and (5.5). Also, we can
+check that the strategy (ξs⋆, 0) is admissible provided limT→∞Y ⋆
+T = 0. In view of (5.17)–(5.18),
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 25 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+304
+XIN GUO AND MIHAIL ZERVOS
+we can see that this is indeed the case if and only if μ −1
+2σ2 ≥0 because a Brownian motion
+with strictly negative drift has a supremum over time that is an exponentially distributed
+random variable.
+In the same way as in the proof of Proposition 4.1, we now see that
+(5.30)
+
+[0,T]
+e−δt [X⋆
+t ◦s dξs⋆
+t −Cs dξs⋆
+t ] + e−δT w(X⋆
+T+, Y ⋆
+T+) = w(x, y) + M⋆
+T ,
+where the local martingale M⋆is deﬁned as in (5.29). In view of this identity, (3.16), and the
+inequality
+(5.31)
+0 ≤w(X⋆
+t , Y ⋆) ≤
+1
+λn2
+	n −1
+nCs
+
+n−1
+F n
+◦,
+which follows from (5.12) and the deﬁnition (5.15) of w, we can see that the random variable
+supt∈[0,T] Mt is integrable for all T > 0. Therefore, M⋆is a submartingale, and we can take
+expectations in (5.30) to obtain
+JT,x,y(ξs⋆, 0) = E
+
+[0,T]
+e−δt [X⋆
+t ◦s dξs⋆
+t −Cs dξs⋆
+t ]
+
+≥w(x, y) −E
+
+e−δT w(X⋆
+T+, Y ⋆
+T+)
+
+.
+(5.32)
+These identities and (5.31) imply that
+I∞,x,y(ξs⋆, 0) = lim sup
+T→∞
+JT,x,y(ξs⋆, 0) ≥w(T, x, y).
+Combining this result with the inequality v(x, y) ≤w(x, y) that we have established above, we
+derive (5.16) as well as the optimality of (ξs⋆, 0), which is admissible if and only if μ−1
+2σ2 ≥0.
+If μ −1
+2σ2 < 0, then we can use (5.32) to check that the strategy (ξs⋆j, 0) given by (5.19)
+has payoﬀ
+I∞,x,y(ξs⋆j, 0) = lim sup
+T→∞
+JT,x,y(ξs⋆j, 0)
+= E
+
+[0,j]
+e−δt [X⋆
+t ◦s dξs⋆
+t −Cs dξs⋆
+t ]
+
++ 1
+λE
+
+X⋆
+j
+
+1 −e−λ(y−Y ⋆
+j )
+≥w(x, y) −E
+
+e−δjw(X⋆
+j+, Y ⋆
+j+)
+
+.
+The inequality v(x, y) ≤w(x, y) and the fact that the right-hand side of this expression
+converges to w(x, y) as j →∞imply (5.16) and establish that (ξs⋆j, 0) is a sequence of
+ε-optimal strategies.
+Acknowledgments. We thank the three anonymous referees for their constructive com-
+ments. We are also grateful to the associate editor, who handled the paper for numerous
+detailed comments and suggestions that enhanced the motivation and the presentation of the
+model we study.
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 26 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+OPTIMAL EXECUTION WITH MULTIPLICATIVE PRICE IMPACT
+305
+REFERENCES
+[1] A. Alfonsi, A. Fruth, and A. Schied, Constrained portfolio liquidation in a limit order book model, in
+Advances in Mathematics of Finance, Banach Center Publ. 83, Polish Academy of Sciences, Warsaw,
+2008, pp. 9–25.
+[2] A. Alfonsi, A. Fruth, and A. Schied, Optimal execution strategies in limit order books with general
+shape functions, Quant. Finance, 10 (2010), pp. 143–157.
+[3] A. Alfonsi, A. Schied, and A. Slynko, Order book resilience, price manipulation, and the positive
+portfolio problem, SIAM J. Financial Math., 3 (2012), pp. 511–533.
+[4] R. Almgren, Optimal execution with nonlinear impact function and trading enhanced risk, Appl. Math.
+Finance, 10 (2003), pp. 1–18.
+[5] R. Almgren and N. Chriss, Value under liquidation, Risk, 12 (1999), pp. 61–63.
+[6] R. Almgren and N. Chriss, Optimal execution of portfolio transactions, J. Risk, 3 (2000), pp. 5–39.
+[7] R. Almgren and J. Lorenz, Adaptive arrival price, Institutional Investor Journals, 1 (2007), pp. 59–66.
+[8] D. Bertsimas and A. W. Lo, Optimal control of execution costs, J. Financ. Market, 1 (1998), pp. 1–50.
+[9] D. Bertsimas, A. W. Lo, and P. Hummel, Optimal control of execution costs for portfolios, Comput.
+Sci. Eng., 1 (1999), pp. 40–53.
+[10] R. Cont and A. de Larrard, Order Book Dynamics in Liquid Markets: Limit Theorem and Diﬀusion
+Approximations, http://ssrn.com/abstract=1757861 (February 1, 2012).
+[11] M. Dai and F. Yi, Finite horizon optimal investment with transaction costs: A parabolic double obstacle
+problem, J. Diﬀerential Equations, 246 (2009), pp. 1445–1469.
+[12] M. H. A. Davis and A. R. Norman, Portfolio selection with transaction costs, Math. Oper. Res., 15
+(1990), pp. 676–713.
+[13] R. Engle and R. Ferstenberg, Execution risk, J. Portfolio Manage., 33 (2007), pp. 34–44.
+[14] P. A. Forsyth, J. S. Kennedy, S. T. Tse, and H. Windcliff, Optimal trade execution: A mean-
+quadratic-variation approach, J. Econom. Dynam. Control, 36 (2011), pp. 1971–1991.
+[15] P. A. Forsyth, J. S. Kennedy, S. T. Tse, and H. Windcliff, Comparison between the mean-variance
+optimal and the mean-quadratic-variation optimal trading strategies, Appl. Math. Finance, 20 (2013),
+pp. 415–449.
+[16] J. Gatheral, No-dynamic-arbitrage and market impact, Quant. Finance, 10 (2010), pp. 749–759.
+[17] J. Gatheral and A. Schied, Optimal trade execution under geometric Brownian motion in the Almgren
+and Chriss framework, Int. J. Theor. Appl. Finance, 14 (2011), pp. 353–368.
+[18] J. Gatheral and A. Schied, Dynamical models of market impact and algorithms for order execution,
+in Handbook on Systemic Risk, Cambridge University Press, Cambridge, UK, 2013, pp. 579–599.
+[19] J. Gatheral, A. Schied, and A. Slynko, Transient linear price impact and Fredholm integral equations,
+Math. Finance, 22 (2012), pp. 445–474.
+[20] H. He and H. Mamaysky, Dynamic trading with price impact, J. Econom. Dynam. Control, 29 (2005),
+pp. 891–930.
+[21] G. Huberman and W. Stanzl, Price manipulation and quasi-arbitrage, Econometrica, 72 (2004),
+pp. 1247–1275.
+[22] O. Lebedeva, E. Maug, and C. Schneider, Trading Strategies of Corporate Insiders, http://ssrn.com/
+abstract=2118110 (January 16, 2015).
+[23] A. Løkka, Optimal liquidation in a limit order book for a risk-averse investor, Math. Finance, 24 (2014),
+pp. 696–727.
+[24] C. Moallemi, B. Park, and B. Van Roy, The Execution Game, Columbia Business School Research
+Paper Forthcoming; available from http://ssrn.com/abstract=1916298 (April 28, 2008).
+[25] A. Obizhaeva and J. Wang, Optimal trading strategy and supply/demand dynamics, J. Financ. Market,
+16 (2013), pp. 1–32.
+[26] D. Ocone and A. Weerasinghe, Degenerate variance control of a one-dimensional diﬀusion, SIAM J.
+Control Optim., 39 (2000), pp. 1–24.
+[27] S. Predoiu, G. Shaikhet, and S. Shreve, Optimal execution in a general one-sided limit-order book,
+SIAM J. Financial Math., 2 (2011), pp. 183–212.
+[28] A. Schied and T. Sch¨oneborn, Liquidation in the Face of Adversity: Stealth vs. Sunshine Trading, EFA
+2008 Athens Meetings Paper; available from http://ssrn.com/abstract=1007014 (March 18, 2009).
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php
+
+
+===== PAGE 27 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Copyright © by SIAM. Unauthorized reproduction of this article is prohibited. 
+306
+XIN GUO AND MIHAIL ZERVOS
+[29] A. Schied and T. Sch¨oneborn, Risk aversion and the dynamics of optimal liquidation strategies in
+illiquid markets, Finance Stoch., 13 (2009), pp. 181–204.
+[30] A. Schied, T. Sch¨oneborn, and M. Tehranchi, Optimal basket liquidation for CARA investors is
+deterministic, Appl. Math. Finance, 17 (2010), pp. 471–489.
+[31] S. Shreve and H. M. Soner, Optimal investment and consumption with transaction costs, Ann. Appl.
+Probab., 4 (1994), pp. 609–692.
+[32] H. M. Soner and S. E. Shreve, Regularity of the value function for a two-dimensional singular stochas-
+tic control problem, SIAM J. Control Optim., 27 (1989), pp. 876–907.
+[33] H. Zhu, Generalized solution in singular stochastic control: The nondegenerate problem, Appl. Math.
+Optim., 25 (1992), pp. 225–245.
+Downloaded 02/18/16 to 158.143.197.58. Redistribution subject to SIAM license or copyright; see http://www.siam.org/journals/ojsa.php

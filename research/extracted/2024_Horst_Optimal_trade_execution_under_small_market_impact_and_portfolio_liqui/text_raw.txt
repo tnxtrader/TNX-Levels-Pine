@@ -1,0 +1,5267 @@
+
+
+===== PAGE 1 =====
+Horst, Ulrich; Kivman, Evgueni
+Article  —  Published Version
+Optimal trade execution under small market impact and
+portfolio liquidation with semimartingale strategies
+Finance and Stochastics
+Provided in Cooperation with:
+Springer Nature
+Suggested Citation: Horst, Ulrich; Kivman, Evgueni (2024) : Optimal trade execution under small
+market impact and portfolio liquidation with semimartingale strategies, Finance and Stochastics,
+ISSN 1432-1122, Springer, Berlin, Heidelberg, Vol. 28, Iss. 3, pp. 759-812,
+https://doi.org/10.1007/s00780-024-00536-2
+This Version is available at:
+https://hdl.handle.net/10419/315063
+Standard-Nutzungsbedingungen:
+Die Dokumente auf EconStor dürfen zu eigenen wissenschaftlichen
+Zwecken und zum Privatgebrauch gespeichert und kopiert werden.
+Sie dürfen die Dokumente nicht für öffentliche oder kommerzielle
+Zwecke vervielfältigen, öffentlich ausstellen, öffentlich zugänglich
+machen, vertreiben oder anderweitig nutzen.
+Sofern die Verfasser die Dokumente unter Open-Content-Lizenzen
+(insbesondere CC-Lizenzen) zur Verfügung gestellt haben sollten,
+gelten abweichend von diesen Nutzungsbedingungen die in der dort
+genannten Lizenz gewährten Nutzungsrechte.
+Terms of use:
+Documents in EconStor may be saved and copied for your personal
+and scholarly purposes.
+You are not to copy documents for public or commercial purposes, to
+exhibit the documents publicly, to make them publicly available on the
+internet, or to distribute or otherwise use the documents in public.
+If the documents have been made available under an Open Content
+Licence (especially Creative Commons Licences), you may exercise
+further usage rights as specified in the indicated licence.
+  http://creativecommons.org/licenses/by/4.0/
+
+
+===== PAGE 2 =====
+Finance and Stochastics (2024) 28:759–812
+https://doi.org/10.1007/s00780-024-00536-2
+Optimal trade execution under small market impact and
+portfolio liquidation with semimartingale strategies
+Ulrich Horst1 ·Evgueni Kivman1
+Received: 6 June 2022 / Accepted: 5 July 2023 / Published online: 14 June 2024
+© The Author(s) 2024
+Abstract
+We consider an optimal liquidation problem with instantaneous price impact and
+stochastic resilience for small instantaneous impact factors. Within our modelling
+framework, the optimal portfolio process converges to the solution of an optimal liq-
+uidation problem with general semimartingale controls when the instantaneous im-
+pact factor converges to zero. Our results provide a uniﬁed framework within which
+to embed the two most commonly used modelling frameworks in the liquidation lit-
+erature and provide a foundation for the use of semimartingale liquidation strategies
+and the use of portfolio processes of unbounded variation. Our convergence results
+are based on novel convergence results for BSDEs with singular terminal conditions
+and novel representation results of BSDEs in terms of uniformly continuous functions
+of forward processes.
+Keywords Portfolio liquidation · Singular BSDE · Stochastic liquidity · Singular
+control
+Mathematics Subject Classiﬁcation 93E20 · 91B70 · 60H30
+JEL Classiﬁcation G11 · G12 · G19
+1 Introduction
+The impact of limited liquidity on optimal trade execution has been extensively ana-
+lysed in the mathematical ﬁnance and stochastic control literature in recent years.
+The majority of the optimal portfolio liquidation literature allows one of two possible
+price impacts. The ﬁrst approach, pioneered by Bertsimas and Lo [6] and Almgren
+ U. Horst
+horst@math.hu-berlin.de
+E. Kivman
+kivmanev@hu-berlin.de
+1
+Department of Mathematics, Humboldt-Universität zu Berlin, Unter den Linden 6, 10099
+Berlin, Germany
+
+
+===== PAGE 3 =====
+760
+U. Horst, E. Kivman
+and Chriss [3], divides the price impact into a purely temporary effect, which depends
+only on the present trading rate and does not inﬂuence future prices, and a permanent
+effect, which inﬂuences the price depending only on the total volume that has been
+traded in the past. The temporary impact is typically assumed to be linear in the trad-
+ing rate, leading to a quadratic term in the cost functional. The original modelling
+framework has been extended in various directions, including general stochastic set-
+tings with and without model uncertainty and multi-player and mean-ﬁeld-type mod-
+els by many authors, including Ankirchner et al. [4], Cartea et al. [9], Fu et al. [14],
+Gatheral and Schied [17], Graewe et al. [19], Horst et al. [23], Kruse and Popier [24]
+and Neuman and Voß [29].
+A second approach, initiated by Obizhaeva and Wang [30], assumes that price im-
+pact is not permanent but transient, with the impact of past trades on current prices de-
+caying over time. When impact is transient, one often allows both absolutely contin-
+uous and singular trading strategies. When singular controls are admissible, optimal
+liquidation strategies usually comprise large block trades at the initial and terminal
+time. The work of Obizhaeva and Wang has been extended by Alfonsi et al. [2], Chen
+et al. [11], Fruth et al. [13], Gatheral [16], Guéant [20], Horst and Naujokat [21],
+Lokka and Xu [27] and Predoiu et al. [31], among many others.
+Single- and multi-asset liquidation problems with instantaneous and transient mar-
+ket impact and stochastic resilience where trading is conﬁned to absolutely continu-
+ous strategies have been analysed in Graewe and Horst [18] and Horst and Xia [22],
+respectively. This is consistent with the empirical work of Large [25] and Lo and
+Hall [26], which suggests that this resilience does indeed vary stochastically. Al-
+though only absolutely continuous trading strategies were admissible in [18, 22],
+numerical simulations reported in [18] suggest that if all model parameters are de-
+terministic constants, then the optimal portfolio process converges to the solution
+in [30] with two block trades and a constant trading rate as the instantaneous impact
+parameter converges to zero. Cartea and Jaimungal [10] provide empirical evidence
+that the instantaneous price impact is indeed (much) smaller than permanent (or tran-
+sient) price impact. The numerical simulations in [18] suggest that the model in [18]
+provides a common framework within which to embed the two most commonly used
+liquidation models [3, 30] as limiting cases.
+This paper provides a rigorous convergence analysis within a Markovian factor
+model. It turns out that the stochastic setting is quite different from the deterministic
+one. Most importantly, we show that in the stochastic setting, the optimal portfolio
+processes obtained in [18] converge in the Skorohod M2-topology to a process of in-
+ﬁnite variation with jumps as the instantaneous market impact parameter converges
+to zero. Our second main result is to prove that the limiting portfolio process is opti-
+mal in a liquidation model with semimartingale execution strategies and to explicitly
+compute the optimal trading cost in the semimartingale execution framework.
+Showing that the limiting model solves a liquidation model with semimartingale
+execution strategies is more than a mere byproduct. Control problems with semi-
+martingale strategies are usually difﬁcult to solve because there are no canonical can-
+didates for the value function and/or optimal strategies. We show that the solution
+in the limiting model is fully determined by the unique bounded solution to a one-
+dimensional quadratic BSDE. Our limit result provides a novel approach to solving
+
+
+===== PAGE 4 =====
+Optimal trade execution under small market impact
+761
+control problems with semimartingale strategies that complements the approaches in
+Ackermann et al. [1] and Lorenz and Schied [15]. They solved related models by
+passing to a continuous-time limit from a sequence of discrete-time models.
+Within a portfolio liquidation framework, inventory processes with inﬁnite varia-
+tion were ﬁrst considered by Lorenz and Schied [28] to the best of our knowledge.
+Later, Becherer et al. [5] considered a trading framework with generalised price im-
+pact and proved that the cost functional depends continuously on the trading strat-
+egy, considered in several topologies. Bouchard et al. [7] considered inﬁnite-variation
+inventory processes in the context of hedging.
+The paper closest to ours is the recent work by Ackermann et al. [1]. They con-
+sidered a liquidation model with general RCLL semimartingale trading strategies.
+Their framework is more general than ours as they allow more general ﬁltrations
+and stochastic order book depth. At the same time, their analysis is conﬁned to risk-
+neutral traders. In our setting, when the model parameters are deterministic and the
+instantaneous price impact goes to zero, the case of risk-neutral traders – which is
+then a special case of the model studied in [1] – is explicitly solvable. Allowing for
+risk aversion renders the impact model signiﬁcantly more complicated as it adds a
+quadratic dependence of the integrated trading rate into the HJB equation; cf. [18]
+for details.
+Our work also complements the work of Gârleanu and Pedersen [15]. They con-
+sider an array of market impact models, including a model with purely transient
+costs. They write [15, beginning of Sect. 1.3] that “with purely persistent price-impact
+costs, the optimal portfolio policy can have jumps and inﬁnite quadratic variation.”
+As in [1], they justify portfolio holdings with inﬁnite quadratic variation by taking a
+limit of a sequence of discrete-time models with increasing trading frequency. They
+also prove that the optimal portfolio processes in the discrete-time models converge
+to the optimal portfolio process in the corresponding continuous-time model if either
+the instantaneous price impact converges to a positive constant or the instantaneous
+price impact factor multiplied by the (increasing) trading frequency converges to zero.
+However, they do not consider the general case of an instantaneous price impact fac-
+tor converging to zero. Most importantly, they consider a portfolio choice problem on
+an inﬁnite time horizon, which avoids the liquidation constraint at the terminal time.
+Last but not least, our work complements the work of Carmona and Webster [8],
+who provide strong evidence that inventories of large traders often do have indeed
+a nontrivial quadratic-variation component. For instance, for the Blackberry stock,
+they analyse the inventories of “the three most active Blackberry traders” on a partic-
+ular day, namely CIBC World Markets Inc., Royal Bank of Canada Capital Markets
+and TD Securities Inc. From their data, they “suspect that RBC (resp. TD Securi-
+ties) were trading to acquire a long (resp. short) position in Blackberry” and found
+that the corresponding inventory processes were of inﬁnite variation. More gener-
+ally, they ﬁnd that systematic tests “on different days and other actively traded stocks
+give systematic rejections of this null hypothesis [quadratic variation of inventory
+being zero], with a p-value never greater than 10−5”. Our results suggest that inven-
+tories with nontrivial quadratic variation arise naturally when market depth is high
+and resilience and/or market risk ﬂuctuates stochastically. This is very intuitive; in
+deep markets, it is comparably cheap to frequently adjust portfolios to stochastically
+varying market environments.
+
+
+===== PAGE 5 =====
+762
+U. Horst, E. Kivman
+The main technical challenge in establishing our convergence results is that the
+solution to the limiting model cannot be obtained by taking the limit of the three-
+dimensional quadratic BSDE system that characterises the solution in the model with
+positive instantaneous impact. Instead, we prove that the limit is fully characterised
+by the solution to a one-dimensional quadratic BSDE. Remarkably, this BSDE is in-
+dependent of the liquidation requirement. As a result, full liquidation takes place if
+the instantaneous impact parameter converges to zero even if full liquidation is not
+strictly required. The reason is a loss in book value of the remaining shares that out-
+weighs the liquidation cost for small instantaneous impact. Our convergence result is
+based on a novel representation result for solutions to BSDEs driven by Itô processes
+in terms of uniformly continuous functions of the forward process and on a series of
+novel convergence results for sequences of singular stochastic integral equations and
+random ODEs, which we choose to report in an abstract setting in Appendix A and B,
+respectively.
+The limiting portfolio process is optimal in a liquidation model with general semi-
+martingale execution strategies. Within our modelling framework where the cost co-
+efﬁcients are driven by continuous factor processes, block trades optimally occur
+only at the beginning and the end of the trading period. This is very intuitive as one
+would expect large block trades to require some form of trigger such as an external
+shock leading to a discontinuous change of cost coefﬁcients. The proof of optimality
+proceeds in three steps. We ﬁrst prove that the jump part of the limiting portfolio
+process can be approximated by absolutely continuous processes. This allows us to
+approximate the trading costs in the semimartingale model by trading costs in the
+pre-limit models from which we ﬁnally deduce the optimality of the limiting process
+in the semimartingale model by using the optimality of the approximating inventory
+processes in the pre-limit models. As a byproduct of our approximation, we also ob-
+tain that the optimal costs are given in terms of the aforementioned one-dimensional
+quadratic BSDE.
+The rest of the paper is organised as follows. In Sect. 2, we recall the modelling
+setup from [18, 22] and summarise our main results. The proofs are given in Sects. 3
+and 4. A series of fairly abstract convergence results for various stochastic equations
+with singularities upon which our convergence results are based is postponed to two
+appendices.
+Notation. Throughout, randomness is described by an Rm-valued Brownian mo-
+tion (Wt)t∈[0,T ] deﬁned on (, F, (Ft)t∈[0,T ], P), a complete probability space,
+where (Ft)t∈[0,T ] denotes the ﬁltration generated by W, augmented by the P-nullsets.
+Unless otherwise speciﬁed, all equations and inequalities hold in the P-a.s. sense. For
+a subset A ⊆Rd, we denote by L2
+Prog( × [0, T ]; A) the set of all progressively
+measurable A-valued stochastic processes (Xt)t∈[0,T ] such that E[
+ T
+0 |Xt|2 dt] < ∞,
+while L∞
+Prog( × [0, T ]; A) denotes the subset of essentially bounded processes. By
+L2
+P( × [0, T ]; A) and L∞
+P ( × [0, T ]; A), we denote the respective subsets of pre-
+dictable processes. Whenever T −appears, we mean that there exists an ε > 0 such
+that a statement holds for all T ′ ∈(T −ε, T ).
+
+
+===== PAGE 6 =====
+Optimal trade execution under small market impact
+763
+2 Problem formulation and main results
+In this section, we introduce two portfolio liquidation models with stochastic mar-
+ket impact. In the ﬁrst model, analysed in Sect. 2.1, the investor is conﬁned to ab-
+solutely continuous trading strategies. For small instantaneous market impact, we
+prove that the optimal liquidation strategy converges to a semimartingale with jumps.
+In Sect. 2.2, we therefore analyse a liquidation model with semimartingale trading
+strategies. We prove that the limiting process obtained in Sect. 2.1 is optimal in a
+model where semimartingale strategies that satisfy a suitable regularity condition are
+admissible.
+2.1 Portfolio liquidation with absolutely continuous strategies
+We take the liquidation model analysed in Graewe and Horst [18] and Horst and
+Xia [22] as our starting point and consider an investor that needs to close, within a
+given time interval [0, T ], a (single-asset) portfolio of x0 > 0 shares using a trading
+strategy ξ = (ξt)t∈[0,T ]. If ξt < 0, the investor is selling the asset at a rate ξt at
+time t ∈[0, T ]; otherwise she is buying it. For a given strategy ξ, the corresponding
+portfolio process Xξ = (Xξ
+t )t∈[0,T ] satisﬁes the ODE
+dXξ
+t = ξt dt,
+Xξ
+0 = x0.
+The set of admissible strategies is given by
+A := L2
+Prog( × [0, T ]; R).
+For a general inventory process X ∈L2
+P( × [0, T ]; R), the corresponding transient
+price impact is described by the unique stochastic process Y X = (Y X
+t )t∈[0,T ] that
+satisﬁes the ODE
+dY X
+t
+= γ dXt −ρtY X
+t dt,
+Y X
+0 = 0,
+(2.1)
+for some constant γ > 0 and some essentially bounded, progressively measurable,
+(0, ∞)-valued process ρ = (ρt)t∈[0,T ]. The process Y X may be viewed as describing
+an additional shift in the unaffected benchmark price process generated by the large
+investor’s trading activity. For ξ ∈A, we write Y ξ := Y Xξ .
+For any instantaneous impact factor η > 0 and any penalisation factor
+N ∈N = N(η) := [N(η), ∞],
+where
+N(η) := γ + 1 +
+
+2η max(∥λ∥L∞, γ ∥ρ∥L∞),
+
+
+===== PAGE 7 =====
+764
+U. Horst, E. Kivman
+the cost functional is given by
+J η,N(ξ) = E
+η
+2
+ T
+0
+(ξt)2 dt +
+ T
+0
+Y ξ
+t dXξ
+t + 1
+2
+ T
+0
+λt(Xξ
+t )2 dt
++ N
+2 (Xξ
+T )2 −Xξ
+T Y ξ
+T
+
+.
+The ﬁrst term in J η,N(ξ) captures the instantaneous trading costs, the second the
+costs from a transient price impact, and the third captures market risk, where the
+adapted and nonnegative process λ = (λt)t∈[0,T ] speciﬁes the degree of risk. If
+N = ∞, the fourth term should formally be read as +∞1{Xξ
+T̸ =0} with the conven-
+tion 0 · ∞= 0. This captures the case where full liquidation is required; this case
+is analysed in [18]. The case γ + 1 ≤N < ∞is analysed in [22]. The ﬁfth term
+captures an additional loss in the book value of the remaining shares. It drops out of
+the cost function if N = ∞; see [18, 22] for further details on the impact costs and
+cost coefﬁcients.
+It has been shown in [18, 22] that the optimisation problem
+min
+ξ∈A J η,N(ξ)
+(2.2)
+has a solution ˆξη,N for any N ∈N and any η > 0. The solution is given in terms
+of a backward SDE system with possibly singular terminal condition. We index the
+optimal trading strategies and state processes by η and N as we are interested in their
+behaviour for small instantaneous impact factors for both ﬁnite and inﬁnite N.
+The next theorem follows directly from [18, Theorems 2.5 and 2.6] and [22,
+Theorem 2.1].
+Theorem 2.1 With the above assumptions, for all η ∈(0, ∞) and N ∈N, the
+following hold:
+i) The BSDE system
+−dAη,N
+t
+=
+
+λt −1
+η(Aη,N
+t
+−γ Bη,N
+t
+)2
+
+dt −Zη,N,A
+t
+dWt,
+−dBη,N
+t
+=
+
+−ρtBη,N
+t
++ 1
+η(γ Cη,N
+t
+−Bη,N
+t
++ 1)(Aη,N
+t
+−γ Bη,N
+t
+)
+
+dt
+−Zη,N,B
+t
+dWt,
+−dCη,N
+t
+=
+
+−2ρtCη,N
+t
+−1
+η(γ Cη,N
+t
+−Bη,N
+t
++ 1)2
+
+dt −Zη,N,C
+t
+dWt
+with terminal condition
+Bη,N
+T
+= 1,
+Cη,N
+T
+= 0,
+
+
+===== PAGE 8 =====
+Optimal trade execution under small market impact
+765
+together with Aη,N
+T
+= N for N < ∞and limt↗T Aη,∞
+t
+= ∞in L∞if N = ∞, has
+a solution
+	
+(Aη,N, Bη,N, Cη,N), (Zη,N,A, Zη,N,B, Zη,N,C)
+
+that belongs to the space L∞
+P ( × [0, T ]; R3) × L2
+Prog( × [0, T ]; R3×m) if N < ∞
+and to the space L∞
+P ( × [0, T −]; R3) × L2
+Prog( × [0, T −]; R3×m) if N = ∞.
+ii) The liquidation problem (2.2) has a solution ˆξη,N. The corresponding state
+process
+( ˆXη,N, ˆY η,N) := (Xˆξη,N , Y ˆξη,N )
+is given by the (unique) solution to the ODE system
+∂t ˆXη,N
+t
+= −1
+√ηDη,N
+t
+ˆXη,N
+t
+−1
+√ηEη,N
+t
+ˆY η,N
+t
+,
+∂t ˆY η,N
+t
+= −γ
+√ηDη,N
+t
+ˆXη,N
+t
+−γ
+√ηEη,N
+t
+ˆY η,N
+t
+−ρt ˆY η,N
+t
+(2.3)
+with initial conditions ˆXη,N
+0
+= x0 and ˆY η,N
+0
+= 0, where
+Dη,N :=
+1
+√η(Aη,N −γ Bη,N),
+Eη,N :=
+1
+√η(γ Cη,N −Bη,N + 1).
+Let us now deﬁne the process
+ˆZη,N := γ ˆXη,N −ˆY η,N.
+The beneﬁt of deﬁning this process is that in the ODE (2.3), the terms that are mul-
+tiplied by
+
+η−1 drop out so that we expect that the process ˆZη,N remains stable for
+small values of η. Next, we state a result on the optimal state process and the previ-
+ously introduced process ˆZη,N that will be important for our subsequent analysis. In
+particular, we show that the optimal portfolio process ˆXη,N never changes its sign.
+The proof is given in Sect. 3.1.1.
+Theorem 2.2 For all η ∈(0, ∞), N ∈N, the process ˆZη,N is nonincreasing on
+[0, T ]. Moreover,
+P[ ˆXη,N
+t
+∈(0, x0), ˆY η,N
+t
+∈(−γ x0, 0), ˆZη,N
+t
+∈(0, γ x0) for all t ∈(0, T )] = 1.
+We are interested in the dynamics of the optimal portfolio processes for small
+instantaneous price impact. We address this problem within a factor model where the
+cost coefﬁcients λ and ρ are driven by an Itô diffusion, which is given by the unique
+strong solution to the SDE
+dχt = μ(t, χt) dt + σ(t, χt) dWt,
+χ0 = χ0
+
+
+===== PAGE 9 =====
+766
+U. Horst, E. Kivman
+on [0, T ] with χ0 ∈Rn. We assume throughout that the function
+(μ, σ): [0, T ] × Rn →Rn × Rn×m
+is bounded, measurable and uniformly Lipschitz-continuous in the space variable, i.e.,
+|(μ, σ)(t, x1) −(μ, σ)(t, x2)| ≤c|x1 −x2|.
+Assumption 2.3 The processes ρ and λ are of the form
+(ρt, λt) = f (t, χt)
+for some bounded C1,2 function f = (f ρ, f λ): [0, T ] × Rn →[0, ∞)2 with
+bounded derivatives. Moreover, the function f ρ is bounded away from zero.
+For convenience, we deﬁne the stochastic process ϕ = (ϕt)t∈[0,T ] by
+ϕt :=
+
+λt + 2γρt
+and choose constants ρ, ρ, ϕ, ϕ, λ ∈(0, ∞) such that
+ρ ≤ρ ≤ρ,
+0 ≤λ ≤λ,
+ϕ ≤ϕ ≤ϕ.
+In what follows, we heuristically argue that the processes ˆXη,N converge to a limit
+process ˆX0 (independent of N) as η →0 and identify the limit ˆX0. Since the ODE
+system (2.3) is not deﬁned for η = 0, we cannot deﬁne the limiting process as the
+solution to this system. Instead, we ﬁrst identify the limits of the coefﬁcients of the
+ODE system and then derive candidate limits for the state processes in terms of the
+limiting coefﬁcients.
+2.1.1 Convergence of the coeﬃcient processes
+In this section, we state the convergence results for the coefﬁcient processes Dη,N
+and Eη,N of the ODE system (2.3) as η →0. In particular, we prove that their limits
+D0 and E0 exist and are driven by a common factor, which is given by the solution
+of a quadratic BSDE.
+Before proceeding to the limit result, we provide some heuristics for the conver-
+gence. Assuming for simplicity that all coefﬁcients are deterministic, the dynamics
+of the coefﬁcient processes satisfy
+√η ˙Dη,N
+t
+= (Dη,N
+t
+)2 −λt −γ ˙Bη,N
+t
+,
+√η ˙Eη,N
+t
+= 2√ηρtEη,N
+t
++ γ (Eη,N
+t
+)2 −2ρt(1 −Bη,N
+t
+) −˙Bη,N
+t
+.
+Letting η →0, we expect that
+0 = (D0
+t )2 −λt −γ ˙B0
+t ,
+0 = γ (E0
+t )2 −2ρt(1 −B0
+t ) −˙B0
+t ,
+
+
+===== PAGE 10 =====
+Optimal trade execution under small market impact
+767
+that is, we expect that
+D0
+t =
+
+γ ˙B0
+t + λt,
+E0
+t =
+
+γ −1	 ˙B0
+t + 2ρt(1 −B0
+t )
+
+.
+(2.4)
+Moreover, by the choice of the coefﬁcients Dη,N and Eη,N and by the BSDE in
+Theorem 2.1 i), we expect that in the limit,
+−˙B0
+t = −ρtB0
+t + D0
+t E0
+t .
+(2.5)
+The three equalities combined yield
+(D0
+t + γ E0
+t )2 = γ ˙B0
+t + λt + 2γ D0
+t E0
+t + γ
+	 ˙B0
+t + 2ρt(1 −B0
+t )
+
+= (ϕt)2 + 2γ ( ˙B0
+t + D0
+t E0
+t −ρtB0
+t )
+= (ϕt)2.
+(2.6)
+Plugging (2.5) and (2.6) back into (2.4) yields
+D0
+t = (ϕt)−1(λt + γρtB0
+t ),
+E0
+t = (ϕt)−1ρt(2 −B0
+t ).
+Hence we expect D0 and E0 to be driven by B0 and B0 to satisfy the ODE
+−˙B0
+t = −ρtB0
+t + D0
+t E0
+t
+= −1
+ϕ2t
+	
+γ (ρtB0
+t )2 −2λtρt(1 −B0
+t )
+
+with terminal condition B0
+T = 1 (because Bη,N
+T
+= 1). Our heuristic also suggests that
+the limit processes are independent of the liquidation requirement.
+Example 2.4 If λ = Cρ for some constant C ≥0, then the process B0 can be
+computed explicitly. If C = 0, then B0
+t = 2/(2 +
+ T
+t ρs ds). If C > 0, then
+B0
+t = −C
+γ + 1
+γ
+
+C(C + 2γ ) coth
+
+arcoth
+
+C + γ
+√C(C + 2γ )
+
++
+
+C
+C + 2γ
+ T
+t
+ρs ds
+
+.
+The preceding heuristic suggests that the limiting coefﬁcient processes are driven
+by a solution to the BSDE corresponding to the above ODE for B0. The following
+lemma is proved in Sect. 3.1.2.
+Lemma 2.5 There exists a unique solution (B0, Z0,B) in the space
+L∞
+P
+	
+ × [0, T ]; (0, ∞)
+
+× L2
+P( × [0, T ]; Rm)
+to the BSDE
+−dB0
+t = −1
+ϕ2t
+	
+γ (ρtB0
+t )2 −2λtρt(1 −B0
+t )
+
+dt −Z0,B
+t
+dWt,
+B0
+T = 1.
+(2.7)
+
+
+===== PAGE 11 =====
+768
+U. Horst, E. Kivman
+The process B0 is bounded from above by 1 and from below by
+B0
+t := exp
+	
+−ϕ−2γ ρ2(T −t)
+
+.
+(2.8)
+Moreover, there exists a uniformly continuous function (a so-called “decoupling
+ﬁeld”) h: [0, T ] × Rn →R such that B0 and (h(t, χt))t∈[0,T ] are indistinguishable.
+We prove below that the process Bη,N converges to B0 as η →0 and that Dη,N
+and Eη,N converge to the processes
+D0
+t := (ϕt)−1(λt + γρtB0
+t ),
+E0
+t := (ϕt)−1ρt(2 −B0
+t ),
+(2.9)
+respectively. In view of Lemma 2.5, these processes are well deﬁned, and so the
+dynamics (2.7) of the process B0 can be rewritten as
+−dB0
+t = −(ρtB0
+t −D0
+t E0
+t ) dt −Z0,B
+t
+dWt,
+B0
+T = 1.
+Likewise, the BSDE for the process Bη,N in Theorem 2.1 can be rewritten as
+−dBη,N
+t
+= −(ρtBη,N
+t
+−Dη,N
+t
+Eη,N
+t
+) dt −Zη,N,B
+t
+dWt,
+Bη,N
+T
+= 1.
+(2.10)
+This suggests that the process Bη,N converges to B0 on the entire interval [0, T ], and
+this is proved below; note that all the processes B have the same terminal condition
+at time T . By contrast, convergence of the processes Dη,N and Eη,N can only be
+expected to hold on compact subintervals [0, T −ε] of [0, T ) because the terminal
+conditions of the limiting and approximating processes are different. It turns out that
+we can prove a slightly stronger result for the supremum of the processes D and E,
+and this explains the different choices of intervals for the supremum and the inﬁmum
+in the following lemma. Speciﬁcally, we have the following result. Its proof is given
+in Sect. 3.2.1.
+Proposition 2.6 Let
+bη,N := Bη,N −B0,
+dη,N := Dη,N −D0,
+eη,N := Eη,N −E0.
+Then for all ε > 0, there exists an η0 > 0 such that for all η ∈(0, η0] and for all
+N ∈N,
+P
+
+sup
+t∈[0,T )
+max(|bη,N
+t
+|, −dη,N
+t
+, eη,N
+t
+, −dη,N
+t
+−γ eη,N
+t
+) ≤ε,
+inf
+t∈[0,T −ε] min(−dη,N
+t
+, eη,N
+t
+, −dη,N
+t
+−γ eη,N
+t
+) ≥−ε
+
+= 1.
+2.1.2 Convergence of the state process
+Having derived the limits of the coefﬁcient processes, we can now heuristically derive
+the limits of the processes ˆXη,N, ˆY η,N and ˆZη,N, which we denote by ˆX0, ˆY 0 and
+ˆZ0, respectively.
+
+
+===== PAGE 12 =====
+Optimal trade execution under small market impact
+769
+Since ˆXη,∞
+T
+= 0 for all η > 0, we expect that ˆX0
+T = 0. We prove in Lemma 3.11
+that this convergence also holds if N is ﬁnite. The proof heavily relies on the
+optimality of ˆX0 in the semimartingale portfolio liquidation model.
+Assuming that the optimal trading strategy remains stable if η →0, the ODE (2.3)
+suggests that the term Dη,N ˆXη,N + Eη,N ˆY η,N is small for small η and hence that
+D0
+t ˆX0
+t = −E0
+t ˆY 0
+t
+on [0, T ).
+We do not conjecture the above relation at the terminal time because the convergence
+of Dη,N and Eη,N only holds on [0, T ). Assuming that
+ˆZ0 = γ ˆX0 −ˆY 0
+on [0, T ),
+equation (2.6) implies
+ˆZ0 = −ϕ
+D0 ˆY 0
+and hence
+ˆY 0 = −D0
+ϕ
+ˆZ0.
+On the other hand, by deﬁnition, ∂t ˆZη,N = ρ ˆY η,N. As η →0, this suggests that
+∂t ˆZ0 = ρ ˆY 0 and hence that
+∂t ˆZ0
+t = −ρtD0
+t
+ϕt
+ˆZ0,
+ˆZ0
+0 = γ x0.
+This motivates us to deﬁne the process
+ˆZ0
+t := γ x0 exp
+
+−
+ t
+0
+ρs
+ϕs
+D0
+s ds
+
+,
+t ∈[0, T ].
+Since we expect that ˆX0
+T = 0 and that ˆZ0 = γ ˆX0 −ˆY 0, we now introduce the
+candidate limiting state processes
+ˆX0
+t := 1[0,T )(t)E0
+t
+ϕt
+ˆZ0
+t ,
+ˆY 0
+t := −1[0,T )(t)D0
+t
+ϕt
+ˆZ0
+t −1{T }(t) ˆZ0
+T ,
+t ∈[0, T ].
+(2.11)
+Since ( ˆX0
+0−, ˆY 0
+0−) = (x0, 0), we expect that the limiting state process jumps at the
+initial and the terminal time. In particular, we cannot expect uniform convergence on
+[0, T ].
+We also expect the limiting state processes to be of unbounded variation, as sug-
+gested by Fig. 1. The ﬁgure also suggests that the portfolio process is more or less
+monotone for large η, while this property is lost for small η. When η →0, adjust-
+ments to small changes in market environments are cheap. This is very different from
+round-trip strategies where an investor uses the price impact caused by him/herself to
+drive market prices into a favourable direction.
+Figure 1 also suggests that the limiting portfolio process jumps only at the times
+0 and T . This is consistent with the deﬁnition of the candidate processes (2.11) as
+
+
+===== PAGE 13 =====
+770
+U. Horst, E. Kivman
+Fig. 1 Optimal trading strategies ˆXη,∞for the liquidation model for different instantaneous impact
+factors, and their limit ˆX0 for m = n = T = x0 = 1, γ = 3, ρt = 1 + 0.9 sin(2.5Wt), λ ≡1
+well as the observation in Horst and Naujokat [21], according to which jumps in the
+optimal strategy can only be triggered by exogenous shocks like jumps in the cost
+coefﬁcients, which are absent in the present model.
+It remains to clarify in which sense the state processes converge. In contrast to the
+convergence result in Proposition 2.6, we can only expect convergence in probabil-
+ity because the state process follows a forward ODE while the coefﬁcient processes
+follow backward SDEs; see also Appendix B.2. The following result establishes uni-
+form convergence in probability on compact subintervals of (0, T ) along with some
+“upper/lower convergence” at the initial and terminal time. The proof is given in
+Sect. 3.2.2.
+Theorem 2.7 For all ε > 0 and δ > 0, there exists an η0 > 0 such that for all
+η ∈(0, η0] and all N ∈N,
+P
+
+sup
+t∈[ε,T )
+max( ˆXη,N
+t
+−ˆX0
+t , ˆY η,N
+t
+−ˆY 0
+t ) ≤ε,
+inf
+t∈[0,T −ε] min( ˆXη,N
+t
+−ˆX0
+t , ˆY η,N
+t
+−ˆY 0
+t ) ≥−ε
+
+≥1 −δ.
+The preceding theorem does not provide a convergence result on the whole time
+interval, due to the jumps of the limit processes at the initial and terminal time. How-
+ever, along with our results from Sect. 2.2, it allows us to prove the convergence of
+the graphs of the state processes on the entire time interval. The completed graph of
+an RCLL function X: {0−} ∪[0, T ] →R with ﬁnitely many jumps is deﬁned by
+GX := {(t, x) ∈[0, T ] × R : x = Xt = Xt−or Xt−< Xt, x ∈[Xt−, Xt]
+or Xt−> Xt, x ∈[Xt, Xt−]}.
+
+
+===== PAGE 14 =====
+Optimal trade execution under small market impact
+771
+The Skorohod M2-distance between X and Y is deﬁned as the Hausdorff distance
+between their completed graphs, i.e.,
+dM2(X, Y) := max
+
+sup
+p∈GX
+min
+q∈GY
+|p −q|∞, sup
+q∈GY
+min
+p∈GX
+|p −q|∞
+
+∈[0, ∞],
+where
+|(s, y)|∞:= max(|s|, |y|).
+If strict liquidation is required, then Theorem 2.7 is sufﬁcient to prove convergence
+of the state processes in the Skorohod M2 sense. Even if liquidation is not required,
+it turns out that the terminal position converges to zero as η →0. Heuristically, this
+can be seen as follows.
+Let t0 ∈(0, T ). Disregarding market risk costs, which we expect to be of or-
+der O(T −t0) and hence negligible if t0 →T , and disregarding instantaneous im-
+pact costs for the moment, the cost functional for any given admissible strategy ξ is
+given by
+ T
+t0
+Y ξ
+s ξs ds −Xξ
+T Y ξ
+T + N
+2 (Xξ
+T )2
+= Y ξ
+T Xξ
+T −Y ξ
+t0Xξ
+t0 −
+ T
+t0
+˙Y ξ
+s Xξ
+s ds −Xξ
+T Y ξ
+T + N
+2 (Xξ
+T )2
+= −Y ξ
+t0Xξ
+t0 −
+ T
+t0
+γ ξsXξ
+s ds +
+ T
+t0
+ρY ξ
+s Xξ
+s ds + N
+2 (Xξ
+T )2
+= −Y ξ
+t0Xξ
+t0 −γ
+2
+	
+(Xξ
+T )2 −(Xξ
+t0)2
++
+ T
+t0
+ρY ξ
+s Xξ
+s ds + N
+2 (Xξ
+T )2
+= −Y ξ
+t0Xξ
+t0 + γ
+2 (Xξ
+t0)2 + N −γ
+2
+(Xξ
+T )2 +
+ T
+t0
+ρY ξ
+s Xξ
+s ds.
+Hence we expect the controllable costs to satisfy
+E
+N −γ
+2
+(Xξ
+T )2 +
+ T
+t0
+ρY ξ
+s Xξ
+s ds
+
+= E
+N −γ
+2
+(Xξ
+T )2
+
++ O(T −t0)
+plus instantaneous impact costs. Since N > γ , this suggests to make Xξ
+T small, which
+is cheap if η is small. More precisely, we have the following result; its proof is given
+in Sect. 3.2.3.
+Proposition 2.8 For all ε > 0 and δ > 0, there exists an η0 > 0 such that for all
+η ∈(0, η0] and all N ∈N,
+P[dM2( ˆXη,N, ˆX0) ≤ε] ≥1 −δ.
+
+
+===== PAGE 15 =====
+772
+U. Horst, E. Kivman
+2.2 Optimal liquidation with semimartingale strategies
+In this section, we prove that the limit process ˆX0 is the optimal portfolio process in
+a trade execution model with semimartingale trading strategies.
+In our semimartingale model, a trading strategy is given by a triple
+θ = (j+, j−, V ),
+where j+ and j−are real-valued, nondecreasing pure jump processes and V is with
+respect to the Brownian ﬁltration a real-valued continuous semimartingale starting
+in zero. The jump processes j+ and j−describe the cumulative effects of buying,
+respectively selling, large blocks of shares, while the continuous semimartingale V
+describes the effect of continuously trading small amounts of the stock. The portfolio
+process Xθ = (Xθ
+t )t∈[0,T ] associated with a strategy θ is then given by
+Xθ
+t = x0 + j+
+t −j−
+t + Vt.
+The associated price impact process, again given by (2.1), is denoted by Y θ. We note
+that Xθ and Y θ are semimartingales.
+We assume that strict liquidation is required and that the cost associated with a
+trading strategy θ is given by
+J 0(θ) := E
+ 
+(0,T ]
+Y θ
+s−dXθ
+s +
+ T
+0
+1
+2λs(Xθ
+s )2 ds + γ
+2 [Xθ]T
+
+.
+The ﬁrst term captures the transient price impact cost; the second captures market
+risk. The third term emerges as an additional cost term when passing from discrete to
+continuous time, as shown in Ackermann et al. [1]. Moreover, in the absence of this
+term, arbitrarily low costs can be achieved; see [1] for details.
+The cost function can be conveniently rewritten as
+J 0(θ) = E
+γ
+2 (j+
+0 −j−
+0 )2 +
+
+(0,T ]
+1
+2(Y θ
+s−+ Y θ
+s ) dXθ
+s
++
+ T
+0
+1
+2λs(Xθ
+s )2 ds + γ
+2 [V ]T
+
+.
+This representation supports our intuition that the price impact before and the price
+impact after the jump equally inﬂuence the total cost. The ﬁrst term in this expression
+captures the cost of the initial block trade at time t = 0.
+The cost functional is well deﬁned under the following admissibility condition.
+Deﬁnition 2.9 A trading strategy θ = (j+, j−, V ) is called admissible if the liq-
+uidation constraint Xθ
+T = 0 holds, if j± are RCLL, predictable, real-valued, non-
+decreasing and square-integrable pure jump processes, and if V is a continuous
+semimartingale starting in zero with
+E
+
+max
+t∈[0,T ] |Vt|2
+< ∞.
+(2.12)
+The set of all admissible trading strategies is denoted by A0.
+
+
+===== PAGE 16 =====
+Optimal trade execution under small market impact
+773
+Our goal is now to solve the optimisation problem
+min
+θ∈A0 J 0(θ).
+To this end, we verify directly that the limit process ˆX0 obtained in Sect. 2.1 is
+optimal. The results there show that the process has the representation
+ˆX0
+t = x0 −ˆj−
+t + ˆVt,
+where the jump process ˆj−and the continuous part are given by, respectively,
+ˆj−
+t
+:= x0 −ˆX0
+0 + 1{T }(t) ˆX0
+t−,
+ˆVt := (ϕt)−2ρt(2 −B0
+t ) ˆZ0
+t −(ϕ0)−2ρ0(2 −B0
+0) ˆZ0
+0.
+In view of Assumption 2.3 and because B0 is a continuous semimartingale and ˆZ0 is
+differentiable, the process ˆV is a continuous semimartingale starting in zero. Hence
+the following holds.
+Lemma 2.10 The strategy ˆθ = (0, ˆj−, ˆV ) is admissible.
+In order to prove that ˆθ is optimal, we approximate the cost and the portfolio
+process associated with any strategy θ ∈A0 by the cost and portfolio processes cor-
+responding to absolutely continuous trading strategies. To this end, we ﬁrst approxi-
+mate the continuous semimartingale part V by differentiable processes. The proof of
+the following result is given in Sect. 4.1.
+Lemma 2.11 For all θ = (j+, j−, V ) ∈A0 and all β, δ > 0, there exist a constant
+ν > 0 and an adapted and continuous ˙V β,ν :  × [0, T ] →[−β
+ν , β
+ν ] such that
+max
+t∈[0,T ]
+
+ t
+0
+˙V β,ν
+s
+ds
+ ≤max
+t∈[0,T ] |Vt|
+(2.13)
+and
+P
+
+sup
+t∈[0,T ]
+
+ t
+0
+˙V β,ν
+s
+ds −Vt
+ ≤3β
+
+≥1 −δ.
+(2.14)
+Next, we approximate the portfolio process Xθ by a portfolio process associated
+with an absolutely continuous strategy. To this end, for all θ ∈A0 and β, ν, ε > 0,
+we deﬁne the integrable process
+ξθ,β,ν,ε
+t
+:=
+⎧
+⎨
+⎩
+1
+ε(j+
+t −j+
+t−ε) −1
+ε(j−
+t −j−
+t−ε) + ˙V β,ν
+t
+,
+t ≤T −ε,
+−1
+ε(x0 +
+ T −ε
+0
+ξθ,β,ν,ε
+u
+du),
+t > T −ε.
+In view of the square-integrability of j±, we see that ξθ,β,ν,ε belongs to A. The
+corresponding portfolio process is denoted by Xθ,β,ν,ε. The proof of the following
+result is given in Sect. 4.2.
+
+
+===== PAGE 17 =====
+774
+U. Horst, E. Kivman
+Lemma 2.12 For all θ = (j+, j−, V ) ∈A0 and for all δ > 0, there exist β > 0,
+ν > 0 and ε > 0 such that
+E
+  T
+0
+(Xθ,β,ν,ε
+t
+−Xθ
+t )2 dt
+
+≤δ.
+For all ξ ∈A with
+ T
+0 ξs ds = −x0, we can deﬁne V ξ
+t :=
+ t
+0 ξs ds to obtain that
+(0, 0, V ξ) ∈A0 and for all η > 0, we have
+J η,∞(ξ) = J 0(0, 0, V ξ) + η
+2E
+  T
+0
+(ξt)2 dt
+
+.
+(2.15)
+The preceding lemma allows us to establish a cost estimate. The proof is given in
+Sect. 4.3.
+Lemma 2.13 For all C > 0, there exists a constant D(C) > 0 such that for all
+θ = (j+, j−, V ) ∈A0 with E[
+ T
+0 (Xθ
+t )2 dt] ≤C and all ξ ∈A with
+ T
+0 ξs ds = −x0,
+we have
+|J 0(θ) −J 0(0, 0, V ξ)|
+≤D(C)
+
+E
+  T
+0
+(Xθ
+t −Xξ
+t )2 dt
+
++ E
+  T
+0
+(Xθ
+t −Xξ
+t )2 dt
+
+.
+As a consequence of the previous results, the optimal instantaneous price impact
+term converges to zero as η →0. The proof is given in Sect. 4.4.
+Lemma 2.14 We have
+lim
+η→0
+η
+2E
+  T
+0
+(ˆξη,∞
+t
+)2 dt
+
+= 0.
+The cost estimate in Lemma 2.13 allows us to establish the optimality of the trad-
+ing strategy ˆθ by using the optimality of ˆξη,∞in the strict liquidation model with
+absolutely continuous strategies. It turns out that the minimal trading costs are fully
+determined by the initial value B0
+0 of the process B0 along with the impact factor γ
+and the initial portfolio.
+Theorem 2.15 It holds that
+min
+θ∈A0 J 0(θ) = J 0( ˆθ) = 1
+2γ (x0)2B0
+0.
+Proof Let us assume to the contrary that ˆθ does not minimise the cost functional J 0
+over the set A0. Then there exist a strategy θ = (j+, j−, V ) ∈A0 and a constant
+
+
+===== PAGE 18 =====
+Optimal trade execution under small market impact
+775
+δ ∈(0, ∞) such that J 0(θ) + δ ≤J 0( ˆθ). Moreover, due to (2.15) and Lemma 2.13,
+for all η, β, ν, ε ∈(0, ∞), we have (for convenience, let p(x) := x + √x)
+J η,∞(ξθ,β,ν,ε) −J η,∞(ˆξη,∞)
+≤J η,∞(ξθ,β,ν,ε) −J 0(θ) + J 0( ˆθ) −δ −J 0(0, 0, V ˆξη,∞)
+≤−δ + η
+2E
+  T
+0
+(ξθ,β,ν,ε
+t
+)2 dt
+
++ |J 0(θ) −J 0(0, 0, V ξθ,β,ν,ε)|
++ |J 0( ˆθ) −J 0(0, 0, V ˆξη,∞)|
+≤−δ + η
+2E
+  T
+0
+(ξθ,β,ν,ε
+t
+)2 dt
+
++ D
+
+E
+  T
+0
+(Xθ
+t )2 dt
+
+p
+
+E
+  T
+0
+(Xθ
+t −Xθ,β,ν,ε
+t
+)2 dt
+
++ D
+
+E
+  T
+0
+(X ˆθ
+t )2 dt
+
+p
+
+E
+  T
+0
+( ˆX0
+t −ˆXη,∞
+t
+)2 dt
+
+.
+(2.16)
+According to Lemma 2.12, we can ﬁrst choose β, ν, ε ∈(0, ∞) and then, due to
+| ˆXη,∞
+t
+| ≤x0 (cf. Theorem 2.2), choose η ∈(0, ∞) small enough according to
+Theorem 2.7 such that the right-hand side of (2.16) is negative. This contradicts the
+optimality of ˆξη,∞for J η,∞and proves the optimality of ˆθ.
+It remains to compute J 0( ˆθ). In view of (2.15), for all η ∈(0, ∞), we have
+J 0( ˆθ) = J 0( ˆθ) −J 0(0, 0, V ˆξη,∞) −η
+2E
+  T
+0
+(ξη,∞
+t
+)2 dt
+
++ J η,∞(ˆξη,∞).
+The difference of the ﬁrst two terms converges to zero as η →0, which is veriﬁed by
+using Lemma 2.13 and Theorem 2.7 as in the above calculation. The third term con-
+verges to zero by Lemma 2.14. Hence, using the representation of the value function
+given in [18],
+J 0( ˆθ) = lim
+η→0 J η,∞(ˆξη,∞) = lim
+η→0
+1
+2Aη,∞
+0
+(x0)2
+= (x0)2
+2
+lim
+η→0(√ηDη,∞
+0
++ γ Bη,∞
+0
+) = 1
+2γ (x0)2B0
+0.
+□
+Remark 2.16 If λ ≡0, our model is a special case of the model analysed in Acker-
+mann et al. [1], which also contains cases when there is no optimal trading strategy.
+However, since γ is constant in our model, the processes “μ” and “σ” introduced in
+[1] are equal to zero. This implies that the equation “ ˜β = Y” holds in their notation.
+As shown in [1, Sect. 5], the process “M⊥” introduced therein is also equal to zero,
+which implies that “Y” and hence “ ˜β” is a semimartingale. Thus [1, Theorem 2.3 (ii)]
+conﬁrms that under this property, an optimal trading strategy does indeed exist.
+
+
+===== PAGE 19 =====
+776
+U. Horst, E. Kivman
+3 Proofs for Sect. 2.1
+This section proves the results stated in Sect. 2.1. We start with a priori estimates
+and regularity properties for the coefﬁcient processes that specify the optimal state
+processes.
+3.1 A priori estimates and regularity properties
+3.1.1 The case η > 0
+The following estimates have been established in Graewe and Horst [18] and Horst
+and Xia [22], except for the upper bound on Eη,N for ﬁnite N which is stronger than
+the corresponding one in [22]. It can be established using the same arguments as in
+[18, proof of Proposition 3.2] by noting that Dη,N
+T
+< ∞if N is ﬁnite.
+Lemma 3.1 Let
+κ :=
+
+2 max(λ, γ ρ).
+For all η ∈(0, ∞), N ∈N and s, t ∈[0, T ) with s ≤t, we have that
+e−ρ(T −s) ≤Bη,N
+s
+≤1,
+0 ≤Eη,N
+s
+≤γ −1κ tanh
+	
+η−1 κ(T −s)
+
+≤γ −1κ,
+0 < Dη,N
+s
+≤κ coth
+	
+η−1 κ(T −s)
+
+≤κ coth
+	
+η−1 κ(T −t)
+
+.
+The preceding estimates allow us to prove that neither the optimal portfolio
+process nor the corresponding spread process change sign.
+Proof of Theorem 2.2 Put V (t) :=
+ˆXη,N
+t
+ˆY η,N
+t
+. Then V (0) = 0 and V satisﬁes
+the ODE
+˙V (t) = −
+	
+η−1(Dη,N
+t
++ γ Eη,N
+t
+) + ρt
+
+V (t)
+−
+
+η−1	
+Eη,N
+t
+( ˆY η,N
+t
+)2 + γ Dη,N
+t
+( ˆXη,N
+t
+)2
+.
+As a result,
+V (t) = −exp
+
+−
+ t
+0
+	
+η−1(Dη,N
+u
++ γ Eη,N
+u
+) + ρu
+
+du
+
+×
+ t
+0
+
+η−1	
+Eη,N
+s
+( ˆY η,N
+s
+)2 + γ Dη,N
+s
+( ˆXη,N
+s
+)2
+× exp
+  s
+0
+	
+η−1(Dη,N
+u
++ γ Eη,N
+u
+) + ρu
+
+du
+
+ds.
+
+
+===== PAGE 20 =====
+Optimal trade execution under small market impact
+777
+In view of Lemma 3.1, this shows that V (t) < 0 on (0, T ). Hence strict positivity of
+ˆXη,N
+0
+yields
+P[ ˆXη,N
+t
+> 0, ˆY η,N
+t
+< 0 for all t ∈(0, T )] = 1.
+Thus the deﬁnition of ˆZη,N along with (2.3) yields ∂t ˆZη,N
+t
+= ρt ˆY η,N
+t
+< 0 on (0, T ).
+Moreover,
+ˆXη,N
+t
+< γ −1 ˆZη,N
+t
+≤γ −1 ˆZη,N
+0
+= x0
+and
+ˆY η,N
+t
+> −ˆZη,N
+t
+≥−γ x0.
+□
+Next, we prove that the process Bη,N satisﬁes an L1 uniform continuity property.
+We refer to Appendix A for a discussion of general regularity properties of stochastic
+processes.
+Lemma 3.2 The process Bη,N satisﬁes Condition A.1 stated in Appendix A on [0, T ]
+uniformly in N ∈N and η ∈(0, H], for all H ∈(0, ∞).
+Proof Let ε, ε1 > 0, s > T −ε1 and let V and τ be arbitrary according to the
+deﬁnition of Condition A.1. By Lemma 3.1, if ε1 is small enough,
+|E[V (Bη,N
+τ
+−Bη,N
+s
+)]| ≤
+	
+1 −exp(−ρε1)
+
+E[|V |] ≤εE[|V |].
+If s ≤T −ε1, the assertion follows from the integral representation (2.10) along with
+the estimates established in Lemma 3.1 by using that the stochastic integral in (2.10)
+is a martingale on [0, T −ε1]. We emphasise that Zη,N,B is possibly deﬁned only
+on [0, T −], and so the stochastic integral may be a martingale only away from the
+terminal time.
+□
+3.1.2 The case η = 0
+We are now going to establish a priori estimates on the candidate limiting coefﬁ-
+cient processes. First, we show that Assumption 2.3 directly implies the following
+regularity result for the parameter processes.
+Lemma 3.3 The processes χ, ρ, λ, ϕ and ϕ−1 satisfy Condition A.2 introduced in
+Appendix A.
+Proof The process χ satisﬁes Condition A.2 due to Lemmas A.11, A.4 and A.7. The
+rest immediately follows by Lemma A.10.
+□
+We are now ready to prove that the process B0 is well deﬁned.
+Proof of Lemma 2.5 The existence result follows from a standard argument. In fact,
+it is well known that for any b ∈[1, ∞), the BSDE
+−dBb
+t = ψb(t, χt, Bb
+t ) dt −Zb
+t dWt,
+Bb
+T = 1
+(3.1)
+
+
+===== PAGE 21 =====
+778
+U. Horst, E. Kivman
+with Lipschitz-continuous driver (we recall f λ, f ρ deﬁned in Assumption 2.3)
+ψb(t, χ, b) := −
+1
+f λ(t, χ) + 2γf ρ(t, χ)
+×
+
+γf ρ(t, χ)2(b2 ∧b2) −2f λ(t, χ)f ρ(t, χ)
+	
+1 −(b ∧b)+
+
+has a unique solution (Bb, Zb) ∈L2
+P( × [0, T ]; R × Rm) (cf. Theorem A.13). Let
+us then deﬁne the functions φ, φ :  × [0, T ] × R × Rm →R by
+φ(t, b, z) := −ϕ−2γ ρ2b,
+φ(t, b, z) := 0.
+By deﬁnition, (B0, 0) is the unique solution to the BSDE with driver φ and terminal
+condition 1, where the lower bound B0 on the process B0 was deﬁned in (2.8). Like-
+wise, (1, 0) is the unique solution of the BSDE with driver φ and the same terminal
+condition. Since
+ψb(t, χt, B0
+t ) > φ(t, B0
+t , 0)
+and
+ψb(t, χt, 1) < φ(t, 1, 0),
+the standard comparison principle for BSDEs with Lipschitz-continuous drivers yields
+B0 ≤Bb ≤1.
+This proves that (B1, Z1) is the desired unique bounded solution to the BSDE (2.7).
+The second assertion follows Theorem A.13 applied to the BSDE (3.1) for b = 1.
+□
+Having established the existence of the process B0, the processes D0 and E0 are
+well deﬁned. The following lemma establishes estimates and regularity properties for
+D0 and E0.
+Lemma 3.4 We have the a priori estimates
+γ ρ
+ϕ exp
+
+−γ ρ2
+ϕ2 T
+
+≤D0
+t ≤ϕ−1(λ + γ ρ),
+ϕ−1ρ ≤E0
+t ≤2ϕ−1ρ.
+Moreover, the processes D0 and E0 satisfy Condition A.2.
+Proof The a priori estimates can be obtained by plugging the bounds on B0 from
+Lemma 2.5 into the deﬁnitions of D0 and E0 given in (2.9). Moreover, if we denote
+by h the function derived from Lemma 2.5, then for all t ∈[0, T ],
+D0
+t =
+ f λ + γf ρh
+
+f λ + 2γf ρ
+
+(t, χt),
+E0
+t =
+ (2 −h)f ρ
+
+f λ + 2γf ρ
+
+(t, χt).
+
+
+===== PAGE 22 =====
+Optimal trade execution under small market impact
+779
+In view of Assumption 2.3, the processes D0 and E0 can be represented as uniformly
+continuous functions of the factor process χ, and hence the assertion follows from
+Lemmas 3.3 and A.10.
+□
+The next lemma can be viewed as the analogue to Theorem 2.2 in the case η = 0.
+Lemma 3.5 It holds
+P[ ˆX0
+t ∈(0, x0), ˆY 0
+t ∈(−γ x0, 0) for all t ∈(0, T )] = 1.
+Proof Due to Lemma 3.4, D0 is positive and hence, for t ∈(0, T ),
+0 < ˆZ0
+t < x0γ.
+Since D0+γ E0 = ϕ on [0, T ), it thus follows from Lemma 3.4 that for all t ∈(0, T ),
+0 < ˆX0
+t = ϕt −D0
+t
+γ ϕt
+ˆZ0
+t < γ −1 ˆZ0
+t < x0,
+0 > ˆY 0
+t = −ϕt −γ E0
+t
+ϕt
+ˆZ0
+t > −ˆZ0
+t > −γ x0.
+□
+3.2 Proof of the convergence results
+In this section, we prove our main convergence results. We start with the conver-
+gence of the coefﬁcients of the ODE system (2.3). Subsequently, we prove that the
+convergence of the coefﬁcients yields convergence of the state process.
+3.2.1 Proof of Proposition 2.6
+The proof of Proposition 2.6 is split into a series of lemmas. In the ﬁrst step, we
+establish the convergence, as η →0, of the auxiliary processes
+F η,N
+t
+:= Dη,N
+t
++ γ Eη,N
+t
+−→F 0 := ϕ
+and
+Gη,N := ρBη,N + ϕEη,N −→G0 := ρB0 + ϕE0 = 2ρ.
+On [0, T ), the processes F η,N and Gη,N satisfy the dynamics
+dF η,N
+t
+=
+
+η−1	
+(F η,N
+t
+)2 −(ϕt)2
+dt + 2γρtEη,N
+t
+dt
++
+
+η−1(Zη,N,A
+t
+−2γ Zη,N,B
+t
++ γ 2Zη,N,C
+t
+) dWt,
+(3.2)
+−d(ϕ−1Gη,N)t =
+
+η−1	
+−Gη,N
+t
++ 2ρt −Eη,N
+t
+(F η,N
+t
+−ϕt)
+
+dt −2ρtEη,N
+t
+dt
+−d(ϕ−1ρBη,N)t +
+
+η−1(Zη,N,B
+t
+−γ Zη,N,C
+t
+) dWt.
+(3.3)
+
+
+===== PAGE 23 =====
+780
+U. Horst, E. Kivman
+A general convergence result for integral equations of the above form is established
+in Appendix B.1.2. It allows us to prove the following two results.
+Lemma 3.6 Let f η,N := F η,N −ϕ. For all ε > 0, there exists an η0 > 0 such that
+for all η ∈(0, η0] and all N ∈N,
+P
+
+sup
+s∈[0,T −ε]
+f η,N
+s
+≤ε,
+inf
+s∈[0,T ) f η,N
+s
+≥−ε
+
+= 1.
+Proof For every N ∈N, we apply Lemma B.4 to P η := F η,N with
+ψ := 1,
+a(x, y) := (x+)2 −y2,
+P 0 := ϕ,
+qη := 0,
+Lη
+t := 2γ
+ t
+0
+ρsEη,N
+s
+ds,
+noticing that ε →η0 = η0(ε) is independent of N. Assumption B.3 i) is satisﬁed
+with P := ϕ + 3κ due to Lemma 3.1. If N = ∞, then Assumption B.3 ii) a) is
+satisﬁed due to Theorem 2.1 and the a priori estimates derived in Lemmas 3.1 and
+3.4. If N < ∞and η ≤ϕ−2, then Eη,N
+T
+= 0 and
+f η,N
+T
+= Dη,N
+T
++ γ Eη,N
+T
+−D0
+T −γ E0
+T =
+
+η−1(N −γ ) −ϕT ≥
+
+η−1 −ϕ ≥0,
+which shows Assumption B.3 ii) b). Assumption B.3 iii) is trivially satisﬁed because
+qη = 0. Assumption B.3 iv) follows by direct computation using ε := ϕ/2 and
+β := ϕ/2. Assumption B.3 v) follows from Lemmas 3.3 and 3.1.
+□
+It is not difﬁcult to show that similar arguments as those used to prove the conver-
+gence of f η,N can be applied to −gη,N := −Gη,N + 2ρ. As a result, the intervals
+[0, T ) and [0, T −ε] in the statement of the convergence result for gη,N need to be
+swapped. We omit the proof of the corresponding next result.
+Lemma 3.7 For all ε > 0, there exists an η0 > 0 such that for all η ∈(0, η0] and all
+N ∈N,
+P
+
+sup
+s∈[0,T )
+gη,N
+s
+≤ε,
+inf
+s∈[0,T −ε] gη,N
+s
+≥−ε
+
+= 1.
+We are now going to prove the almost sure convergence to zero of the process
+bη,N := Bη,N −B0. To this end, we ﬁrst observe that
+Dη,N = F η,N −γ Eη,N,
+ϕEη,N = Gη,N −ρBη,N
+yields
+−Dη,NEη,N = −f η,NEη,N −Gη,N + ρBη,N + γ ϕ−2(Gη,N −ρBη,N)2.
+
+
+===== PAGE 24 =====
+Optimal trade execution under small market impact
+781
+Plugging this into (2.10) shows that
+dBη,N
+t
+=
+	
+−Gη,N
+t
+−f η,N
+t
+Eη,N
+t
++ 2ρtBη,N
+t
++ γ (ϕt)−2(Gη,N
+t
+−ρtBη,N
+t
+)2
+dt
++ Zη,N,B
+t
+dWt
+on [0, T ). Performing an analogous computation for B0 and subtracting the two
+equations yields
+dbη,N
+t
+=
+
+(bη,N
+t
+)2γ (ϕt)−2(ρt)2 + bη,N
+t
+	
+2ρt −2γ (ϕt)−2ρt(G0
+t −ρtB0
+t )
+
+−f η,N
+t
+Eη,N
+t
+−gη,N
+t
++ γ (ϕt)−2gη,N
+t
+	
+gη,N
+t
++ 2G0
+t −ρt(2bη,N
+t
++ 2B0
+t )
+
+
+dt
++ (Zη,N,B
+t
+−Z0,B
+t
+) dWt
+on [0, T ). Using that
+2ρt −2γ (ϕt)−2ρt(G0
+t −ρtB0
+t ) = 2ρt(ϕt)−1D0
+t ,
+gη,N
+t
++ 2G0
+t −ρt(2bη,N
+t
++ 2B0
+t ) = −gη,N
+t
++ 2ϕtEη,N
+t
+shows that
+dbη,N
+t
+=
+
+(bη,N
+t
+)2γ (ϕt)−2(ρt)2 + bη,N
+t
+2(ϕt)−1ρtD0
+t −f η,N
+t
+Eη,N
+t
++ gη,N
+t
+	
+−1 −γ (ϕt)−2gη,N
+t
++ 2γ (ϕt)−1Eη,N
+t
+
+
+dt
++ (Zη,N,B
+t
+−Z0,B
+t
+) dWt
+on [0, T ). This BSDE is different from (3.2) and (3.3). We apply Lemma B.2 to prove
+the following result.
+Lemma 3.8 For all ε > 0, there exists an η0 > 0 such that for all η ∈(0, η0] and all
+N ∈N,
+P
+
+sup
+s∈[0,T ]
+|bη,N
+s
+| ≤ε
+
+= 1.
+Proof For every N ∈N, we apply Lemma B.2 with
+a(t, b) := b2γ (ϕt)−2(ρt)2 + b2(ϕt)−1ρtD0
+t ,
+qη
+t := −f η,N
+t
+Eη,N
+t
++ gη,N
+t
+	
+2γ (ϕt)−1Eη,N
+t
+−1 −γ (ϕt)−2gη,N
+t
+
+.
+Assumption B.1 i) follows from the a priori estimates on Bη,N (Lemma 3.1), B0
+(Lemma 2.5) and D0 (Lemma 3.4). Assumption B.1 ii) follows from the a priori
+
+
+===== PAGE 25 =====
+782
+U. Horst, E. Kivman
+estimates on Bη,N and B0, where the mapping ε →δ is independent of N. Assump-
+tion B.1 iii) follows from the same estimates and Lemmas 3.6 and 3.7, where the
+choice of η1 is independent of N. Assumption B.1 iv) is satisﬁed because we can
+choose ε1 > 0 small enough such that
+−ε1γ (ϕ)−1ρ + 2D0 ≥0.
+□
+3.2.2 Proof of Theorem 2.7
+First we need to prove an auxiliary result:
+Lemma 3.9 Let I ⊆R be a compact interval and Y = (Yt)t∈I a continuous, adapted,
+Rd-valued stochastic process. Then the modulus of continuity
+sup
+s,t∈I,|s−t|≤ν
+|Yt −Ys|
+converges to 0 in probability as ν →0.
+Proof For all ω ∈, Y(ω) is uniformly continuous; hence the modulus of continuity
+converges to 0 as ν →0 P-a.s. This implies convergence in probability.
+□
+Proof of Theorem 2.7 Convergence on compact subintervals of [0, T ) follows from
+Theorem B.8 applied to the ODEs
+∂t ˆXη,N
+t
+= −
+
+η−1F η,N
+t
+
+ˆXη,N
+t
+−Eη,N
+t
+F η,N
+t
+ˆZη,N
+t
+
+,
+∂t ˆZη,N
+t
+= γρt ˆXη,N
+t
+−ρt ˆZη,N
+t
+(3.4)
+and
+ˆX0
+t = E0
+t
+ϕt
+ˆZ0
+t ,
+ˆZ0
+t = ˆZ0
+0 exp
+  t
+0
+
+γρs
+E0
+s
+ϕs
+−ρs
+
+ds
+
+on [0, T ). In fact, Condition (B.10) follows from Proposition 2.6 and Condition
+(B.11) from Theorem 2.2. Finally, D0 > 0 (see Lemma 3.4), from which we de-
+duce that x0 > E0
+0
+ϕ0 ˆZ0
+0. Thus by Theorem B.8, applied once for every N ∈N and
+every ν > 0, there exists for all ν, δ ∈(0, ∞) some η1 = η1(ν, δ) ∈(0, ∞) such that
+for all η ∈(0, η1] and all N ∈N, the set
+Mν,η,N
+0
+:=
+
+sup
+t∈[0,T −ν]
+max(| ˆZ0
+t −ˆZη,N
+t
+|, ˆX0
+t −ˆXη,N
+t
+) ≤ν,
+inf
+t∈[ν,T −ν]( ˆX0
+t −ˆXη,N
+t
+) ≥−ν
+
+satisﬁes
+P[Mν,η,N
+0
+] > 1 −δ/2.
+(3.5)
+
+
+===== PAGE 26 =====
+Optimal trade execution under small market impact
+783
+Near the terminal time, we cannot use this theorem since the convergence Eη,N
+F η,N →E0
+ϕ
+holds only on [0, T −]. Instead, we apply increment bounds on intervals of the form
+[T −ν, T ] to prove that for all η > 0, N ∈N and for all sufﬁciently small
+ν ∈(0, ε/2]
+and
+β ∈(0, ε/3],
+(3.6)
+the set
+Mν,ε,η,N
+1
+:=
+
+inf
+t∈[T −ν,T )( ˆX0
+t −ˆXη,N
+t
+) ≥−ε
+
+contains the set Mν,η,N
+0
+∩Mβ,ν
+2
+∩Mν,η,N
+3
+, where
+Mβ,ν
+2
+:=
+
+sup
+s,t∈[T −ν,T )
+(|ϕs −ϕt| ∨|E0
+s −E0
+t | ∨| ˆX0
+s −ˆX0
+t |) ≤β
+
+,
+Mν,η,N
+3
+:=
+
+sup
+t∈[T −ν,T )
+	
+eη,N
+t
+∨(−f η,N
+t
+)
+
+≤ν
+
+.
+The probability of the last two events can be made large by Lemma 3.9 and Proposi-
+tion 2.6: for all β, δ, ν ∈(0, ∞), there exist ν0(β, δ), η2(ν) ∈(0, ∞) such that
+inf
+ν≤ν0(β,δ) P[Mβ,ν
+2
+] > 1 −δ/2,
+inf
+η≤η2(ν) inf
+N∈N P[Mν,η,N
+3
+] = 1.
+In order to see that Mν,ε,η,N
+1
+⊇Mν,η,N
+0
+∩Mβ,ν
+2
+∩Mν,η,N
+3
+, we assume to the contrary
+that there exists
+ω ∈(Mν,η,N
+0
+∩Mβ,ν
+2
+∩Mν,η,N
+3
+)\Mν,ε,η,N
+1
+.
+To obtain the desired contradiction, we show that for any such ω, there exists a time
+s(ω) ∈[T −ν, T ) for which we can deduce both nonnegativity and strict negativity
+of ∂t ˆXη,N
+s(ω)(ω) simultaneously.
+We start with the choice of s(ω). Because we have ω /∈Mν,ε,η,N
+1
+, there exists
+some t ∈[T −ν, T ) with ˆXη,N
+t
+(ω) −ˆX0
+t (ω) > ε. Since ω ∈Mβ,ν
+2
+and due to (3.6),
+this yields that
+ˆXη,N
+t
+(ω) > ˆX0
+T −ν(ω) + 2ε
+3 .
+Since ω belongs to Mν,η,N
+0
+and due to (3.6), this implies that
+ˆXη,N
+T −ν(ω) < ˆX0
+T −ν(ω) + 2ε
+3 < ˆXη,N
+t
+(ω).
+Now we can choose s(ω) ∈(T −ν, t) minimal with the property that
+ˆXη,N
+s(ω)(ω) = ˆX0
+T −ν(ω) + 2ε
+3 .
+(3.7)
+Due to the minimality of s(ω), we have ∂t ˆXη,N
+s(ω)(ω) ≥0.
+
+
+===== PAGE 27 =====
+784
+U. Horst, E. Kivman
+We now show that this derivative must also be strictly negative. In fact, due to (3.4),
+√η∂t ˆXη,N
+s(ω)(ω) = −F η,N
+s(ω)(ω) ˆXη,N
+s(ω)(ω) + Eη,N
+s(ω)(ω) ˆZη,N
+s(ω)(ω).
+Since ˆZη,N is nonincreasing (Theorem 2.2), using (3.7) again, the right-hand side of
+the above equation can be bounded from above by
+−ϕT −ν(ω) ˆX0
+T −ν(ω) +
+	
+ϕT −ν(ω) −ϕs(ω)(ω)
+
+ ˆX0
+T −ν(ω) −f η,N
+s(ω)(ω) ˆX0
+T −ν(ω)
+−F η,N
+s(ω)(ω)2ε
+3 + E0
+T −ν(ω) ˆZ0
+T −ν(ω) + E0
+T −ν(ω)
+	 ˆZη,N
+T −ν(ω) −ˆZ0
+T −ν(ω)
+
++
+	
+E0
+s(ω)(ω) −E0
+T −ν(ω)
+
+ ˆZη,N
+T −ν(ω) + eη,N
+s(ω)(ω) ˆZη,N
+T −ν(ω).
+Since ω ∈Mν,η,N
+3
+, we have F η,N
+s(ω)(ω) = ϕs(ω)(ω)+f η,N
+s(ω)(ω) ≥ϕ−ν, which is strictly
+positive if ν < ϕ. Moreover, we have −ϕ ˆX0 + E0 ˆZ0 = 0 on [0, T ). Because also
+ω ∈Mν,η,N
+0
+∩Mβ,ν
+2
+∩Mν,η,N
+3
+and ˆX0, E0 and ˆZη,N are bounded, this shows that
+∂t ˆXη,N
+s(ω)(ω) < 0 if ν and β are chosen small enough. The convergence of ˆY η,N −ˆY 0
+on [0, T −] follows from
+ˆY η,N −ˆY 0 = γ ( ˆXη,N −ˆX0) −( ˆZη,N −ˆZ0)
+and (3.5). The convergence on [T −, T ] follows from the fact that
+sup
+s∈[T −ν,T ]
+|( ˆZη,N
+s
+−ˆZ0
+s ) −( ˆZη,N
+T −ν −ˆZ0
+T −ν)|
+can be made arbitrarily small by choosing ν small since ∂t ˆZη,N
+=
+ρ ˆY η,N,
+∂t ˆZ0 = ρ ˆY 0 and both ˆY η,N and ˆY 0 are bounded.
+□
+3.2.3 Proof of Proposition 2.8
+The proof of the convergence of the optimal portfolio processes in the Skorohod
+M2-sense follows from Theorem 2.7 if strict liquidation is required. If strict liqui-
+dation is not required, the results of Sect. 2.2 are required to establish the assertion.
+This is not a circular argument since the proofs of Sect. 2.2 only use the results of
+Sect. 2.1 concerning the liquidating case N = ∞.
+Since ˆθ = (0, ˆj−, ˆV ) is optimal in the model introduced in Sect. 2.2 (cf. Theo-
+rem 2.15), it is easy to show that the strategy ˆθq := ( ˆj+,q, ˆj−,q, ˆV q) is admissible
+for every q ∈R, where
+ˆV q
+t = ˆVt + qt,
+ˆj+,q
+t
+−ˆj−,q
+t
+= −ˆj−
+t −1{T }(t)qT.
+The following lemma shows that we can express the cost term corresponding to the
+transient price impact without Itô integrals. The proof is an immediate consequence
+
+
+===== PAGE 28 =====
+Optimal trade execution under small market impact
+785
+of Itô’s formula for semimartingales (see Protter [32, Theorem II.32]) and the fact
+that γ 2[V ] is equal to the continuous part of [Y θ]. We omit it.
+Lemma 3.10 For all θ = (j+, j−, V ) ∈A0 and all t ∈[0, T ], it holds that
+
+(0,t]
+1
+2(Y θ
+s−+ Y θ
+s ) dXθ
+s = 1
+2γ (Y θ
+t )2 −γ
+2 (j+
+0 −j−
+0 )2 −γ
+2 [V ]t + 1
+γ
+ t
+0
+ρs(Y θ
+s )2 ds.
+Using Lemma 3.10, it is not difﬁcult to check that the mapping q →J 0( ˆθq) is
+differentiable and that
+0 = ∂J 0( ˆθq)
+∂q
+
+q=0
+= E
+
+−ˆY 0
+T e−
+ T
+0 ρu du
+ T
+0
+tρte
+ t
+0 ρu du dt +
+ T
+0
+2tρt ˆY 0
+t dt
+−
+ T
+0
+2ρt ˆY 0
+t e−
+ t
+0 ρu du
+ t
+0
+sρse
+ s
+0 ρu du ds dt +
+ T
+0
+tλt ˆX0
+t dt
+
+.
+(3.8)
+This allows us to prove that full liquidation is optimal if η →0 even if it is not
+formally required.
+Lemma 3.11 We have that limη→0 supN∈N E[ ˆXη,N
+T
+] = 0.
+Proof We assume to the contrary that lim supη→0 supN∈N E[ ˆXη,N
+T
+] > 0 and prove
+that this contradicts the optimality of J η,N(ˆξη,N). To this end, we consider the
+admissible trading strategies
+ˆξη,N,q
+t
+:= ˆξη,N
+t
++ q,
+compute the derivative of the function q →J η,N(ˆξη,N,q) and show that the derivative
+at q = 0 does not vanish for small η if
+lim sup
+η→0
+sup
+N∈N
+E[ ˆXη,N
+T
+] > 0.
+Obviously, ˆξη,N,q ∈A and
+ˆXη,N,q
+t
+:= X
+ˆξη,N,q
+t
+= ˆXη,N
+t
++ qt.
+
+
+===== PAGE 29 =====
+786
+U. Horst, E. Kivman
+Straightforward computations lead to
+0 = ∂J η,N(ˆξη,N,q)
+∂q
+
+q=0
+= E
+
+η( ˆXη,N
+T
+−x0) −ˆY η,N
+T
+e−
+ T
+0 ρu du
+ T
+0
+tρte
+ t
+0 ρu du dt +
+ T
+0
+2tρt ˆY η,N
+t
+dt
+−
+ T
+0
+2ρt ˆY η,N
+t
+e−
+ t
+0 ρu du
+ t
+0
+sρse
+ s
+0 ρu du ds dt +
+ T
+0
+tλt ˆXη,N
+t
+dt
++ (N −γ )T ˆXη,N
+T
++ γ ˆXη,N
+T
+e−
+ T
+0 ρu du
+ T
+0
+tρte
+ t
+0 ρu du dt
+
+.
+Subtracting (3.8) yields
+0 = E
+
+−ηx0 + ˆXη,N
+T
+	
+η + (N −γ )T
+
++
+ T
+0
+2tρt( ˆY η,N
+t
+−ˆY 0
+t ) dt
++ ( ˆZη,N
+T
+−ˆZ0
+T )e−
+ T
+0 ρu du
+ T
+0
+tρte
+ t
+0 ρu du dt +
+ T
+0
+tλt( ˆXη,N
+t
+−ˆX0
+t ) dt
+−
+ T
+0
+2ρt( ˆY η,N
+t
+−ˆY 0
+t )e−
+ t
+0 ρu du
+ t
+0
+sρse
+ s
+0 ρu du ds dt
+
+≥−ηx0 +
+	
+η + (N −γ )T
+
+E[ ˆXη,N
+T
+] −T λE
+  T
+0
+| ˆXη,N
+t
+−ˆX0
+t | dt
+
+−2(T ρ + ρ2T 2eT ρ)E
+  T
+0
+| ˆY η,N
+t
+−ˆY 0
+t | dt
+
+−T 2ρeT ρE[| ˆZη,N
+T
+−ˆZ0
+T |].
+In view of Theorems 2.2 and 2.7, Lemma 3.5 and using
+∂t( ˆZη,N −ˆZ0) = ρ( ˆY η,N −ˆY 0),
+the sum of the three last expected values is small uniformly in N if η is small. Hence,
+if lim supη→0 supN∈N E[ ˆXη,N
+T
+] > 0, then the sum on the right-hand side of the above
+inequality is strictly positive when ﬁrst choosing η0 > 0 small enough and then
+choosing (˜η, ˜N) with ˜η ≤η0 such that
+E[ ˆX ˜η, ˜N
+T
+] ≥1
+2 lim sup
+η→0
+sup
+N∈N
+E[ ˆXη,N
+T
+].
+□
+We are now ready to prove the convergence of ˆXη,N to ˆX0 in the Skorohod
+M2-sense. To this end, we have to bound the distance of each point of any of the
+graphs to the other graph. In the inner interval [ε, T −ε], it is enough to consider
+ˆXη,N −ˆX0, which we have bounded by Theorem 2.7.
+Proof of Proposition 2.8 To prove that the probability of
+dM2( ˆXη,N, ˆX0) ≤ε
+
+
+===== PAGE 30 =====
+Optimal trade execution under small market impact
+787
+is large for small η > 0, we need to prove that the distance of any point (t, x)
+from either G ˆXη,N(ω) or G ˆX0(ω) to the respective other graph is small on a set of
+large probability. To this end, we ﬁx a small enough ν ∈(0, ε). If t ∈[ν, T −ν],
+the claim follows directly from Theorem 2.7. For t ∈[0, ν) ∪(T −ν, T ], we use
+Theorem 2.7 along with the facts that (i) the completed graph of a discontinuous
+function contains the line segments joining the values of the function at the points
+of discontinuity, (ii) the increments of ˆX0 are small in the sense of Lemma 3.9,
+and (iii) limη→0 supN∈N E[ ˆXη,N
+T
+] = 0 by Lemma 3.11. For instance, consider an
+ω ∈ with
+sup
+u∈[0,T −ν]
+	 ˆX0
+u(ω) −ˆXη,N
+u
+(ω)
+
+≤ν
+and assume that (t, x) ∈G ˆXη,N(ω) with t < ν and x <
+ˆX0
+0(ω) −ν. Since
+x = ˆXη,N
+t
+(ω), the mean value theorem yields an s ∈[0, t] such that ˆX0
+s (ω) = x + ν,
+which proves that (s, x + ν) ∈G ˆX0(ω) and
+d∞
+	
+(t, x), (s, x + ν)
+
+= (t −s) + ν ≤2ν.
+□
+4 Proofs for Sect. 2.2
+4.1 Proof of Lemma 2.11
+In order to prove Lemma 2.11, we ﬁrst deﬁne, for all β, ν ∈(0, ∞) and x ∈R,
+f β,ν(x) :=
+⎧
+⎪⎪⎨
+⎪⎪⎩
+−β/ν,
+x ≤−β,
+x/ν,
+−β ≤x ≤β,
+β/ν,
+x ≥β.
+For any admissible strategy (j+, j−, V ) ∈A0, there exists a unique pathwise dif-
+ferentiable, adapted stochastic process ( ˜V β,ν
+t
+)t∈[0,T ] such that ˜V β,ν
+0
+= 0 and its time
+derivative satisﬁes
+˙V β,ν
+t
+(ω) = f β,ν	
+Vt(ω) −˜V β,ν
+t
+(ω)
+
+.
+Now (2.13) can easily be veriﬁed by the comparison principle: For all ε > 0 and all
+t ∈[0, T ], we have
+f β,ν
+
+Vt −
+
+max
+s∈[0,T ] |Vs| + ε
+
+< 0
+and hence, for all ε > 0 and t ∈[0, T ],
+˜V β,ν
+t
+≤max
+s∈[0,T ] |Vs| + ε.
+Analogously, we can prove that ˜V β,ν
+t
+≥−maxs∈[0,T ] |Vs| −ε.
+
+
+===== PAGE 31 =====
+788
+U. Horst, E. Kivman
+Now we are going to prove (2.14). For β, ν ∈(0, ∞), let
+M :=
+
+sup
+s,t∈[0,T ],|s−t|≤ν
+|Vs −Vt| ≤β
+
+.
+In view of Lemma 3.9, it is enough to prove that
+|Vt(ω) −˜V β,ν
+t
+(ω)| < 3β
+for all ω ∈M and t ∈[0, T ]. In order to see this, let us assume to the contrary that
+the statement is wrong. Then by continuity, since V0 −˜V β,ν
+0
+= 0, there exist some
+ω ∈M and t1 ∈[0, T ] such that
+|Vt1(ω) −˜V β,ν
+t1
+(ω)| = 3β.
+We choose the smallest such t1 ∈[0, T ]. Then for each t ∈[(t1 −ν)+, t1],
+|Vt(ω) −˜V β,ν
+t
+(ω)| ≥|Vt1(ω) −˜V β,ν
+t1
+(ω)| −|Vt1(ω) −Vt(ω)|
+−| ˜V β,ν
+t1
+(ω) −˜V β,ν
+t
+(ω)|
+≥3β −β −(t1 −t)β
+ν ≥β.
+Since V0 −˜V β,ν
+0
+= 0, we have t1 > ν. Since V·(ω) −˜V β,ν
+·
+(ω) is continuous and has
+no roots in [t1 −ν, t1], it does not change sign on this interval. We may hence without
+loss of generality assume that Vt1(ω) −˜V β,ν
+t1
+(ω) = 3β. This implies that
+Vt(ω) −˜V β,ν
+t
+(ω) ≥β
+for all t ∈[t1 −ν, t1]. By deﬁnition, for all those t, we have ˙V β,ν
+t
+(ω) = β/ν. This,
+however, contradicts the minimality of t1 as ˙V β,ν
+s
+= β/ν and
+Vt1−ν(ω) −˜V β,ν
+t1−ν(ω) = Vt1−ν(ω) −Vt1(ω) + Vt1(ω) −˜V β,ν
+t1
+(ω)
++ ˜V β,ν
+t1
+(ω) −˜V β,ν
+t1−ν(ω)
+≥−β + 3β +
+ t1
+t1−ν
+˙V β,ν
+s
+ds = 3β.
+This ﬁnishes the proof of Lemma 2.11.
+□
+4.2 Proof of Lemma 2.12
+The proof of Lemma 2.12 requires the following result on the jump processes.
+Lemma 4.1 Let (jt)t∈[0,T ] be a [0, ∞)-valued, nondecreasing and progressively
+measurable stochastic process with E[(jT )2] < ∞. Then (putting jt = 0 for t < 0)
+lim
+ε→0 E
+  T
+0
+(jt −jt−ε)2 dt
+
+= 0.
+
+
+===== PAGE 32 =====
+Optimal trade execution under small market impact
+789
+Proof First we want to bound
+ T
+0 (jt −jt−ε)2 dt through a term that depends on
+ T
+0 (jt −jt−2ε)2 dt and apply this bound inductively. For every ε > 0, we have
+ T
+0
+(jt −jt−2ε)2 dt =
+ T
+0
+(jt −jt−ε + jt−ε −jt−2ε)2 dt
+≥
+ T
+0
+(jt −jt−ε)2 dt +
+ T −ε
+0
+(jt −jt−ε)2 dt
+= 2
+ T
+0
+(jt −jt−ε)2 dt −
+ T
+T −ε
+(jt −jt−ε)2 dt.
+Moreover, jt ≤jT and jt−ε ≥jT −ε−ε for t ∈[T −ε, T ] give
+ T
+T −ε
+(jt −jt−ε)2 dt ≤
+ T
+T −ε
+(jT −jT −2ε)2 dt ≤ε(jT −jT −2ε)2.
+As a result,
+1
+ε
+ T
+0
+(jt −jt−ε)2 dt ≤1
+2ε
+ T
+0
+(jt −jt−2ε)2 dt + 1
+2(jT −jT −2ε)2.
+Hence, inductively, for all ε ∈(0, T ) and k ∈{1, 2, . . .}, we have
+1
+ε
+ T
+0
+(jt −jt−ε)2 dt ≤1
+2ε
+ T
+0
+(jt −jt−2ε)2 dt + 1
+2(jT −jT −2ε)2
+≤1
+4ε
+ T
+0
+(jt −jt−4ε)2 dt + 1
+4(jT −jT −4ε)2
++ 1
+2(jT −jT −2ε)2
+≤· · ·
+≤
+1
+2kε
+ T
+0
+(jt −jt−2kε)2 dt +
+k
+
+ℓ=1
+1
+2ℓ(jT )2
+≤
+1
+2kε
+ T
+0
+(jt −jt−2kε)2 dt + (jT )2.
+Hence for all k ∈N,
+E
+  T
+0
+(jt −jt−ε)2 dt
+
+≤
+ T
+2k + ε
+
+E[(jT )2].
+This shows the desired result.
+□
+We are now ready to prove the approximation of arbitrary portfolio processes by
+absolutely continuous ones.
+
+
+===== PAGE 33 =====
+790
+U. Horst, E. Kivman
+Proof of Lemma 2.12 By the triangle inequality, for all β, ν, ε > 0,
+
+E
+  T
+0
+(Xθ,β,ν,ε
+t
+−Xθ
+t )2 dt
+
+≤
+
+E
+  T
+0
+  t
+(T −ε)∧t
+˙V β,ν
+s
+ds
+2
+dt
+
++
+
+∗∈{+,−}
+
+E
+  T
+0
+  (T −ε)∧t
+0
+1
+ε (j∗s −j∗
+s−ε) ds −j∗t
+2
+dt
+
++
+
+E
+  T
+0
+1
+ε
+	
+t −(T −ε)
+
++Xθ,β,ν,ε
+T −ε
+2
+dt
+
++
+
+E
+  T
+0
+  t
+0
+˙V β,ν
+s
+ds −Vt
+2
+dt
+
+.
+(4.1)
+We analyse the four terms separately. The ﬁrst can be bounded by
+
+E
+  T
+0
+  t
+(T −ε)∧t
+˙V β,ν
+s
+ds
+2
+dt
+
+≤
+
+E
+  T
+T −ε
+  t
+T −ε
+˙V β,ν
+s
+ds
+2
+dt
+
+≤ε
+3
+2 β
+ν
+−→0
+for ε →0.
+Regarding the second term, for all ε < T /2,
+ (T −ε)∧t
+0
+1
+ε (j∗
+s −j∗
+s−ε) ds −j∗
+t = −
+ (T −ε)∧t
+((T −ε)∧t)−ε
+1
+ε (j∗
+t −j∗
+s ) ds.
+
+
+===== PAGE 34 =====
+Optimal trade execution under small market impact
+791
+Using the monotonicity of the jump processes, it follows from Lemma 4.1 that
+
+E
+  T
+0
+  (T −ε)∧t
+0
+1
+ε (j∗s −j∗
+s−ε) ds −j∗t
+2
+dt
+
+=
+
+E
+  T
+0
+  (T −ε)∧t
+((T −ε)∧t)−ε
+1
+ε (j∗t −j∗s ) ds
+2
+dt
+
+≤1
+ε
+
+E
+  T
+0
+  (T −ε)∧t
+((T −ε)∧t)−ε
+(j∗t −j∗s ) ds
+2
+dt
+
+=
+
+E
+  T −ε
+0
+(j∗t −j∗
+t−ε)2 dt
+
++ E
+  T
+T −ε
+(j∗t −j∗
+T −2ε)2 dt
+
+≤
+
+E
+  T
+0
+(j∗t −j∗
+t−ε)2 dt
+
++ εE[(j∗
+T )2] −→0
+for ε →0.
+(4.2)
+For the third term, we conclude from the Itô isometry and the deﬁnition of ξθ,β,ν,ε that
+
+E
+  T
+0
+1
+ε
+	
+t −(T −ε)
+
++Xθ,β,ν,ε
+T −ε
+2
+dt
+
+=
+
+ε
+3E
+
+x0 +
+ T −ε
+0
+ξθ,β,ν,ε
+s
+ds
+2
+≤x0
+ε
+3 +
+
+∗∈{+,−}
+
+ε
+3E
+  T −ε
+0
+1
+ε (j∗s −j∗
+s−ε) ds
+2
++
+
+ε
+3E
+  T −ε
+0
+˙V β,ν
+s
+ds
+2
+.
+Now we can bound
+
+ε
+3E
+  T −ε
+0
+˙V β,ν
+s
+ds
+2
+≤T β
+ν
+ε
+3 −→0
+for ε →0.
+
+
+===== PAGE 35 =====
+792
+U. Horst, E. Kivman
+Moreover, in view of (4.2),
+
+ε
+3E
+  T −ε
+0
+1
+ε (j∗s −j∗
+s−ε) ds
+2
+=
+
+1
+3E
+  T
+T −ε
+  (T −ε)∧t
+0
+1
+ε (j∗s −j∗
+s−ε) ds
+2
+dt
+
+≤
+
+1
+3E
+  T
+0
+  (T −ε)∧t
+0
+1
+ε (j∗s −j∗
+s−ε) ds −j∗t
+2
+dt
+
++
+
+1
+3E
+  T
+T −ε
+(j∗t )2 dt
+
+≤
+1
+√
+3
+
+E
+  T
+0
+(j∗t −j∗
+t−ε)2 dt
+
++ εE[(j∗
+T )2] +
+ε
+3E[(j∗
+T )2] −→0
+for ε →0.
+It remains to consider the fourth term in (4.1). To this end, let
+Mβ,ν :=
+
+sup
+t∈[0,T ]
+
+ t
+0
+˙V β,ν
+s
+ds −Vt
+ ≤3β
+
+.
+Then using (2.13) in the last step,
+
+E
+  T
+0
+  t
+0
+˙V β,ν
+s
+ds −Vt
+2
+dt
+
+≤
+
+E
+  T
+0
+1Mβ,ν
+  t
+0
+˙V β,ν
+s
+ds −Vt
+2
+dt
+
++
+
+E
+
+1\Mβ,ν
+ T
+0
+(Vt)2 dt
+
++
+
+E
+
+1\Mβ,ν
+ T
+0
+  t
+0
+˙V β,ν
+s
+ds
+2
+dt
+
+≤3β
+√
+T +
+
+T E
+
+1\Mβ,ν max
+t∈[0,T ] |Vt|2
+
++
+
+T E
+
+1\Mβ,ν max
+t∈[0,T ]
+  t
+0
+˙V β,ν
+s
+ds
+2
+≤3β
+√
+T + 2
+
+T E
+
+1\Mβ,ν max
+t∈[0,T ] |Vt|2
+
+.
+By (2.12), the single random variable maxt∈[0,T ] |Vt|2 is in L1 and hence uni-
+formly integrable. So we can ﬁrst choose β > 0 small enough, then, according to
+Lemma 2.11, choose ν > 0 small enough such that P[\Mβ,ν] is sufﬁciently small,
+and ﬁnally choose ε > 0 small enough in order to obtain the desired result.
+□
+4.3 Proof of Lemma 2.13
+We start with a technical lemma.
+
+
+===== PAGE 36 =====
+Optimal trade execution under small market impact
+793
+Lemma 4.2 Let (M, A, μ) be a measure space and u, v ∈L2(M). Then
+
+M
+|u2 −v2| dμ ≤
+
+M
+(u −v)2 dμ + 2
+
+M
+(u −v)2 dμ
+
+M
+v2 dμ.
+Proof Due to the Hölder and triangle inequalities,
+
+M
+|u2 −v2| dμ =
+
+M
+(u −v)2 dμ
+
+M
+(u + v)2 dμ
+≤
+
+M
+(u −v)2 dμ
+
+M
+(u −v)2 dμ +
+
+M
+(2v)2 dμ
+
+.
+□
+The following technical lemma provides useful estimates for the impact process.
+Lemma 4.3 Let X ∈L2
+P( × [0, T ]; R). Then the transient price impact process Y X
+given by (2.1) satisﬁes Y X ∈L2
+P( × [0, T ]; R) and
+
+E[(Y X
+T )2] ≤γ
+
+X0 +
+
+E[(XT )2] + ρ exp(T ρ)
+
+T E
+  T
+0
+(Xs)2 ds
+
+,
+(4.3)
+
+E
+  T
+0
+(Y X
+t )2 dt
+
+≤γ X0
+√
+T + γ
+	
+1 + T ρ exp(T ρ)
+
+
+E
+  T
+0
+(Xt)2 dt
+
+.
+(4.4)
+If X0 = 0, then we additionally have for all s, t ∈[0, T ] with s < t that
+
+E
+  t
+s
+(Y X
+u )2 du
+
+≤γ ρ exp(T ρ)
+
+(t −s)T E
+  s
+0
+(Xu)2 du
+
++ γ
+	
+1 + ρ exp(T ρ)
+
+(t −s)T
+
+
+E
+  t
+s
+(Xu)2 du
+
+.
+(4.5)
+Proof Inequality (4.3) follows from the explicit formula
+Y X
+t
+= γ Xt −γ exp
+
+−
+ t
+0
+ρu du
+
+X0 +
+ t
+0
+ρsXs exp
+  s
+0
+ρu du
+
+ds
+
+(4.6)
+
+
+===== PAGE 37 =====
+794
+U. Horst, E. Kivman
+and the triangle inequality. Moreover,
+
+E
+  T
+0
+(Y X
+t )2 dt
+
+≤γ
+
+E
+  T
+0
+(Xt)2 dt
+
++ γ
+
+E
+  T
+0
+exp
+
+−2
+ t
+0
+ρu du
+
+X0 +
+ t
+0
+ρsXs exp
+  s
+0
+ρu du
+
+ds
+2
+dt
+
+.
+(4.7)
+Substituting the inequality
+
+E
+  T
+0
+exp
+
+−2
+ t
+0
+ρu du
+
+X0 +
+ t
+0
+ρsXs exp
+  s
+0
+ρu du
+
+ds
+2
+dt
+
+≤
+
+E[T (X0)2] + ρ exp(T ρ)
+
+T E
+  T
+0
+|Xs| ds
+2
+≤X0
+√
+T + T ρ exp(T ρ)
+
+E
+  T
+0
+(Xs)2 ds
+
+into (4.7) yields (4.4). To prove (4.5), let X0 = 0. Then due to (4.6),
+|Y X
+u −γ Xu| ≤γ ρ exp(T ρ)
+ u
+0
+|Xr| dr
+for all u ∈[0, T ] and so
+E
+  t
+s
+(Y X
+u −γ Xu)2 du
+
+≤(t −s)T γ 2ρ2 exp(2T ρ)E
+  t
+0
+(Xu)2 du
+
+.
+Using the subadditivity of the square root, we now obtain (4.5) from
+
+E
+  t
+s
+(Y X
+u )2 du
+
+≤
+
+E
+  t
+s
+(Y X
+u −γ Xu)2 du
+
++
+
+E
+  t
+s
+(γ Xu)2 du
+
+≤γ ρ exp(T ρ)
+
+(t −s)T E
+  s
+0
+(Xu)2 du
+
++ γ ρ exp(T ρ)
+
+(t −s)T E
+  t
+s
+(Xu)2 du
+
++ γ
+
+E
+  t
+s
+(Xu)2 du
+
+.
+□
+
+
+===== PAGE 38 =====
+Optimal trade execution under small market impact
+795
+We are now ready to prove our approximation result for the cost functional.
+Proof of Lemma 2.13 For θ = (j+, j−, V ) ∈A0 and ξ ∈A,
+|J 0(θ) −J 0(0, 0, V ξ)|
+≤
+E
+γ
+2 (j+
+0 −j−
+0 )2 +
+
+(0,T ]
+1
+2(Y θ
+t−+ Y θ
+t ) dXθ
+t −
+ T
+0
+Y ξ
+t dXξ
+t + γ
+2 [V ]T
+
++ λ
+2E
+  T
+0
+|(Xθ
+t )2 −(Xξ
+t )2| dt
+
+.
+Due to Lemma 4.2, the last term can be estimated as
+E
+  T
+0
+|(Xθ
+t )2 −(Xξ
+t )2| dt
+
+≤E
+  T
+0
+(Xθ
+t −Xξ
+t )2 dt
+
++ 2
+
+E
+  T
+0
+(Xθ
+t −Xξ
+t )2 dt
+
+E
+  T
+0
+(Xθ
+t )2 dt
+
+.
+Moreover, using ﬁrst Lemma 3.10 and then Lemmas 4.3 and 4.2, we obtain
+E
+γ
+2 (j+
+0 −j−
+0 )2 +
+
+(0,T ]
+1
+2(Y θ
+t−+ Y θ
+t ) dXθ
+t −
+ T
+0
+Y ξ
+t dXξ
+t + γ
+2 [V ]T
+
+=
+E
+γ
+2 (j+
+0 −j−
+0 )2 + 1
+2γ (Y θ
+T )2 −γ
+2 (j+
+0 −j−
+0 )2 −γ
+2 [V ]T + 1
+γ
+ T
+0
+ρt(Y θ
+t )2 dt
+−1
+2γ (Y ξ
+T )2 −1
+γ
+ T
+0
+ρt(Y ξ
+t )2 dt + γ
+2 [V ]T
+
+≤1
+2γ E[|(Y θ
+T )2 −(Y ξ
+T )2|] + ρ
+γ E
+  T
+0
+|(Y θ
+t )2 −(Y ξ
+t )2| dt
+
+≤
+1
+2T γ ρ2e2T ρ + ργ (1 + T ρeT ρ)2
+
+E
+  T
+0
+(Xθ
+t −Xξ
+t )2 dt
+
++
+√
+T γ ρeT ρ
+
+E
+  T
+0
+(Xθ
+t −Xξ
+t )2 dt
+
+x0 + ρeT ρ
+
+T E
+  T
+0
+(Xθ
+t )2 dt
+
++ 2ρ
+	
+1 + T ρeT ρ
+
+E
+  T
+0
+(Xθ
+t −Xξ
+t )2 dt
+
+×
+
+γ x0
+√
+T + γ (1 + T ρeT ρ)
+
+E
+  T
+0
+(Xθ
+t )2 dt
+
+.
+□
+
+
+===== PAGE 39 =====
+796
+U. Horst, E. Kivman
+4.4 Proof of Lemma 2.14
+We assume the contrary, i.e., that there exists a constant c > 0 such that for all H > 0,
+there exists some η ∈(0, H) with
+η
+2E
+  T
+0
+(ˆξη,∞
+t
+)2 dt
+
+> c.
+(4.8)
+The optimality of ˆξη,∞and (2.15) imply that for all η, ν, β, ε > 0,
+0 ≥J η,∞(ˆξη,∞) −J η,∞(ξ ˆθ,β,ν,ε)
+= η
+2E
+  T
+0
+(ˆξη,∞
+t
+)2 dt
+
+−η
+2E
+  T
+0
+(ξ
+ˆθ,β,ν,ε
+t
+)2 dt
+
++ J 0(0, 0, V ˆξη,∞) −J 0( ˆθ) + J 0( ˆθ) −J 0(0, 0, V ξ ˆθ,β,ν,ε).
+(4.9)
+We now prove that (4.8) contradicts (4.9). By Theorem 2.13 and since | ˆX0
+t | ≤x0, we
+obtain (for convenience, let p(x) := x + √x)
+|J 0(0, 0, V ˆξη,∞) −J 0( ˆθ)| ≤D
+	
+T (x0)2
+p
+
+E
+  T
+0
+( ˆXη,∞
+t
+−ˆX0
+t )2 dt
+
+and
+|J 0( ˆθ) −J 0(0, 0, V ξ ˆθ,β,ν,ε)| ≤D
+	
+T (x0)2
+p
+
+E
+  T
+0
+(X ˆθ
+t −X
+ˆθ,β,ν,ε
+t
+)2 dt
+
+.
+Plugging the results into (4.9) yields that for all η > 0 that satisfy (4.8), we have
+0 > c −η
+2E
+  T
+0
+(ξ
+ˆθ,β,ν,ε
+t
+)2 dt
+
+−D
+	
+T (x0)2
+
+p
+
+E
+  T
+0
+( ˆXη,∞
+t
+−ˆX0
+t )2 dt
+
++ p
+
+E
+  T
+0
+(X ˆθ
+t −X
+ˆθ,β,ν,ε
+t
+)2 dt
+
+.
+(4.10)
+Due to Lemma 2.12, we can ﬁrst choose β, ν, ε > 0 sufﬁciently small to get
+D
+	
+T (x0)2
+p
+
+E
+  T
+0
+(X ˆθ
+t −X
+ˆθ,β,ν,ε
+t
+)2 dt
+
+< c
+2.
+Since | ˆXη,∞
+t
+| ≤x0 (cf. Theorem 2.2) and in view of Theorem 2.7, we can then choose
+η > 0 sufﬁciently small and satisfying (4.8) such that the right-hand side of (4.10) is
+larger than zero, which is a contradiction. This ﬁnishes the proof of Lemma 2.14.
+
+
+===== PAGE 40 =====
+Optimal trade execution under small market impact
+797
+Appendix A: Regularity properties of Itô processes and BSDEs
+In this appendix, we introduce some regularity properties of stochastic processes,
+which we use to prove various convergence results for stochastic processes.
+We consider a continuous, adapted, Rd-valued stochastic process Y = (Yt)t∈I on
+some interval I (i.e., a convex subset of R) and introduce the following continuity
+conditions.
+Condition A.1 For all ε ∈(0, ∞), there exists δ ∈(0, ∞) such that for all s ∈I,
+Fs-measurable and integrable V :  →R and stopping times τ :  →[s, s +δ] ∩I,
+|E[V (Yτ −Ys)]| ≤εE[|V |].
+Condition A.2 For all ε ∈(0, ∞), there exists δ ∈(0, ∞) such that for all s ∈I,
+E
+
+sup
+t∈[s,s+δ]∩I
+|Yt −Ys|
+Fs
+
+≤ε.
+Deﬁnition A.3 A family of stochastic processes is said to uniformly satisfy Condi-
+tion A.1 or A.2 on I if all processes satisfy the respective property and δ can be
+chosen uniformly for all processes.
+In what follows, we list some auxiliary results.
+Lemma A.4 An Rd-valued stochastic process Y = ((Y 1
+t , . . . , Y d
+t ))t∈I satisﬁes Con-
+dition A.1 (resp. Condition A.2) if and only if all components Y i satisfy Condition A.1
+(resp. Condition A.2).
+Lemma A.5 Condition A.2 implies Condition A.1.
+Proof Due to Lemma A.4, it is enough to consider a real-valued Y. To show the
+assertion, we then calculate
+|E[V (Yτ −Ys)]| =
+E
+
+V E[Yτ −Ys|Fs]
+ ≤E
+
+|V |E
+
+|Yτ −Ys|
+Fs
+
+≤E[|V |]ε.
+□
+Remark A.6 If we want to bound a term of the form |E[1N(Yτ −Ys)]| for some
+N ⊆M ∈Fs with N /∈Fs, then Condition A.1 is not enough; in this case, we
+need the stronger Condition A.2.
+Lemma A.7 Let X = (Xt)t∈I and Y = (Yt)t∈I be continuous, adapted, real-valued
+processes which satisfy Condition A.1 (resp. Condition A.2). Then X + Y satisﬁes
+Condition A.1 (resp. Condition A.2).
+Theorem A.8 Let X = (Xt)t∈I and Y = (Yt)t∈I be continuous, adapted, essentially
+bounded, real-valued processes. Then:
+– If X satisﬁes Condition A.2 and Y satisﬁes Condition A.1, then XY satisﬁes
+Condition A.1.
+– If X and Y both satisfy Condition A.2, then XY also satisﬁes Condition A.2.
+
+
+===== PAGE 41 =====
+798
+U. Horst, E. Kivman
+Proof The second part of the statement can be proved directly via
+|XtYt −XsYs| ≤|Xt||Yt −Ys| + |Ys||Xt −Xs|.
+The ﬁrst part of the statement follows from
+|E[V (XτYτ −XsYs)]| ≤|E[V Yτ(Xτ −Xs)]| + |E[V Xs(Yτ −Ys)]|.
+□
+Next, we prove some properties of the concave envelope of the modulus of con-
+tinuity of a uniformly continuous function. We use these results to show that a
+uniformly continuous function of an Itô process with bounded coefﬁcients satisﬁes
+Condition A.2.
+Lemma A.9 Let (X, ∥·∥X) be a normed space with a nonempty and convex subset D,
+let (Y, dY ) be a metric space, let f : D →Y and for every t ∈[0, ∞), let
+˜ωf (t) :=
+sup
+x1,x2∈D,∥x1−x2∥X≤t
+dY
+	
+f (x1), f (x2)
+
+,
+ωf (t) := inf{ψ(t) : ψ : [0, ∞) →[0, ∞) is concave and ψ ≥˜ωf }.
+Then ˜ωf : [0, ∞) →[0, ∞] is nondecreasing and satisﬁes ˜ωf (0) = 0, and for all
+s, t ∈[0, ∞) with s > 0, we have
+˜ωf (t) ≤t + s
+s
+˜ωf (s).
+(A.1)
+If ˜ωf is ﬁnite-valued, then ωf takes values in [0, ∞), is concave, nondecreasing and
+for all x1, x2 ∈D,
+dY
+	
+f (x1), f (x2)
+
+≤ωf (∥x1 −x2∥X).
+(A.2)
+If f is uniformly continuous, then ˜ωf is ﬁnite-valued, ˜ωf and ωf are continuous in
+0 and ωf (0) = 0.
+Proof By deﬁnition, ˜ωf is nondecreasing and satisﬁes ˜ωf (0) = 0. To prove (A.1),
+let s, t ∈[0, ∞) with s > 0 and x1, x2 ∈D with ∥x1 −x2∥X ≤t. Let N := ⌈t/s⌉
+and
+xk := k
+N x1 + N −k
+N
+x2
+for k = 0, . . . , N.
+Then xk ∈D because D is convex and ∥xk −xk+1∥X = 1
+N ∥x1 −x2∥X ≤s. Hence
+dY
+	
+f (x1), f (x2)
+
+≤
+N−1
+
+k=0
+dY
+	
+f (xk), f (xk+1)
+
+≤N max
+k
+˜ωf (∥xk −xk+1∥X) ≤(t + s) ˜ωf (s)
+s
+.
+
+
+===== PAGE 42 =====
+Optimal trade execution under small market impact
+799
+Having established (A.1), we know that if ˜ωf is ﬁnite-valued, then it is bounded
+above by an afﬁne (hence concave) function. In particular, the concave envelope is
+well deﬁned and satisﬁes (A.2). Concavity and monotonicity of ωf are clear. Finally,
+uniform continuity of f implies that ˜ωf is ﬁnite-valued and continuous in 0. In order
+to see ωf (0) = 0 and continuity of ωf in 0, let ε > 0 be arbitrary and let δ > 0
+be such that ˜ωf (δ) ≤ε/2. Due to (A.1), ˜ωf and hence ωf is bounded above by the
+afﬁne and hence concave function t →((t + δ)/δ)(ε/2). In particular, for all t ≤δ,
+we obtain ωf (t) ≤ε.
+□
+Lemma A.10 Let X = (Xt)t∈I be a continuous, adapted, Rd-valued process which
+satisﬁes Condition A.2 and let f : [0, T ] × Rd →R be uniformly continuous. Then
+(f (t, Xt))t∈[0,T ] also satisﬁes Condition A.2.
+Proof There exists a function ωf with the properties listed by Lemma A.9 (with the
+max-norm | · |∞on [0, T ] × Rd). Now let δ > 0 be arbitrary. Using (A.2) and the
+concavity and monotonicity of ωf , we obtain that
+E
+
+max
+s≤t≤T ∧(s+δ) |f (t, Xt) −f (s, Xs)|
+Fs
+
+≤E
+
+max
+s≤t≤T ∧(s+δ) ωf (|t −s| ∨|Xt −Xs|∞)
+Fs
+
+≤E
+
+ωf
+
+δ ∨
+max
+s≤t≤T ∧(s+δ) |Xt −Xs|∞
+Fs
+
+≤ωf
+
+δ + E
+
+max
+s≤t≤T ∧(s+δ) |Xt −Xs|∞
+Fs
+
+.
+Since ωf is continuous in 0 and X satisﬁes Condition A.2, we can choose δ > 0
+small enough such that this term is not greater than ε.
+□
+Lemma A.11 Let (˜σt)t∈[0,T ] ∈L∞
+P (×[0, T ]; Rm). Then (
+ t
+0 ˜σu dWu)t∈[0,T ] satisﬁes
+Condition A.2.
+Proof Let σ > 0 be a componentwise bound on ˜σ. By Jensen’s inequality,
+E
+
+max
+s≤t≤T ∧(s+δ)
+
+ t
+s
+˜σu dWu
+
+Fs
+
+≤
+
+E
+
+max
+s≤t≤T ∧(s+δ)
+
+ t
+s
+˜σu dWu
+
+2Fs
+
+.
+In order to prove that the conditional expectation on the right-hand side is bounded,
+we apply the classical Doob maximal inequality for the conditional measures with
+respect to all sets A ∈Fs with positive probability and obtain
+
+E
+
+max
+s≤t≤T ∧(s+δ)
+
+ t
+s
+˜σu dWu
+
+2Fs
+
+≤2
+
+E
+
+ T ∧(s+δ)
+s
+˜σu dWu
+
+2Fs
+
+.
+
+
+===== PAGE 43 =====
+800
+U. Horst, E. Kivman
+Then by combining these inequalities and using the Itô isometry for conditional
+expectations, we ﬁnally obtain
+E
+
+max
+s≤t≤T ∧(s+δ)
+
+ t
+s
+˜σu dWu
+
+Fs
+
+≤2
+
+mE
+  T ∧(s+δ)
+s
+mσ 2 du
+Fs
+
+≤2mσ
+√
+δ.
+□
+Remark A.12 Obviously, we have the same result for the drift part of an Itô process,
+i.e., if ˜μ ∈L∞
+Prog( × [0, T ]; Rm), then (
+ t
+0 ˜μu du)t∈[0,T ] satisﬁes Condition A.2.
+However, we cannot expect the weaker Condition A.1 under weaker integrability
+assumptions, as the following example shows. Take T = 2, ˜μu := 1[1,2](u)|W1|,
+ε := 1, δ ∈(0, 1) arbitrary and s := 1, τ := 1 + δ, V := 1{δ|W1|>1}. Then
+|E[V
+ 1+δ
+1
+˜μu du]|
+E[|V |]
+= E[1{δ|W1|>1}δ|W1|]|
+E[1{δ|W1|>1}]
+> 1.
+Finally, we prove that the strong Condition A.2 holds for a certain class of BSDEs
+driven by forward SDEs. Speciﬁcally, we prove that the solution to the BSDE can
+be expressed as a uniformly continuous function of the forward process and then
+we apply Lemma A.10. The representation of the solution in terms of a continuous
+function has already been proved by El Karoui [12].
+For all (t, x) ∈[0, T ] × Rn, we consider on [t, T ] the SDE
+dXt,x
+s
+= ˜μ(s, Xt,x
+s ) ds + ˜σ(s, Xt,x
+s ) dWs,
+Xt,x
+t
+= x,
+where ˜μ, ˜σ : [0, T ] × Rn →Rn × Rn×m are measurable and bounded and satisfy the
+Lipschitz condition
+|( ˜μ, ˜σ)(t, x1) −( ˜μ, ˜σ)(t, x2)| ≤L|x1 −x2|.
+By the previous results, we obtain that Xt,x satisﬁes Condition A.2. Standard compu-
+tations show that there exists a constant C ∈(0, ∞) such that for all t ∈[0, T ] and
+x1, x2 ∈Rn,
+E
+
+sup
+s∈[t,T ]
+|Xt,x1
+s
+−Xt,x2
+s
+|2
+≤C|x1 −x2|2.
+(A.3)
+Theorem A.13 Let  : Rn →R be bounded, ψ : [0, T ] × Rn × R →R continuous
+and bounded and let both functions satisfy the Lipschitz condition
+|(x1) −(x2)| + |ψ(t, x1, y1) −ψ(t, x2, y2)| ≤L(|x1 −x2| + |y1 −y2|).
+For (t, x) ∈[0, T ] × Rn, let (Y t,x, Zt,x) ∈L2
+P( × [0, T ]; R × Rm) be the unique
+solution to the BSDE on [t, T ] given by
+−dY t,x
+s
+= ψ(s, Xt,x
+s , Y t,x
+s
+) ds −Zt,x
+s
+dWs,
+Y t,x
+T
+= (Xt,x
+T )
+
+
+===== PAGE 44 =====
+Optimal trade execution under small market impact
+801
+driven by the forward process Xt,x (Y t,x exists due to [12, Theorem 2.1]). Then there
+exists a uniformly continuous function h: [0, T ] × Rn →R, which does not depend
+on (t, x), such that
+P
+
+h(s, Xt,x
+s ) = Y t,x
+s
+for all s ∈[t, T ]
+
+= 1.
+(A.4)
+In particular, the process Y t,x satisﬁes Condition A.2 on [t, T ].
+Proof By [12, Theorem 3.4] and the remark following it, there exists a decoupling
+ﬁeld h: [0, T ] × Rn →R that is 1/2-Hölder continuous in t and locally Lipschitz-
+continuous in x such that (A.4) holds. It therefore remains to prove the uniform
+continuity of h. Since
+h(t, x) = E
+
+(Xt,x
+T ) +
+ T
+t
+ψ
+	
+u, Xt,x
+u , h(u, Xt,x
+u )
+
+du
+
+,
+we see that h is bounded, say |h| ≤h. Then
+˜ωh(s, δ) :=
+sup
+|x1−x2|≤δ
+|h(s, x1) −h(s, x2)|
+is ﬁnite-valued, and Lemma A.9 therefore allows us to deﬁne its concave envelope
+ωh(s, · ): [0, ∞) →[0, ∞).
+Using the Lipschitz-continuity of ψ, we obtain for all x1, x2 ∈Rn and t ∈[0, T ]
+that
+|h(t, x1) −h(t, x2)|
+≤LE[|Xt,x1
+T
+−Xt,x2
+T
+|]
++ L
+ T
+t
+	
+E[|Xt,x1
+u
+−Xt,x2
+u
+|] + E[ ˜ωh(u, |Xt,x1
+u
+−Xt,x2
+u
+|)]
+
+du.
+Using (A.3) along with Lemma A.9, if |x1 −x2| ≤δ, then
+E[|Xt,x1
+T
+−Xt,x2
+T
+|] ≤Cδ
+and
+E[ ˜ωh(u, |Xt,x1
+u
+−Xt,x2
+u
+|)] ≤ωh(u, E[|Xt,x1
+u
+−Xt,x2
+u
+|]) ≤ωh(u, Cδ)
+for some constant C ∈(0, ∞) that depends only on ˜μ, ˜σ and L. In view of (A.1),
+ωh(u, Cδ) ≤(C + 1) ˜ωh(u, δ).
+This shows that
+˜ωh(t, δ) ≤LCδ + L
+ T
+t
+	
+Cδ + (C + 1) ˜ωh(u, δ)
+
+du
+= LCδ(1 + T −t) + L(C + 1)
+ T
+t
+˜ωh(u, δ) du.
+
+
+===== PAGE 45 =====
+802
+U. Horst, E. Kivman
+Hence Gronwall’s inequality implies that h is uniformly Lipschitz-continuous in the
+second variable. Since h is uniformly 1/2-Hölder-continuous in the ﬁrst variable, this
+proves the assertion.
+□
+Appendix B: Convergence results for SDEs and random ODEs
+In this appendix, we establish three convergence results for stochastic integral equa-
+tions that are useful to establish the convergence of our coefﬁcient and state pro-
+cesses. In Sect. B.1, we consider sequences of SDEs parametrised by η →0 with
+“positive feedback”, i.e., sequences of equations that are driven away from their lim-
+its. In Sect. B.2, we consider sequences of random ODE systems parametrised by
+η →0 with “negative feedback”, which are driven towards their limit.
+For equations with positive feedback, we require a priori information about the
+terminal value and the increments of the coefﬁcient processes to be bounded indepen-
+dently of their past (see Conditions A.1 and A.2). These bounds prevent the stochastic
+process from reaching its terminal value if a large difference between the limit and the
+pre-limit occurs at some time s ∈(0, T ). This will imply a.s. uniform convergence.
+An almost sure statement under negative feedback cannot be expected. Instead, we
+follow a pathwise approach and establish uniform convergence in probability.
+B.1 SDEs with positive feedback
+B.1.1 An equation without scaling
+We ﬁrst consider a family of real-valued, adapted, continuous stochastic processes
+bη = (bη
+t )t∈(0,T ) that satisfy the integral equation
+dbη
+t =
+	
+a(t, bη
+t ) + qη
+t
+
+dt + Zη
+t dWt
+on (0, T ),
+(B.1)
+where a :  × (0, T ) × R →R is adapted and continuous and (qη
+t )t∈(0,T ) is an
+adapted, real-valued, continuous stochastic process and
+(Zη
+t )t∈(0,T ) ∈L2
+Prog
+	
+ × (0, T −]; Rm
+.
+Our goal is to prove that the processes (bη
+t )t∈(0,T ) with terminal conditions bη
+T = 0
+converge to 0 as η →0 uniformly on (0, T ) if the process qη does and if the map-
+ping a is such that bη is driven away from 0. Intuitively, the last condition makes it
+impossible for bη to return to 0 at the terminal time once it has left a neighbourhood
+of 0. Speciﬁcally, we assume that the following assumption is satisﬁed.
+Assumption B.1 i) There exists a real constant a > 0 such that
+sup
+t∈(0,T )
+sup
+η>0
+|a(t, bη
+t )| ≤a.
+ii) For all ε > 0, there exists a δ > 0 such that for all η > 0,
+P
+
+sup
+t∈[T −δ,T )
+|bη
+t | ≤ε
+
+= 1.
+
+
+===== PAGE 46 =====
+Optimal trade execution under small market impact
+803
+iii) There exists a function η1 : (0, ∞) →(0, ∞) such that for all ε > 0 and
+η ≤η1(ε),
+P
+
+sup
+t∈(0,T −ε]
+|qη
+t | ≤ε
+
+= 1.
+iv) There exists an ε1 > 0 such that
+inf
+t∈(0,T )
+inf
+b∈[−ε1,ε1] ba(t, b) ≥0.
+Lemma B.2 Under Assumption B.1, there exists a function η0 : (0, ∞) →(0, ∞),
+which depends only on η1 and the mapping ε →δ introduced in Assumption B.1 ii),
+such that for all ε > 0 and all η ∈(0, η0(ε)],
+P
+
+sup
+s∈(0,T )
+bη
+s
+ ≤ε
+
+= 1.
+Proof Let ε ∈(0, ε1]. In the ﬁrst step, we show that there exists an η0(ε) > 0 such
+that
+σ ε,η := inf{t ∈(0, T ) : P[bη
+s < −ε] = 0 for all s ∈[t, T )}
+satisﬁes σ ε,η = 0 for all η ∈(0, η0(ε)]. Since bη is continuous, this will imply that
+for all η ∈(0, η0(ε)],
+P
+
+inf
+s∈(0,T ) bη
+s ≥−ε
+
+= 1.
+The other part of the statement can be proved analogously.
+We now assume to the contrary that 0 < σ ε,η and prove that this leads to a con-
+tradiction if η is small enough. For all s ∈(0, T ) and η ∈(0, ∞), we can deﬁne the
+stopping time
+τ s := τ s,ε,η := inf{u ∈[s, T ) : bη
+u = −ε/2}.
+By Assumption B.1 ii), there exists a small enough δ > 0 such that for all s ∈(0, T )
+and η ∈(0, ∞),
+P[bη
+s < −ε, τ s > T −δ] = 0.
+(B.2)
+Since τ s is a stopping time, the square-integrability of Zη, the optional sampling
+theorem and Assumption B.1 i), iv), (B.1) and (B.2) yield that for all s ∈(0, σ ε,η)
+and η ∈(0, ∞),
+ε
+2P[bη
+s < −ε] ≤E[1{bη
+s <−ε}(bη
+τ s −bη
+s )]
+= E
+
+1{bη
+s <−ε}
+  τ s∧σ ε,η
+s
+a(t, bη
+t ) dt
++
+ τ s
+τ s∧σ ε,η a(t, bη
+t ) dt +
+ τ s
+s
+qη
+t dt
+
+.
+
+
+===== PAGE 47 =====
+804
+U. Horst, E. Kivman
+Inside the second integral, if σ ε,η < τ s, we have bη
+t ∈[−ε, −ε/2]. Hence
+ε
+2P[bη
+s < −ε] ≤P[bη
+s < −ε]
+
+(σ ε,η −s)a + T
+sup
+t∈[0,T −δ]
+|qη
+t |
+
+.
+(B.3)
+The assumption 0 < σ ε,η implies that for any α > 0, we can ﬁnd
+σ ε,η −α ≤s ≤σ ε,η
+with P[bη
+s < −ε] > 0. However, due to Assumption B.1 ii) and iii), we can choose
+α ≤ε/(5a), δ ≤ε/(5T ) and η0(ε) < η1(δ) such that (B.3) leads to a contradiction
+because P[bη
+s < −ε] > 0. This implies 0 = σ ε,η.
+□
+B.1.2 An equation with scaling
+In this section, we establish an abstract convergence result for stochastic processes
+(P η
+t )t∈(0,T ) indexed by some parameter η > 0 that satisfy the integral equation
+d(ψP η)t =
+
+η−1	
+a(P η
+t , P 0
+t ) + qη
+t
+
+dt + dLη
+t + Zη
+t dWt
+on (0, T ),
+(B.4)
+where a : R2 →R is a measurable mapping, (ψt)t∈(0,T ), (P η
+t )t∈(0,T ), (P 0
+t )t∈(0,T ),
+(qη
+t )t∈(0,T ) and (Lη
+t )t∈(0,T ) are adapted, real-valued, continuous stochastic processes
+and
+(Zη
+t )t∈(0,T ) ∈L2
+Prog
+	
+ × (0, T −]; Rm
+.
+Our goal is to prove that the processes P η converge to P 0 as η →0 uniformly
+on compact subintervals of (0, T ) if the mapping a is such that P η is driven away
+from P 0 and if the boundary condition limt→T (P η
+t −P 0
+t ) ≥0 holds. If the integral
+equation (B.4) holds on the whole interval (0, T ], then it is enough to assume that
+P η
+T ≥P 0
+T . When applying the abstract convergence result to the BSDEs (3.2) and
+(3.3), the former condition holds if N = ∞, while the latter holds if N is ﬁnite.
+Assumption B.3 i) There exist positive constants ψ, ψ, P such that ψ ≤ψ ≤ψ,
+|P 0| ≤P and P η ≥−P. Moreover, there exists a function η1 : (0, ∞) →(0, ∞)
+such that
+P η|×(0,T −ε] ≤P
+for all ε > 0 and η ≤η1(ε).
+ii) One of the following two “boundary conditions” holds:
+a) For all η > 0, there exists a Tη < T such that
+P
+
+inf
+Tη≤t<T(P η
+t −P 0
+t ) ≥0
+
+= 1.
+b) The integral equation (B.4) holds on the whole interval (0, T ] and P η
+T ≥P 0
+T .
+Thus in particular, the processes ψ, P η, P 0, qη and Lη are continuous on (0, T ] and
+Zη ∈L2
+Prog( × (0, T ]; Rm).
+
+
+===== PAGE 48 =====
+Optimal trade execution under small market impact
+805
+iii) There exists a function η2 : (0, ∞) →(0, ∞) such that for all ε > 0 and all
+η ∈(0, η2(ε)],
+P
+
+inf
+t∈(0,T −ε] qη
+t ≥−ε, sup
+t∈(0,T )
+qη
+t ≤ε
+
+= 1.
+iv) The function a : R2 →R is nondecreasing and differentiable in the ﬁrst
+variable and a(P 0
+t (ω), P 0
+t (ω)) ≡0. Moreover, there exist ε, β > 0 such that
+∂
+∂x a
+	
+x, P 0
+t (ω)
+
+≥β
+for all |x −P 0
+t (ω)| ≤ε.
+v) The processes ψ and P 0 satisfy Condition A.2, and the processes Lη (η > 0)
+satisfy Condition A.1 uniformly in η > 0.
+Lemma B.4 Under Assumption B.3, there exists a mapping η0 : (0, ∞) →(0, ∞)
+that depends only on ψ, P, η1, η2, P 0, ε, β and the mapping ε →δ corresponding
+to the uniform satisfaction of Condition A.1 by (Lη)η>0 such that for all ε > 0 and
+η ∈(0, η0(ε)],
+P
+
+sup
+s∈(0,T −ε]
+(P η
+s −P 0
+s ) ≤ε,
+inf
+s∈(0,T )(P η
+s −P 0
+s ) ≥−ε
+
+= 1.
+Proof Let pη := P η −P 0 and ﬁx ε ∈(0, ε]. We ﬁrst show that there exists η0(ε) > 0
+such that
+sup
+η≤η0(ε)
+sup
+s∈(0,T −ε]
+P[pη
+s > ε] = 0.
+(B.5)
+Since pη is continuous, this proves that, for all η ≤η0(ε),
+P
+
+sup
+s∈(0,T −ε]
+pη
+s ≤ε
+
+= 1.
+To show (B.5), we ﬁx δ ≤ε/2 and s ∈(0, T −ε]. For all η > 0, we deﬁne the
+stopping time
+τ η := (s + δ) ∧inf{u ∈[s, T ) : |pη
+u| = ε/2} ≤T −ε
+2.
+The L2-integrability of Zη on [s, T −ε/2] and the optional sampling theorem give
+0 = E
+
+1{pη
+s >ε}
+
+η−1
+ τ η
+s
+	
+a(P η
+u , P 0
+u ) + qη
+u
+
+du + Lη
+τ η −Lη
+s
++ ψsP 0
+s −ψτ ηP 0
+τ η + ψspη
+s −ψτ ηpη
+τ η
+
+.
+(B.6)
+We now analyse the various terms in (B.6) separately to deduce that P[pη
+s > ε] = 0
+if
+η ≤η0(ε) := min
+
+η1(ε/2), η2
+	
+min(δ, βε/4)
+
+
+.
+
+
+===== PAGE 49 =====
+806
+U. Horst, E. Kivman
+We ﬁrst consider the term
+E
+
+1{pη
+s >ε}
+
+η−1
+ τ η
+s
+	
+a(P η
+u , P 0
+u ) + qη
+u
+
+du
+
+.
+On {pη
+s > ε}, we have pη
+u ≥ε/2 for all u ∈[s, τ η] and hence
+a(P η
+u , P 0
+u ) = a(P 0
+u + pη
+u, P 0
+u ) ≥a(P 0
+u + ε/2, P 0
+u ) ≥βε
+2 .
+(B.7)
+Together with our assumption on the process qη and our choice of η, this implies by
+using (B.7) and qη
+u≥−βε/4 that
+E
+
+1{pη
+s >ε}
+
+η−1
+ τ η
+s
+	
+a(P η
+u , P 0
+u ) + qη
+u
+
+du
+
+≥E
+
+1{pη
+s >ε}
+
+η−1(τ η −s)βε
+4
+
+≥δ
+
+η−1 βε
+4 P[pη
+s > ε and τ η = s + δ].
+By Assumption B.3 v), Lemma A.5 and Theorem A.8, we can choose for any ε0 > 0
+some δ > 0, which does not depend on η, such that
+|E[1{pη
+s >ε}(Yτ η −Ys)]| ≤ε0P[pη
+s > ε]
+for Y = ψP 0, Lη
+(B.8)
+and
+E
+
+|ψτ η −ψs|
+Fs
+
+≤ε0.
+Using (B.8), the fact that P η|×(0,T −ε] ≤P by Assumption B.3 i) and pη
+τ η ≤2P
+yields
+E[1{pη
+s >ε}(ψspη
+s −ψτ ηpη
+τ η)] ≥E
+
+1{pη
+s >ε and τ η<s+δ}
+	
+ψsε/2 + (ψs −ψτ η)ε/2
+
+
++ E[1{pη
+s >ε and τ η=s+δ}(ψsε −ψτ ηpη
+τ η)]
+≥ε
+2ψP[pη
+s > ε and τ η < s + δ] −εε0
+2 P[pη
+s > ε]
++ (εψ −2ψ P)P[pη
+s > ε and τ η = s + δ].
+Altogether this yields
+0 ≥P[pη
+s > ε and τ η = s + δ]
+
+δ
+
+η0(ε)−1 βε
+4 −2ε0 −εε0
+2 + εψ −2ψ P
+
++ P[pη
+s > ε and τ η < s + δ]
+
+−2ε0 + ε
+2ψ −εε0
+2
+
+.
+(B.9)
+Now if we choose ﬁrst ε0 and then η0(ε) small enough, the coefﬁcients that multiply
+the probabilities in (B.9) become positive. Hence both probabilities must be equal to
+
+
+===== PAGE 50 =====
+Optimal trade execution under small market impact
+807
+zero, and so we have P[pη
+s > ε] = 0 if η ≤η0(ε). Analogously, we can prove that
+P[pη
+s < −ε] = 0 for all s ∈(0, T ). The main difference is that τ η < T −δ does not
+hold on the set {pη
+s < −ε}. Instead, we only obtain τ η < T (if Assumption B.3 ii) b)
+holds) or τ η < Tη (if Assumption B.3 ii) a) holds).
+□
+B.2 ODE systems with negative feedback
+In this section, we establish a convergence result for ODEs with random coefﬁ-
+cients and a “nearly singular” driver. Speciﬁcally, we consider pairs of continuously
+differentiable stochastic processes (Xη, Zη) which satisfy the ODE system
+˙Xη
+t = −Aη
+t (Xη
+t + Bη
+t Zη
+t ),
+Xη
+0 = x0,
+˙Zη
+t = CtXη
+t + DtZη
+t ,
+Zη
+0 = z0
+on some time interval [0, S] for all η > 0, where Aη, Bη, C and D are continuous,
+adapted, real-valued stochastic processes. We assume that the process Aη converges
+in probability to inﬁnity as η →0, that the process Bη converges to a process B0 in
+probability and that the processes (Xη, Zη) are uniformly bounded in probability.
+Assumption B.5 There exists a continuous adapted process B0 such that for all
+ε, δ ∈(0, ∞), there exists some η0 = η0(ε, δ) > 0 such that for all η ∈(0, η0],
+P
+
+inf
+t∈[0,S] Aη
+t ≥1
+ε , sup
+t∈[0,S]
+|Bη
+t −B0
+t | ≤ε
+
+≥1 −δ.
+(B.10)
+Moreover, for all δ ∈(0, 1), there exists an L > 0 such that for all η > 0,
+P
+
+sup
+t∈[0,S]
+(|Xη
+t | + |Zη
+t |) ≤L
+
+≥1 −δ.
+(B.11)
+In terms of the process B0, we deﬁne
+X0
+t := −B0
+t Z0
+t ,
+Z0
+t := z0 exp
+  t
+0
+(−CsB0
+s + Ds) ds
+
+.
+Our goal is to prove that (Xη, Zη) →(X0, Z0) in a suitable sense as η →0. Since
+the initial condition of the processes Xη does not vary with η and since Aη
+0 ↑∞, we
+cannot expect convergence in t = 0. Instead, we ﬁrst prove that ˙Xη
+Aη converges to 0 on
+any compact subinterval of (0, S], with lower, respectively upper convergence near
+the origin. More precisely, we have the following result.
+Lemma B.6 If Assumption B.5 holds and if x0 + B0
+0z0 > 0, then for all ε, δ ∈(0, ∞),
+there exists η1 = η1(ε, δ) > 0 such that for all η ∈(0, η1],
+P
+
+sup
+t∈[0,S]
+˙Xη
+t
+Aη
+t
+≤ε, inf
+t∈[ε,S]
+˙Xη
+t
+Aη
+t
+≥−ε
+
+≥1 −δ.
+
+
+===== PAGE 51 =====
+808
+U. Horst, E. Kivman
+If x0 + B0
+0z0 < 0, then the intervals [0, S] and [ε, S] in the above statement are to
+be swapped. The mapping η1 depends only on B0, C, D, x0, z0 and the mappings
+(ε, δ) →η0(ε, δ) and δ →L introduced in Assumption B.5.
+Proof Let y0 := x0 + B0
+0z0. We assume without loss of generality that y0 > 0. Then
+there exists α0 > 0 such that
+y0 −α|z0| > 0
+for all α ≤α0.
+Let us now put
+ML,η :=
+
+sup
+t∈[0,S]
+(|B0
+t | + |Ct| + |Dt| + |Xη
+t | + |Zη
+t |) ≤L
+
+,
+Mα,η :=
+
+inf
+t∈[0,S] Aη ≥1
+α , sup
+t∈[0,S]
+|Bη
+t −B0
+t | ≤α
+
+,
+Mβ,ν :=
+
+sup
+s,t∈[0,S],|s−t|≤ν
+|B0
+s −B0
+t | ≤β
+
+.
+Due to Assumption B.5 and Lemma 3.9, for all δ > 0, β > 0 and α ≤α0, there exist
+constants L0(δ), η0(α, δ) and ν0(β, δ) such that
+inf
+L≥L0
+inf
+η P[ML,η] ≥1 −δ
+6,
+inf
+η≤η0 P[Mα,η] ≥1 −δ
+6,
+inf
+ν≤ν0 P[Mβ,ν] ≥1 −δ
+6.
+Moreover, for all α ≤α0 and P-a.a. ω ∈Mα,η,
+˙Xη
+0(ω) ≤−Aη
+0(ω)
+	
+y0 −|Bη
+0 (ω) −B0
+0(ω)||z0|
+
+≤−1
+α (y0 −α|z0|) < 0.
+(B.12)
+We are now ready to prove that for all ε, δ > 0, there exists η1 > 0 such that for
+all η ≤η1,
+P
+
+sup
+t∈[0,S]
+˙Xη
+t
+Aη
+t
+≤ε
+
+≥1 −δ
+2.
+(B.13)
+To this end, we take an ω ∈ML,η ∩Mα,η ∩Mβ,ν where (B.12) holds and assume
+that there exists some t ∈[0, S] such that
+˙Xη
+t (ω)
+Aη
+t (ω) ≥ε. It is enough to show that such
+a t cannot exist for L large and α, β, ν, η small enough. Since
+˙Xη(ω)
+Aη(ω) is continuous
+and
+˙Xη
+0(ω)
+Aη
+0(ω) < 0 if α ≤α0, we can choose a minimal t ∈[0, S] with the property that
+˙Xη
+t (ω)
+Aη
+t (ω) = ε. Let
+s := sup
+
+u ∈(0, t) :
+˙Xη
+u(ω)
+Aη
+u(ω) = ε/2
+
+.
+
+
+===== PAGE 52 =====
+Optimal trade execution under small market impact
+809
+Then
+˙Xη
+s (ω)
+Aη
+s (ω) = ε
+2 and
+˙Xη
+u(ω)
+Aη
+u(ω) > ε
+2 for all u ∈(s, t]. We now distinguish two cases. If
+t −s ≥ν, then the fact that ω ∈ML,η ∩Mα,η yields
+2L ≥Xη
+t (ω) −Xη
+s (ω) =
+ t
+s
+˙Xη
+u(ω)
+Aη
+u(ω)Aη
+u(ω) du ≥νε
+2α .
+(B.14)
+If t −s < ν, we have
+ε
+2 =
+˙Xη
+t (ω)
+Aη
+t (ω) −
+˙Xη
+s (ω)
+Aη
+s (ω)
+= −Xη
+t (ω) −Bη
+t (ω)Zη
+t (ω) + Xη
+s (ω) + Bη
+s (ω)Zη
+s (ω).
+Using that ω ∈Mα,η yields −Xη
+t (ω) + Xη
+s (ω) = −
+ t
+s
+˙Xη
+u(ω)
+Aη
+u(ω)Aη
+u(ω) du < 0. Using
+that ω ∈ML,η ∩Mβ,ν yields
+ε
+2 ≤−Bη
+t (ω)
+ t
+s
+˙Zη
+u(ω) du −Zη
+s (ω)
+	
+Bη
+t (ω) −Bη
+s (ω)
+
+≤2L2ν
+	
+|B0
+t (ω)| + |Bη
+t (ω) −B0
+t (ω)|
+
++ L
+	
+|Bη
+t (ω) −B0
+t (ω)| + |B0
+t (ω) −B0
+s (ω)| + |B0
+s (ω) −Bη
+s (ω)|
+
+≤2L2ν(L + α) + L(2α + β).
+(B.15)
+Now we ﬁrst choose L ≥L0(δ), then β > 0 such that 3Lβ < ε
+4, then ν ≤ν0(β, δ)
+such that 2L2ν(L + α0) < ε
+4, then α ≤α0 such that νε
+2α > 2L and α ≤β, and ﬁnally
+η1(ε, δ) ≤η0(α, δ). Then both (B.14) and (B.15) are violated. As a result,
+ML,η ∩Mα,η ∩Mβ,ν ⊆
+
+sup
+t∈[0,S]
+˙Xη
+t
+Aη
+t
+≤ε
+
+,
+and hence (B.13) holds.
+It remains to prove that for suitably chosen parameters,
+ML,η ∩Mα,η ∩Mβ,ν ⊆
+
+inf
+t∈[ε,S]
+˙Xη
+t
+Aη
+t
+≥−ε
+
+.
+To this end, we ﬁx ω ∈ML,η ∩Mα,η ∩Mβ,ν and assume that there exists a minimal
+t ∈[ε, S] such that
+˙Xη
+t (ω)
+Aη
+t (ω) ≤−ε. Using that ω ∈ML,η ∩Mα,η, it is straightfor-
+ward to show that for all sufﬁciently small α, there exists an r ∈[0, ε] such that
+˙Xη
+r (ω)
+Aη
+r (ω) ≥−ε/2. Hence we can deﬁne
+s := sup
+
+u ∈[0, t) :
+˙Xη
+u(ω)
+Aη
+u(ω) = −ε/2
+
+.
+
+
+===== PAGE 53 =====
+810
+U. Horst, E. Kivman
+Then 0 ≤s < t and
+˙Xη
+u(ω)
+Aη
+u(ω) ∈[−ε, −ε/2] for all u ∈[s, t]. We can now use the same
+arguments as in the ﬁrst step to conclude that
+P
+
+inf
+t∈[ε,S]
+˙Xη
+t
+Aη
+t
+≥−ε
+
+≥1 −δ
+2.
+(B.16)
+Combining (B.13) and (B.16) yields the desired result.
+□
+Lemma B.7 Let Assumption B.5 be satisﬁed and let x0 + B0
+0z0̸ = 0. Then for all
+ε, δ ∈(0, ∞), there exists η2 = η2(ε, δ) > 0 such that for all η ∈(0, η2],
+P
+
+sup
+t∈[0,S]
+|Zη
+t −Z0
+t | ≤ε
+
+≥1 −δ.
+The mapping η2 depends only on B0, C, D, x0, z0 and the mappings (ε, δ) →η0(ε, δ)
+and δ →L introduced in Assumption B.5.
+Proof Since
+Zη
+t −Z0
+t = exp
+  t
+0
+(Du −Bη
+uCu) du
+
+×
+ t
+0
+exp
+
+−
+ s
+0
+(Du −Bη
+uCu) du
+
+(B0
+s −Bη
+s )CsZ0
+s −Cs
+˙Xη
+s
+Aη
+s
+
+ds,
+the assertion follows from Assumption B.5 and Lemma B.6.
+□
+The next theorem follows by Assumption B.5 and Lemmas B.6 and B.7.
+Theorem B.8 If Assumption B.5 holds and x0 + B0
+0z0 > 0, then for all ε, δ ∈(0, ∞),
+there exists η3 = η3(ε, δ) > 0 such that for all η ∈(0, η3],
+P
+
+sup
+t∈[0,S]
+max(|Z0
+t −Zη
+t |, X0
+t −Xη
+t ) ≤ε, inf
+t∈[ε,S](X0
+t −Xη
+t ) ≥−ε
+
+≥1 −δ.
+If x0 + B0
+0z0 < 0, then the intervals [0, S] and [ε, S] in the statement are to be
+swapped. The mapping η3 depends only on B0, C, D, x0, z0 and the mappings
+(ε, δ) →η0(ε, δ) and δ →L introduced in Assumption B.5.
+Acknowledgements Financial support through the Stiftung der Deutschen Wirtschaft (sdw) is gratefully
+acknowledged. We thank Peter Bank, Mikhail Urusov and seminar participants at various institutions
+for valuable comments and remarks. We thank two anonymous referees for valuable comments and
+suggestions that greatly helped to improve the presentation of the results.
+Funding Open Access funding enabled and organized by Projekt DEAL.
+Declarations
+Competing Interests The authors declare no competing interests.
+
+
+===== PAGE 54 =====
+Optimal trade execution under small market impact
+811
+Open Access This article is licensed under a Creative Commons Attribution 4.0 International License,
+which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as
+you give appropriate credit to the original author(s) and the source, provide a link to the Creative Com-
+mons licence, and indicate if changes were made. The images or other third party material in this article
+are included in the article’s Creative Commons licence, unless indicated otherwise in a credit line to the
+material. If material is not included in the article’s Creative Commons licence and your intended use is not
+permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly
+from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/
+4.0/.
+References
+1. Ackermann, J., Kruse, T., Urusov, M.: Càdlàg semimartingale strategies for optimal trade execution
+in stochastic order book models. Finance Stoch. 25, 757–810 (2021)
+2. Alfonsi, A., Fruth, A., Schied, A.: Optimal execution strategies in limit order books with general
+shape functions. Quant. Finance 10, 143–157 (2010)
+3. Almgren, R., Chriss, N.: Optimal execution of portfolio transactions. J. Risk 3, 5–40 (2001)
+4. Ankirchner, S., Jeanblanc, M., Kruse, T.: BSDEs with singular terminal condition and a control
+problem with constraints. SIAM J. Control Optim. 52, 893–913 (2014)
+5. Becherer, D., Bilarev, T., Frentrup, P.: Stability for gains from large investors’ strategies in M1/J1
+topologies. Bernoulli 25, 1105–1140 (2019)
+6. Bertsimas, D., Lo, A.W.: Optimal control of execution costs. J. Financ. Mark. 1, 1–50 (1998)
+7. Bouchard, B., Loeper, G., Zou, Y.: Almost-sure hedging with permanent price impact. Finance Stoch.
+20, 741–771 (2016)
+8. Carmona, R., Webster, K.: The self-ﬁnancing equation in limit order book markets. Finance Stoch.
+23, 729–759 (2019)
+9. Cartea, Á., Donnelly, R., Jaimungal, S.: Portfolio liquidation and ambiguity aversion. In: Dempster,
+M.A.H., et al. (eds.) High-Performance Computing in Finance, pp. 77–114. Chapman & Hall, London
+(2018)
+10. Cartea, Á., Jaimungal, S.: Incorporating order-ﬂow into optimal execution. Math. Financ. Econ. 10,
+339–364 (2016)
+11. Chen, N., Kou, S., Wang, C.: A partitioning algorithm for Markov decision processes with applications
+to market microstructure. Manag. Sci. 64, 784–803 (2018)
+12. El Karoui, N.: Backward stochastic differential equations. A general introduction. In: El Karoui, N.,
+Mazliak, L. (eds.) Pitman Research Notes in Mathematics Series, pp. 7–26 (1997)
+13. Fruth, A., Schöneborn, T., Urusov, M.: Optimal trade execution in order books with stochastic
+liquidity. Math. Finance 29, 507–541 (2019)
+14. Fu, G., Graewe, P., Horst, U., Popier, A.: A mean ﬁeld game of optimal portfolio liquidation. Math.
+Oper. Res. 46, 1250–1281 (2021)
+15. Gârleanu, N., Pedersen, L.H.: Dynamic portfolio choice with frictions. J. Econ. Theory 165, 487–516
+(2016)
+16. Gatheral, J.: No-dynamic-arbitrage and market impact. Quant. Finance 10, 749–759 (2010)
+17. Gatheral, J., Schied, A.: Optimal trade execution under geometric Brownian motion in the Almgren
+and Chriss framework. Int. J. Theor. Appl. Finance 14, 353–368 (2011)
+18. Graewe, P., Horst, U.: Optimal trade execution with instantaneous price impact and stochastic
+resilience. SIAM J. Control Optim. 55, 3707–3725 (2017)
+19. Graewe, P., Horst, U., Qiu, J.: A non-Markovian liquidation problem and backward SPDEs with
+singular terminal conditions. SIAM J. Control Optim. 53, 690–711 (2015)
+20. Guéant, O.: Optimal execution and block trade pricing: a general framework. Appl. Math. Finance 22,
+336–365 (2015)
+21. Horst, U., Naujokat, F.: When to cross the spread? Trading in two-sided limit order books. SIAM J.
+Financ. Math. 5, 278–315 (2014)
+22. Horst, U., Xia, X.: Multi-dimensional optimal trade execution under stochastic resilience. Finance
+Stoch. 23, 889–923 (2019)
+23. Horst, U., Xia, X., Zhou, C.: Optimal portfolio liquidation under factor uncertainty. Ann. Appl.
+Probab. 32, 80–123 (2022)
+
+
+===== PAGE 55 =====
+812
+U. Horst, E. Kivman
+24. Kruse, T., Popier, A.: Minimal supersolutions for BSDEs with singular terminal condition and
+application to optimal position targeting. Stoch. Process. Appl. 126, 2554–2592 (2016)
+25. Large, J.: Measuring the resiliency of an electronic limit order book. J. Financ. Mark. 10, 1–25 (2007)
+26. Lo, D.K., Hall, A.D.: Resiliency of the limit order book. J. Econ. Dyn. Control 61, 222–244 (2015)
+27. Lokka, A., Xu, J.: Optimal liquidation for a risk averse investor in a one-sided limit order book driven
+by a Lévy process (2020). Preprint, Available online at https://arxiv.org/abs/2002.03379
+28. Lorenz, C., Schied, A.: Drift dependence of optimal trade execution strategies under transient price
+impact. Finance Stoch. 17, 743–770 (2013)
+29. Neuman, E., Voß, M.: Optimal signal-adaptive trading with temporary and transient price impact.
+SIAM J. Financ. Math. 13, 551–575 (2022)
+30. Obizhaeva, A.A., Wang, J.: Optimal trading strategy and supply/demand dynamics. J. Financ. Mark.
+16, 1–32 (2013)
+31. Predoiu, S., Shaikhet, G., Shreve, S.: Optimal execution in a general one-sided limit-order book.
+SIAM J. Financ. Math. 2, 183–212 (2011)
+32. Protter, P.E.: Stochastic Integration and Differential Equations, 2nd edn. Springer, Berlin (2004)
+Publisher’s Note Springer Nature remains neutral with regard to jurisdictional claims in published maps
+and institutional afﬁliations.

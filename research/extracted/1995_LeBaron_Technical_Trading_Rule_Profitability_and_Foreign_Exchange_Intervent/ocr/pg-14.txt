@@ -1,0 +1,49 @@
+Table 8: Trading Rule Statistical Tests: News of Intervention Removed
+
+Series (Daily) Std.
+
+rasa [Ura Bes Oa
+1617
+
+1592 [ 0.
+0.634
+1530 0.594
+
+Central bank intervention removed based on reports in the New York Times, the Wall Street Journal,
+and the Financial Times. The news series are from Dominguez & Frankel (1993). The time period
+is from 4/27/83 - 12/31/90, for a total of 1943 daily observations. All of the returns include interest
+rate adjustments.
+
+5 Simultaneity and Intervention
+
+If acommon process drives both predictability and intervention then it is clear that interventions can
+no longer be held responsible for setting up the conditions that make technical trading profitable.
+Unfortunately, all the tests here are indirect, and a direct test of causality is probably unattainable
+with data of this frequency.'® Three indirect experiments are provided to test the common shock
+hypothesis.
+
+The first test attempts to see if the currency the intervention is directed at is important, or
+if there are general time periods when intervention and profitability are likely in both the DM
+and JY markets. In table 9 the JY intervention days are removed from the DM series, and the
+DM intervention days are removed from the JY series. Days on which intervention occurs in both
+currencies are removed from both. The purpose of this is to test whether there is something
+important about the direct intervention numbers or whether all intervention happens to occur in
+periods that are dominated by trending currencies. The table repeats the earlier results of table 5
+for two daily series. The strong reduction in significance and Sharpe ratios seen before is clearly
+not present in these results. This brings into question any model with a common shock across both
+the DM and JY series causing predictability and intervention to occur simultaneously.
+
+Table 9: Trading Rule Statistical Tests: Reversed Intervention Removed
+
+Series Sid [ Mea
+| DM Daily: Interest |[ 3205 | 0.022
+TY Daily: Interest | 2092 | 0.026 [0.626 | 2.206
+
+Intervention periods are removed for the other currency. DM intervention periods are removed from
+the JY series, and JY intervention periods are removed from the DM series.
+
+One possible factor that might drive both predictability and interventions is volatility. Ex-
+
+18Goodhart & Hesse (1993) provide tests at higher frequencies.
+
+12

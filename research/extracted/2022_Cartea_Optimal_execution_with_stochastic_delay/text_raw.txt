@@ -1,0 +1,3439 @@
+
+
+===== PAGE 1 =====
+Finance and Stochastics (2022) 27:1–47
+https://doi.org/10.1007/s00780-022-00491-w
+Optimal execution with stochastic delay
+Álvaro Cartea1,2 ·Leandro Sánchez-Betancourt3
+Received: 1 June 2022 / Accepted: 6 July 2022 / Published online: 1 December 2022
+© The Author(s) 2022
+Abstract
+We show how traders use marketable limit orders (MLOs) to liquidate a position over
+a trading window when there is latency in the marketplace. MLOs are liquidity-taking
+orders that specify a price limit and are for immediate execution only; however, if the
+price limit of the MLO precludes it from being ﬁlled, the exchange cancels the order.
+We frame our model as an impulse control problem with stochastic latency where the
+trader controls the times and the price limits of the MLOs sent to the exchange. We
+show that impatient liquidity takers submit MLOs that may walk the book (capped by
+the limit price) to increase the probability of ﬁlling the trades. On the other hand, pa-
+tient liquidity takers use speculative MLOs that are only ﬁlled if there has been an ad-
+vantageous move in prices over the latency period. Patient traders who are fast do not
+use their speed to hit the quotes they observe, or to ﬁnish the execution programme
+early; they use speed to complete the execution programme with as many speculative
+MLOs as possible. We use foreign exchange data to implement the random-latency-
+optimal strategy and to compare it with four benchmarks. For patient traders, the
+random-latency-optimal strategy outperforms the benchmarks by an amount that is
+greater than the transaction costs paid by liquidity takers in foreign exchange mar-
+kets. Around news announcements, the value of the outperformance is between two
+and ten times the value of the transaction costs. The superiority of the strategy is due
+to both the speculative MLOs that are ﬁlled and the price protection of the MLOs.
+Keywords Algorithmic trading · High-frequency trading · Stochastic delay · Latency
+Mathematics Subject Classiﬁcation (2020) 93E20 · 91G80 · 49L20 · 49L25
+JEL Classiﬁcation C02 · C61
+ Á. Cartea
+alvaro.cartea@maths.ox.ac.uk
+L. Sánchez-Betancourt
+leandro.sanchez-betancourt@kcl.ac.uk
+1
+Mathematical Institute, University of Oxford, Oxford, OX2 6GG, UK
+2
+Oxford-Man Institute of Quantitative Finance, Oxford, OX2 6ED, UK
+3
+Department of Mathematics, King’s College London, London, WC2R 2LS, UK
+
+
+===== PAGE 2 =====
+2
+Á. Cartea, L. Sánchez-Betancourt
+1 Introduction
+In electronic trading, agents are exposed to the risks that stem from latency in the
+marketplace. Latency is the aggregate of the time lags associated with the various
+stages of a trade. These stages, which occur in succession and are separated in time
+by random delays, include: the exchange sends quotes to an agent, the agent receives
+the quotes, the agent processes information and sends an instruction to the exchange,
+the exchange receives and handles the instruction, and ﬁnally, the outcome is notiﬁed
+to the agent. During the latency period, it is likely that the exchange will process other
+instructions that modify the limit order book (LOB) and possibly affect the outcome
+of the agent’s instructions. In particular, liquidity takers face the risk that the prices
+they target are not available by the time the exchange processes their order because
+the best quotes they observed were stale and therefore updated during the latency
+period. The risks faced by liquidity providers are different; e.g. their limit orders may
+be adversely selected by a taker. If the market moves against the trader’s interest, the
+order will not be ﬁlled or will be ﬁlled at worse prices – the outcome depends on the
+type of liquidity-taking order sent by the trader.
+At high frequencies (milliseconds, microseconds), the best quotes in the LOB tend
+to ﬂicker. Flickers are unpredictable short-lived deviations of a few ticks from the
+best quotes, and are the result of very frequent occurrences of rapid sequences of
+post-and-cancel activity in the LOB and the less frequent arrival of aggressive orders
+that consume liquidity that is immediately replenished. Thus over the latency period,
+the main source of risk faced by liquidity takers is from ﬂickers in the book, and, to
+a lesser extent, the risk that stems from unexpected changes in the fundamental best
+quotes by the time their orders are processed. If latency were zero, traders would not
+face these risks because they would always take liquidity at the prices and quantities
+they observe in the LOB; however, all market participants face latency and latency is
+random.
+In this paper, we show how a trader can execute a large position in a ﬁnancial
+instrument when the trader faces random latency in the marketplace. The dynam-
+ics of the best bid price in the LOB consist of the ‘fundamental’ best quote of the
+instrument and the ﬂickers (similarly for the best ask price). Innovations in the fun-
+damental best quote are driven by a stochastic process, and the size and arrival times
+of ﬂickers in the quotes are represented by a marked point process. The trader em-
+ploys marketable limit orders (MLOs) to execute the position over a time window;
+MLOs are liquidity-taking orders that specify a price limit and are for immediate exe-
+cution only. Filled MLOs have permanent price impact: a ﬁlled buy (sell) MLO exerts
+upward (downward) pressure on the fundamental value of the instrument. However,
+if the price limit of the MLO precludes it from being ﬁlled, the exchange cancels the
+order and there is no price impact because other market participants cannot observe
+missed trades.
+In our model, the trader controls the price limit of the MLO and controls when to
+submit it to the exchange, both of which largely depend on the trader’s degree of ur-
+gency to execute the position. An impatient liquidity taker will send sell (buy) MLOs
+with price limits that are below (above) the best bid (ask) price they observed in the
+LOB. This strategy increases the probability that the MLO is ﬁlled when processed
+
+
+===== PAGE 3 =====
+Optimal execution with stochastic delay
+3
+by the exchange and caps how far the MLO is allowed to walk the LOB when there
+are adverse price changes over the latency period. On the other hand, we show that
+patient liquidity takers use MLOs predominantly to send speculative trades. Specula-
+tive MLOs seek a price improvement relative to the fundamental best quote observed
+by the trader when sending the order to the exchange. Patient liquidity takers do not
+use their speed to ﬁnalise their execution programme ahead of time, or to hit the best
+quotes they observe in the LOB, they use speed mainly to send as many speculative
+MLOs as possible during the trading horizon – fast traders have many opportunities
+to retry missed orders before reaching the end of the trading window.
+We use proprietary foreign exchange data from the LMAX Exchange (henceforth
+LMAX) between September 2019 and February 2020 for ten currency pairs to study
+the order types that liquidity takers use in the foreign exchange market and to analyse
+the effect of latency on the efﬁcacy (i.e., hit and miss) of liquidity-taking orders. In
+all pairs, MLOs trade more volume than any other type of liquidity-taking order; in
+particular, more than market orders (MOs), which are for immediate execution and
+walk the LOB until ﬁlled in full. Though MLOs offer protection against adverse price
+moves, traders concede that the order may be cancelled by the exchange because
+clearing prices would breach the price limit instructed in the MLO. For example, in
+the EUR/USD pair, 41.0% of the MLOs were ﬁlled in full, 1.9% were partially ﬁlled,
+and 57.1% were missed. The MLOs that were partially or fully ﬁlled represent 56.9%
+of the volume traded in the pair, while MOs represent 13.5% of the total volume. The
+limit rates of missed MLOs were, on average, three ticks away from the best quote in
+the LOB when they were processed by the exchange.
+We use the LMAX data to implement and to benchmark the performance of the
+trader’s random-latency-optimal execution strategy against four strategies: (i) send
+MOs over a trading window and assume latency is zero, (ii) send MLOs over a trad-
+ing window and assume that latency is deterministic, (iii) employ a discrete time-
+weighted average price (TWAP) strategy that sends MOs at equally spaced time in-
+tervals over the execution window, (iv) send one MO to execute the entire order at
+the beginning of the trading window, where, unrealistically, we assume that there is
+enough liquidity at the best bid in the LOB to ﬁll the entire order.
+Estimates of model parameters for the EUR/USD currency pair are obtained with
+data between 1 August 2019 and 31 August 2019, and trading strategies are imple-
+mented with data between 1 September 2019 and 29 February 2020. We show that
+the performances of the random-latency-optimal strategy and of the deterministic-
+latency-optimal strategy are statistically the same. When the trader is patient, both
+strategies outperform the other benchmarks by a cash amount that is greater than the
+transaction costs paid by liquidity takers in foreign exchange markets, and around
+news events, the value of the outperformance increases to between two and ten times
+the value of the transaction costs. The source of the better performance of the latency-
+optimal strategies stems from the speculative MLOs that are ﬁlled during the trading
+interval, and from the price protection of the MLOs against adverse price moves. In
+the EUR/USD pair, the number and the value of ﬁlled speculative MLOs increase
+when market activity increases because the probability and the size of positive ﬂick-
+ers in the best bid rate increase during heightened market activity – this explains the
+considerable outperformance of the latency-optimal strategies around news events.
+
+
+===== PAGE 4 =====
+4
+Á. Cartea, L. Sánchez-Betancourt
+Finally, we show that the value of the outperformance decreases as the degree of im-
+patience of the trader increases because the strategy sends fewer speculative MLOs –
+very impatient traders do not send speculative MLOs, all their MLOs are for price
+protection.
+As far as we are aware, this is the ﬁrst work to appear in the literature that shows
+how to optimally execute a position in an asset when the trader faces random latency.
+Closest to our work are those by Øksendal and Sulem [25] and Bruder and Pham [9],
+where the authors investigate general impulse control problems with deterministic
+delay, while ours assumes stochastic delay; [25] studies an inﬁnite-horizon control
+problem with deterministic delay and an arbitrary number of pending orders, while
+[9] investigates a ﬁnite-horizon stochastic control problem with any ﬁnite number
+of pending orders. The key mathematical novelty that distinguishes our work is that
+delays are stochastic. From a modelling perspective, this requires an explicit deﬁni-
+tion of the σ-algebra of the trader and an account of the new terms that arise as a
+consequence of stochastic delays.
+Although our model focuses on an optimal execution problem with stochastic la-
+tency, our framework is general and can be applied to control problems in which the
+outcomes of the controlled actions are observed with stochastic delay. In ﬁnancial
+applications, our model may be implemented in all asset classes that trade in elec-
+tronic LOBs with liquidity-taking orders that consider price limits and immediate
+time-in-force of the liquidity-taking orders (equity and foreign exchanges that offer
+MLOs include LMAX, LSE, Chi-X, CBOE, NASDAQ, CME, and NYSE). In con-
+trast, all models of optimal execution in the extant literature assume that the trader
+operates in the marketplace with zero latency and employ only MOs to take liquidity;
+see e.g. Almgren and Chriss [4], Almgren [2], Bayraktar and Ludkovski [6], Alfonsi
+et al. [1], Guéant et al. [21], Guilbaud and Pham [22], Cartea et al. [13], Cartea and
+Jaimungal [10], Guéant [19], Cartea and Jaimungal [11], Barger and Lorig [5] and
+the monographs by Cartea et al. [12, Sect. 6] and Guéant [20, Part II].
+In the literature, there is work that discusses how latency affects liquidity-taking
+strategies, market making and passive trading. Cartea and Sánchez-Betancourt [15]
+show how traders can adjust the price limit of MLOs to target a ﬁll ratio in a given
+currency pair when the trader sends a sequence of orders over a trading interval (ﬁnite
+or inﬁnite). In market making, Gao and Wang [18] show how an agent provides liq-
+uidity to the LOB of large-tick stocks when latency is deterministic and ﬁxed during
+the trading interval. In passive trading (i.e., trading with limit orders), the work by
+Moallemi and Saˆglam [24] quantiﬁes the cost of latency in equity (NASDAQ).
+In the next section, we employ high-frequency foreign exchange data to show that
+MLOs protect orders from adverse price moves and also receive price improvements
+when prices move in the trader’s interest over the latency period. Section 3 intro-
+duces the trader’s optimal execution problem with random latency and characterises
+the random-latency-optimal strategy as the solution of a Hamilton–Jacobi–Bellman
+quasi-variational inequality (HJBQVI), and develops two new benchmarks where
+the investor faces deterministic latency or faces no latency. Section 4 compares the
+performance of the trader’s random-latency-optimal strategy with that of the bench-
+marks. Section 5 concludes, and we collect some proofs in the appendices.
+
+
+===== PAGE 5 =====
+Optimal execution with stochastic delay
+5
+2 Order types and data
+2.1 Orders and revealed preferences
+In order-driven electronic markets, the basic building blocks to trade are orders that
+provide liquidity and orders that take liquidity. When a trader sends an order to the
+exchange, the order contains two speciﬁc instructions: quote type and time-in-force.
+The quote type speciﬁes the main feature of the order: price limit (i.e., LO), no price
+limit (i.e., MO), a trigger (i.e., stop orders), among others. The time-in-force refers
+to how long the order is active in the market. The shortest time-in-force is immediate
+execution and the longest time-in-force is typically for the rest of the trading day.
+Two prominent liquidity-taking order types that have an immediate execution time-
+in-force are immediate-or-cancel (IoC) and ﬁll-or-kill (FoK). IoC is an order to buy
+or to sell assets that must be executed immediately, in full or in part, while obeying
+the order’s price limit, and any portion of the volume of the order that cannot be ﬁlled
+at the desired price limit is cancelled. FoK is an order to buy or to sell assets that must
+be executed immediately in full or it is cancelled.
+Combinations of the various features constitute the type of order that market par-
+ticipants send to the exchange. Here, we focus on the types of liquidity-taking order
+that are designed to protect traders against the frictions that stem from latency. We
+deﬁne MLOs as liquidity-taking orders that have a price limit and the time-in-force
+is IoC or FoK. An MO is an MLO without price limit; the MLOs we consider have a
+ﬁnite price limit and are for immediate execution. MLOs protect liquidity takers from
+adverse price movements that occur between the time the trader makes a decision to
+trade (on a possibly stale quote) and the time the exchange matches the order with a
+limit order resting in the book (when possible).
+Traders reveal their preferences when they choose a type of liquidity-taking order
+for a trade or a sequence of trades whose outcome is contingent on latency. Their
+choices demonstrate that traders balance the cost of completing a trade and the costs
+of price protection. A trader who must complete a trade without delay will choose an
+MO to guarantee execution in full – and expose the trade to price movements over
+the latency period. In contrast, a trader who can afford to miss the trade if the price
+is ‘not right’ will choose an MLO. Thus in exchange for price protection against
+adverse price movements, the trader concedes that the trade might not get ﬁlled. On
+the other hand, if prices move in a favourable direction, the trader receives a price
+improvement, i.e., the MLO is executed at a better price than the trader’s decision
+price. Indeed, MLOs are also used by traders to complete a trade only if the price
+improves over the latency period. In the next section, we provide summary statistics
+of the use of MLOs in foreign exchange markets.
+2.2 Data
+We present descriptive statistics for ten currency pairs in the foreign exchange spot
+market at LMAX. The data are stamped at a microsecond frequency and the range is
+from 1 September 2019 to 29 February 2020 – in Sect. 4, we use data from August
+2019 to estimate model parameters. For each currency pair, we have: the aggregate
+
+
+===== PAGE 6 =====
+6
+Á. Cartea, L. Sánchez-Betancourt
+Table 1 Percentage of
+liquidity-taking by order type.
+Period: 1 September 2019 to 29
+February 2020. For each
+currency pair, we use bold to
+highlight the highest percentage
+by number of trades and by
+volume traded
+Number of trades
+Volume traded
+MLOs
+MOs
+Other
+MLOs
+MOs
+Other
+EUR/USD
+36.7%
+32.1%
+31.2%
+56.9%
+13.5%
+29.6%
+USD/JPY
+41.4%
+6.9%
+51.7%
+55.8%
+3.1%
+41.1%
+EUR/GBP
+38.3%
+8.0%
+53.7%
+73.0%
+5.2%
+21.8%
+GBP/USD
+53.6%
+21.9%
+24.5%
+72.8%
+7.1%
+20.2%
+USD/MXN
+44.7%
+24.6%
+30.7%
+52.0%
+26.3%
+21.7%
+USD/CAD
+62.2%
+10.9%
+26.9%
+71.2%
+2.6%
+26.1%
+GBP/JPY
+49.1%
+19.4%
+31.5%
+61.2%
+8.5%
+30.3%
+EUR/JPY
+33.0%
+7.3%
+59.8%
+65.0%
+4.3%
+30.8%
+AUD/USD
+66.7%
+10.6%
+22.7%
+71.0%
+4.4%
+24.6%
+AUD/JPY
+52.8%
+11.7%
+35.5%
+59.9%
+6.1%
+34.0%
+volume of the limit sell orders posted at the best ask rate; the aggregate volume of
+the limit buy orders posted at the best bid rate; liquidity-taking orders sent to the
+LOB, including the type of order and trader identiﬁcation; rate limits of MLOs; full
+ﬁlls, partial ﬁlls, and missed liquidity-taking trades. Finally, our data set does not
+contain the liquidity posted at the LOB beyond the best bid and best ask rates, but
+does contain the average rate paid or received for all liquidity-taking orders, including
+those that walked the LOB beyond the best quotes.
+Table 1 shows the percentage of the total number of trades that are MLOs, MOs
+and others, and also shows the percentages by traded volume. Recall that the MLOs
+we consider are IoC and FoK with an immediate time-in-force. In practice, the ex-
+change processes the order as soon as it arrives and matches it (if possible). This
+processing time usually takes under 80 microseconds and is followed by a message
+from the exchange to the trader to notify the outcome.
+The category ‘others’ includes the remaining order types that consume liquidity,
+for example, marketable orders: (i) limit orders that are good-until-cancel and good-
+for-day, (ii) stop orders good-for-day and good-until-cancel, and (iii) dark limit orders
+good-for-day and good-until-cancel.
+2.3 Flickering of best rates in the LOB
+Figure 1 shows snippets of the evolution of best quotes and liquidity-taking activity
+for the currency pair EUR/USD on 3 September 2019 at around 2.00pm British sum-
+mer time – the data are timestamped to the microsecond. Solid circles denote ﬁlled
+sell MLOs, squares denote ﬁlled sell MOs, and empty circles denote sell MLOs that
+were not ﬁlled because the limit sell rate in the order was higher than the best bid rate
+in the LOB when the exchange processed the order.
+The top and middle panels of Fig. 1 show the best bid rate and sell liquidity-taking
+orders between 2.00.00pm and 2.01.00pm (i.e., one minute) and between 2.00.08pm
+and 2.00.14pm (i.e., six seconds), respectively. It is clearly visible that the best bid
+rate goes through unpredictable ﬂickers, which are extremely short-lived deviations
+of a signiﬁcant number of ticks from the ‘fundamental’ or ‘true’ value of the best bid
+
+
+===== PAGE 7 =====
+Optimal execution with stochastic delay
+7
+Fig. 1 Best bid rate (blue line),
+best ask rate (red line), missed
+MLOs (empty circles), ﬁlled
+MLOs (full circles), ﬁlled MOs
+(squares). Top panel: 2.00pm to
+2.01pm (60 seconds). Middle
+panel: 2.00.08pm to 2.00.14pm
+(6 seconds). Bottom panel:
+2.00.12pm to 2.00.13pm (1
+second). Microsecond data from
+EUR/USD pair, 3 September
+2019
+rate. These ﬂickers are the result of cancellations and arrivals of limit orders at the
+best bid rates, and of liquidity that is consumed by aggressive orders and immediately
+replenished by the arrival of limit orders.
+The bottom panel shows a one-second snippet, between 2.00.12pm and 2.00.13pm,
+of the best bid rate and the best ask rate and the liquidity-taking orders, all of which
+were buy MOs. In most cases, ﬂickers on either side of the LOB cause a short-lived
+widening of the quoted spread of the LOB.
+
+
+===== PAGE 8 =====
+8
+Á. Cartea, L. Sánchez-Betancourt
+From visual inspection, ﬂickers in the best bid (best ask) rate are more often neg-
+ative (positive) than positive (negative). This is a prevalent feature in the dynamics
+of the best quotes in the LOB. We return to this in Sect. 4 when we estimate model
+parameters and discuss the distribution of the ﬂickers in the performance of the exe-
+cution strategies.
+2.4 Distribution of ﬂickers: hit and miss
+We proceed to discuss the limit rates employed by traders who send MLOs to buy
+and to sell the EUR/USD currency pair. We employ the same data as that in Table 1 –
+the results for the remaining currency pairs are similar. To analyse both the hit and
+miss performance of the MLOs and the distribution of the ﬂickers in the best quotes,
+we compute the slippage-price-improvement (SPI) measure
+SPIi = (Li −Mi)Ii.
+(2.1)
+Here, Li denotes the exchange rate limit of the order, i.e., the maximum (minimum)
+rate that the trader is willing to pay (receive) per unit that she wishes to buy (sell);
+Mi is the exchange rate that the order would pay (receive) per unit bought (sold) if the
+order is ﬁlled in full. The indicator Ii determines the direction of the order: Ii takes
+the value +1 when the trader sends a buy MLO and the value −1 when the trader
+sends a sell MLO, for i = 1,...,n, where n is the total number of MLOs. Thus when
+SPIi is positive, the order was ﬁlled (relative to the limit rate Li) with a slack of SPIi
+ticks, which we refer to as price improvement. Similarly, when SPIi is negative, the
+order missed (fully or in part) by SPIi ticks (relative to the limit rate Li), which we
+refer to as slippage.
+For each MLO, the quantity in (2.1) could understate or overstate slippage and
+price improvement relative to the trader’s decision rate; note that we compute SPI
+relative to the limit rate instructed in the order. Our data set does not contain the time-
+stamps of when the trader submitted the MLO to the exchange, nor does it contain
+the rate observed by the trader when she decided to trade (i.e., the decision rate). We
+have the time-stamp of when the order is processed by the exchange. Thus we do not
+know the best bid and best ask rates and quantities posted in the LOB when the trader
+decided to send the order.
+The trader may ﬁnd it optimal to send a buy MLO with a limit rate that is below
+the observed best ask rate or to send a sell MLO with a limit rate that is above the
+observed best bid rate. In other words, traders may send speculative MLOs that are
+ﬁlled only if there is a price improvement relative to the quotes they observe when
+deciding to trade – in Sect. 3.6 below we return to this point and show that it is optimal
+to send MLOs that target a price improvement.
+Figure 2 shows histograms in log-scale of SPI for the MLOs in the EUR/USD
+currency pair, where the x-axes in both panels are truncated to lie between −25 and
+25 ticks. To gain insights into the limit rates of the MLOs and into the distribution of
+the ﬂickers, the top panel shows the histogram of SPI with all the MLOs sent to the
+exchange, and the bottom panel shows a histogram of SPI with the MLOs that aimed
+at the best quote, i.e., the trader’s decision rate and the limit rate she instructed in the
+MLO are the same. We consider that the limit rate of an MLO is equal to the decision
+rate of the trader if at any point within the previous 150 ms of the processing time of
+
+
+===== PAGE 9 =====
+Optimal execution with stochastic delay
+9
+Fig. 2 Histograms of SPI
+between −25 ticks and 25 ticks
+in log-scale for the EUR/USD, 1
+September 2019 to 29 February
+2020. One tick is 10−5 USD.
+Top: all MLOs. Bottom: MLOs
+with limit rate equal to trader’s
+decision rate
+the MLO, there was a best quote in the LOB equal to the limit rate of the MLO (we
+obtain similar results when we assume that the time period of the look-back window
+is 100 ms). The histograms are for both IoCs and FoKs.
+In both panels, the histograms are skewed to the left. The skewness may be due
+to informed traders in the market and due to the distribution of the ﬂickers. Informed
+traders send buy (sell) MLOs in anticipation of an increase (decrease) in the exchange
+rate. Thus all else being equal, their trading strategies skew the distribution of SPI to
+the left because it is more likely that a buy (sell) MLO misses the trade when the
+exchange rate drifts up (down). Informed MLOs are included in the top panel. In
+addition, the skew in the histogram also results from asymmetry in the distribution of
+the size of the ﬂickers – this is better represented in the bottom panel where the limit
+rate of the MLO is equal to the trader’s decision rate; see also the bottom panel of
+Fig. 1, where most ﬂickers on the best bid (ask) rate are negative (positive). Below
+we show that ﬂickers in the best bid rate are negatively skewed and ﬂickers in the best
+ask rate are positively skewed.
+2.5 Liquidity: make and take
+In this subsection, we report various statistics of the volume posted at the best quotes
+in the LOB and the volume of the ﬁlled liquidity-taking orders of the ten currency
+
+
+===== PAGE 10 =====
+10
+Á. Cartea, L. Sánchez-Betancourt
+Table 2 TWS: time-weighted spread. TWQ: time-weighted quantity at best quotes. Period: 1 September
+2019 to 29 February 2020 between 9.00am and 4.00pm. Each unit of quantity is a lot of 10’000 units of
+the base currency
+Liquidity-taking (volume)
+Liquidity provision
+Pair
+Mean
+Std
+Median
+TWS
+ask/bid
+TWQ
+ask/bid
+Median Q
+ask/bid
+Mode Q
+EUR/USD
+20.94
+26.64
+4.00
+3.94 × 10−5
+160/159
+100/100
+50/50
+USD/JPY
+26.81
+23.78
+27.00
+4.20 × 10−3
+110/109
+100/100
+50/50
+EUR/GBP
+12.93
+21.50
+0.60
+9.30 × 10−5
+94/94
+80/82
+50/50
+GBP/USD
+20.65
+21.97
+14.40
+9.83 × 10−5
+91/91
+75/66
+50/50
+USD/MXN
+37.09
+23.55
+50.00
+4.67 × 10−3
+80/80
+50/50
+50/50
+USD/CAD
+31.30
+27.42
+30.00
+8.34 × 10−5
+101/104
+100/100
+50/50
+GBP/JPY
+20.03
+16.35
+30.00
+1.55 × 10−2
+71/71
+50/50
+50/50
+EUR/JPY
+14.44
+22.33
+0.60
+8.77 × 10−3
+100/100
+100/100
+50/50
+AUD/USD
+32.77
+28.23
+32.10
+5.65 × 10−5
+113/114
+100/100
+50/50
+AUD/JPY
+31.08
+23.27
+40.00
+8.62 × 10−3
+88/90
+94/99
+50/50
+Table 3 TWQ: time-weighted quantity available at best quotes. TQ: traded quantity. Q ask/bid: quantity
+posted at best ask rate and best bid rate. Period: 1 September 2019 to 29 February 2020 between 9.00am
+and 4.00pm. Each unit of quantity is for 10’000 units of the base currency
+Currency pair
+TWQ
+ask/bid
+TQ > TWQ
+Median Q
+ask/bid
+TQ > MQ
+Mode Q
+ask/bid
+TQ > MoQ
+EUR/USD
+160/159
+0.1%
+100/100
+0.2%
+50/50
+4.6%
+USD/JPY
+110/109
+0.1%
+100/100
+0.1%
+50/50
+2.6%
+EUR/GBP
+94/94
+1.2%
+80/82
+1.4%
+50/50
+1.9%
+GBP/USD
+91/91
+1.2%
+75/66
+1.5%
+50/50
+2.3%
+USD/MXN
+80/80
+4.6%
+50/50
+5.9%
+50/50
+5.9%
+USD/CAD
+101/104
+0.2%
+100/100
+0.2%
+50/50
+7.6%
+GBP/JPY
+71/71
+0.7%
+50/50
+0.9%
+50/50
+0.9%
+EUR/JPY
+100/100
+1.8%
+100/100
+0.2%
+50/50
+2.8%
+AUD/USD
+113/114
+0.1%
+100/100
+0.1%
+50/50
+8.8%
+AUD/JPY
+88/90
+1.5%
+94/99
+1.4%
+50/50
+0.1%
+pairs we study. The key message is that liquidity-taking orders hardly ever consume
+all the liquidity available at the best quotes in the LOB.
+Table 2 reports statistics of the liquidity-taking and the liquidity-provision activ-
+ity during the period 1 September 2019 to 29 February 2020 between 9.00am and
+4.00pm British summer time. Columns 2–4 describe the liquidity-taking activity. The
+mean, median and standard deviation are in 10’000 units of the base currency. For ex-
+ample, the mean value of the traded quantity in the pair EUR/USD is 20.94, which,
+in the base currency EUR, is a mean of 209’400 EUR. The last four columns of
+the table summarise statistics of the spread and of the best quotes in the LOB: the
+time-weighted spread for each currency pair, the time-weighted quantity, the median
+quantity available at the best quotes, and the mode quantity at the best quotes.
+
+
+===== PAGE 11 =====
+Optimal execution with stochastic delay
+11
+Table 3 shows the percentage of occurrences when the traded quantity is greater
+than: the time-weighted quantity at the best quotes; the median quantity at the best
+quotes; and the mode of the quantity at the best quotes. Note that the information in
+columns 1, 3, 5 is the same as that in the last three columns of Table 2.
+We observe that in all currency pairs, the proportion of trades that cannot be ﬁlled
+with the liquidity available at the best quotes is between 0.1% and 8.8%. In the model
+that follows, we assume that the MLOs sent by the trader to the exchange will not
+walk the LOB.
+3 Optimal execution with random latency
+We present a model of optimal execution with random latency. We focus on the exe-
+cution of a large order that is divided in child orders that are sent to the market over
+a ﬁnite trading horizon. However, we remark that our model is useful to decide the
+optimal strategy to execute as little as one order over a trading horizon. Our discus-
+sion is framed within foreign exchange markets; however, our model is general and
+applicable in all asset classes in which instruments are traded in a visible electronic
+LOB. Also, our framework may be applied in general stochastic control problems in
+which the outcomes of the agent’s actions are known at a random future date.
+3.1 Exchange rate dynamics and execution of MLOs
+As discussed above, ﬂickers are short-lived deviations; so here we assume that only
+the ﬂicker that occurs at the processing time ˜t0 is relevant when the exchange
+processes the trader’s sell MLO. Therefore, the trader models the best bid rate
+ˆS = ( ˆSt)t≥0 as
+ˆSt = St + Ft,
+(3.1)
+where S = (St)t≥0 denotes the fundamental best bid rate, and F = (Ft)t≥0 denotes
+the ﬂickers that affect the bid rate only at processing times of MLOs. The model (3.1)
+does not include ﬂickers that occur between processing times of the MLOs sent by
+the trader – it models paths that are relevant for the trader. In the sequel, we refer to
+ˆSt as the observed best bid rate, and in Sect. 4, we show how the trader employs the
+data of the LOB to obtain the fundamental best bid rate St.
+Formally, the notiﬁcation time of the order and the size of the ﬂicker are modelled
+by the background marked point process (MPP) N = (Tn,Zn)n≥1 with random mea-
+sure p(dt,dz). The background MPP dictates the stopping time when the outcome of
+each order is notiﬁed to the trader and dictates the ﬂicker that affects the fundamental
+bid rate when each order is processed. That is, the trader sends a sell MLO to the ex-
+change at time t and the exchange notiﬁes the outcome of the order at time ˜t, where ˜t
+is the next stopping time (after t) when a mark (i.e., ﬂicker) of the MPP arrives. More
+precisely, let n ≥1 be such that Tn−1 ≤t < Tn; then the notiﬁcation time ˜t is Tn and
+the ﬂicker F˜t is Zn. Note that the value F˜t of the ﬂicker at the notiﬁcation time is
+independent of the trader’s information at time t.
+
+
+===== PAGE 12 =====
+12
+Á. Cartea, L. Sánchez-Betancourt
+We assume that the background process N is non-explosive and the interarrival
+times (Ti −Ti−1)i≥1 are independent and identically distributed exponential random
+variables with parameter λ > 0 and T0 = 0. The ﬂickers (Zn)n≥1 that affect the fun-
+damental best bid rate at processing times take values in R and are i.i.d. with law
+ν(dz) = p0δ{0}(dz) + p+η+e−η+z1{z>0} dz
+
+
+
+price improvement
++p−η−eη−z1{z<0} dz
+
+
+
+slippage
+,
+(3.2)
+where δ{0}(dz) is the Dirac measure at zero, η+,η−∈(0,∞) and p0,p+,p−∈R+
+with p0 + p+ + p−= 1.
+Let T ∈(0,∞). It is straightforward to see that
+E
+
+p([0,T ],R)
+2	
+< ∞
+and
+E
+
+ T
+0
+
+R
+|z|p(dt,dz)
+
+< ∞.
+(3.3)
+The law in (3.2) is a modelling choice; the framework we develop here is valid for
+any law ν(dz) that satisﬁes the two conditions in (3.3).
+3.2 Outcome of trade attempts: miss or ﬁll
+The information ﬂow that the trader observes is encoded in the ﬁltration F = (Ft)t≥0
+deﬁned by
+Ft = σ
+
+Ws,p([0,s],A) : A ∈B(R),s ≤t
+
+,
+where (Ws)s≥0 is a standard Brownian motion. Let τ be an F-stopping time, and set
+Nt = p((0,t],R) for t ∈(0,T ] and N0 = 0, where Nt denotes the total number of
+marks of the background process N up to time t. We deﬁne the notiﬁcation time ˜τ of
+a trade attempt by
+˜τ = inf{t > τ : Nt > 0},
+where Nt = Nt −Nt−. Thus ˜τ denotes the time when the exchange notiﬁes the
+outcome of the trade attempt sent at time τ < ˜τ. Henceforth, we put a tilde ˜ on
+stopping times to denote that they are notiﬁcation times.
+The following lemma shows that: (i) the notiﬁcation times are stopping times, and
+(ii) the times between trade attempts and notiﬁcation times are i.i.d. with exponential
+distribution.
+Lemma 3.1 Let (τi)i∈N be a sequence of F-stopping times, where the index i denotes
+the ith trade attempt, and let (˜τi)i∈N be the sequence of notiﬁcation times of the
+outcome of each trade attempt. Let (τi)i∈N and (˜τi)i∈N satisfy ˜τi ≤τi+1 for all i ∈N.
+Then:
+(i) (˜τi)i∈N are F-stopping times.
+(ii) (˜τi −τi)i∈N constitute a collection of independent and identically distributed
+random variables that are exponentially distributed with parameter λ > 0.
+
+
+===== PAGE 13 =====
+Optimal execution with stochastic delay
+13
+Proof (i) Let j ∈N and t ≥0. Then
+{˜τj ≤t} = {τj ≤t} ∩{Nt > Nt∧τj } ∈Ft
+because {τj ≤t} ∈Ft and {Nt > Nt∧τj } ∈Ft.
+(ii) For i ∈N and t ≥0, we have
+P[˜τi −τi ≥t] = P[inf{s > 0 : Ns+τi > 0} ≥t]
+= P[inf{s > 0 : Ns > 0} ≥t] = e−λt
+because (Nτi+s −Nτi)s≥0 is a Poisson process with parameter λ. Finally, the col-
+lection (˜τi −τi)i∈N has the independence property because [τi, ˜τi)i∈N are over non-
+overlapping intervals.
+□
+Next, we deﬁne the auxiliary process F = (Ft)t≥0 to determine the outcome of the
+trade attempts. The value of Ft is the most recent mark up to time t. Thus F satisﬁes
+dFt =
+
+R
+(z −Ft−)p(dt,dz),
+F0 = 0,
+where we recall that p(dt,dz) is the random measure of the background process N .
+When the trader sends a trade at time τ and the notiﬁcation time is ˜τ, the value F˜τ of
+the ﬂicker is F˜τ .
+At the notiﬁcation time ˜τ, if the sell MLO is an FoK with limit rate l, it will be
+ﬁlled in full if l ≤S˜τ−+ F˜τ ; otherwise the MLO misses the trade and is cancelled
+by the exchange. To formally deﬁne a miss and a ﬁll of a trade attempt, we proceed
+as follows. Let ˜H(x) = 1{x≤0} be a step function. The outcome of the sell MLO is
+determined by the step function ˜H(l −S˜τ−−F˜τ), which takes the value 1 when the
+trader receives the notiﬁcation of a ﬁll or the value 0 when the notiﬁcation is of a
+miss. When the value of the ﬂicker is positive and the MLO is ﬁlled, the liquidity
+providers that were offering liquidity at the best quote are likely to be adversely se-
+lected. Next, approximate ˜H with a C∞function f ε, where the parameter ε controls
+the convergence of f ε to ˜H as ε ↘0. For example, to determine the ﬁll or miss out-
+come of a trade attempt, we use instead of ˜H(x) the sigmoid function evaluated at
+−x/ε. We recall that the sigmoid function is given by S(x) = 1/(1 + exp(−x)). We
+work with an approximation to the step function ˜H to preserve the continuity of the
+impulse operator. To simplify notation, we drop the superscript ε and refer to f ε
+as f .
+3.3 Admissible strategies
+The trader controls when to send MLOs and controls the limit rate of the MLOs; this
+is summarised in the execution strategy α = (τi,li)i≥1. The limit rates (li)i≥1 of the
+MLOs are Fτi-measurable and take values in a non-empty compact set L ⊆R. We
+assume that the trader does not attempt a trade until the outcome of the previous MLO
+
+
+===== PAGE 14 =====
+14
+Á. Cartea, L. Sánchez-Betancourt
+is known. Thus we require that the F-stopping times in the sequence (τi)i≥1 satisfy
+τi+1 ≥˜τi > τi for i ∈N. Speciﬁcally, the trader’s set of admissible strategies is
+A = {α = (τi,li)i≥1 : for each i ≥1,τi is an F-stopping time,
+τi+1 ≥˜τi > τi,li is valued in L, and li is Fτi-measurable}.
+If at the terminal time T , there is an outstanding MLO in the exchange, the order is
+cancelled. The trader keeps track of pending orders in the exchange with the process
+kt(α) (for notational convenience, we use k(t,α)), which returns the value 1 if the
+trader is waiting to be notiﬁed of the outcome of a trade attempt, or the value 0 if
+there is no pending order waiting to be processed by the exchange.
+Hence, kt(α) = card{i ∈N : τi ≤t, ˜τi > t} ∈{0,1}, which is adapted to F because
+for a ﬁxed t ∈[0,T ] and i ∈N, we have that τi and ˜τi are F-stopping times. Thus
+{τi ≤t} ∩{˜τi > t} ∈Ft.
+3.4 System dynamics
+In our framework, MLOs have permanent price impact when the order is ﬁlled. Note
+that if the MLO is not ﬁlled, the trader is the only market participant who knows that
+the trade attempt was not successful; thus, missed MLOs do not have price impact. If
+market participants had access to the information on missed trades, they would learn
+about buy and sell pressure in the market and would adjust their liquidity-provision
+and liquidity-taking strategies.
+All trade attempts are of size one unit, which we refer to as child orders. The size
+of the parent order is M > 0 child orders, which is the initial inventory the trader
+seeks to liquidate. If the limit rate of the sell MLO to execute a child order is less
+than or equal to the best bid rate, we assume that there is enough liquidity to ﬁll
+the MLO without walking the book, in which case the trader is indifferent between
+sending an IoC or an FoK to the exchange. Thus we assume that trades do not have
+temporary price impact; it is straightforward to include this price impact in the price
+dynamics of our model. In Table 3, we see that the majority of liquidity-taking orders
+do not walk the LOB. Traders specify quantities that can be ﬁlled with the volumes
+displayed at the best bid and best ask rates in the market.
+For an execution strategy α = (τi,li)i≥1 ∈A, the trader monitors the system
+Xα
+t = (Sα
+t ,Qα
+t ,Cα
+t ),
+where (Sα
+t )t≥0 is the fundamental best bid rate process, (Qα
+t )t≥0 is the inventory of
+the agent, and (Cα
+t )t≥0 is the cash process. The dynamics of the fundamental best bid
+rate process are
+Sα
+t = S0 +
+ t
+0
+b(Sα
+u )du +
+ t
+0
+σ(Sα
+u )dWu −κ
+
+˜τi≤t
+f (li −Sα
+˜τi−−F˜τi),
+(3.4)
+
+
+===== PAGE 15 =====
+Optimal execution with stochastic delay
+15
+and the cash and the inventory process satisfy, respectively,
+Cα
+t =
+
+˜τi≤t
+f (li −Sα
+˜τi−−F˜τi)(Sα
+˜τi−+ F˜τi),
+Qα
+t = M −
+
+˜τi≤t
+f (li −Sα
+˜τi−−F˜τi).
+In the fundamental bid rate in (3.4), the functions b,σ : R →R are Lipschitz-
+continuous. The function b is the drift of the fundamental bid price and σ is the
+volatility of the innovations. The last term on the right-hand side represents the
+permanent price impact that ﬁlled MLOs have on the fundamental best bid rate,
+where κ ≥0 is the permanent impact parameter of the bid rate. Recall that f
+is the C∞approximation of the step function that ﬂags when a trade is ﬁlled or
+missed, and that all MLOs sent by the trader are of size one. We assume that the
+affected fundamental best bid rate (Sα
+t )t≥0 is bounded by the unaffected fundamen-
+tal best bid rate (St)t≥0 as follows: for any execution strategy α ∈A, we have that
+sup0≤t≤T |Sα
+t | ≤sup0≤t≤T |St| + κNT . This assumption is non-restrictive. If the af-
+fected fundamental best bid rate is assumed to be always positive, then Sα
+t ≤St for
+t ∈[0,T ] implies that sup0≤t≤T |Sα
+t | ≤sup0≤t≤T |St| ≤sup0≤t≤T |St| + κNT . Alter-
+natively, if b,σ are constant functions, the assumption is also satisﬁed.
+The trader intervenes in the system at time τi (i.e., sends a sell MLO), and due to
+latency, the outcome is known at the notiﬁcation time ˜τi > τi when the system evolves
+from Xα
+˜τi−to Xα
+˜τi = (X˜τi−, F˜τi,li). Here, the function  : R3 × R × L →R3 is the
+impulse operator
+(s,q,c, f,ℓ) =
+
+s −κf (ℓ−s −f),q −f (ℓ−s −f),c + (s + f)f (ℓ−s −f)
+
+, (3.5)
+which describes how the system (i.e., best bid rate, inventory, cash) changes at notiﬁ-
+cation times. If the MLO sell order is ﬁlled: the ﬁrst argument on the right-hand side
+of (3.5) shows that the fundamental bid rate decreases by one tick; the second argu-
+ment shows that the inventory decreases by one unit; and the last argument shows that
+the amount of cash increases by the fundamental bid rate plus the ﬂicker. If the sell
+MLO is not ﬁlled, the fundamental bid rate is not affected, and the cash and inventory
+positions do not change.
+We denote by | · | the Euclidean norm, and the operator  is a continuous function
+that satisﬁes
+sup
+(y,ℓ)∈R4×L
+|(y,ℓ)|
+1 + |y| < ∞.
+(3.6)
+The initial state of the system is X0 = (S0,M,0). Here, S0 is the initial value of
+the fundamental bid rate, we recall that M is the number of child orders (lots of equal
+size) that the trader wishes to liquidate, and the initial value of the cash account is
+
+
+===== PAGE 16 =====
+16
+Á. Cartea, L. Sánchez-Betancourt
+zero. The controlled system Xα is the solution to the SDE
+Xα
+t = X0 +
+ t
+0
+b(Xα
+u)du +
+ t
+0
+σ(Xα
+u)dWu
++
+
+˜τi≤t
+
+(Xα
+˜τi−, F˜τi,li) −Xα
+˜τi−
+
+,
+(3.7)
+where b : R3 →R3 and σ : R3 →R3 are given by b(x1,x2,x3) = (b(x1),0,0) and
+σ(x1,x2,x3) = (σ(x1),0,0), respectively, and both are Lipschitz-continuous. We
+now ﬁx a ﬁnite horizon T < ∞and an execution strategy α ∈A. It follows that
+E
+
+sup
+0≤s≤T
+|Xα
+s |2
+< ∞,
+(3.8)
+a result we employ below to show that the value function of the trader is well deﬁned.
+3.5 Liquidity taking with stochastic delay
+For all t ∈[0,T ), the agent has either one or no pending order in the exchange. Thus
+we deﬁne two sets of admissible strategies: (i) admissible strategies with one pending
+order, and (ii) admissible strategies with no pending order. If at time t ∈[0,T ), there
+is one pending order with price limit ℓ∈L, then the set of admissible strategies is
+At,ℓ= {α = (τi,li)i≥1 ∈A : τ1 = t,l1 = ℓ},
+and if there is no pending order, the set of admissible strategies is
+At = {α = (τi,li)i≥1 ∈A : τ1 ≥t}.
+For any (t,x, f) ∈[0,T ] × (R × (−∞,M] × R) × R with x = (s,q,c) and for
+a pending order with limit price ℓ∈L and α ∈At,ℓ, we denote by Xt,x,f,ℓ,α the
+solution to (3.7) for t ≤s ≤T with initial data Xt = x and Ft = f. One can drop the
+dependence on f in Xt,x,ℓ,α because for any f1, f2 ∈R, we have Ft,f1
+˜t
+= Ft,f2
+˜t
+. That is,
+we write
+Xt,x,ℓ,α
+s
+= x +
+ s
+t
+b(Xt,x,ℓ,α
+u
+)du +
+ s
+t
+σ(Xt,x,ℓ,α
+u
+)dWu
++
+
+t<˜τi≤s
+
+(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,li) −Xt,x,ℓ,α
+˜τi−
+
+.
+Similarly, when there is no pending order at time t, we denote by Xt,x,α the solution
+to (3.7) for t ≤s ≤T with Xt = x, for any (t,x) ∈[0,T ] × (R × (−∞,M] × R).
+Fix (t,x) ∈[0,T ] × R × (−∞,M] × R, ℓ∈L, α1 ∈At,ℓand α0 ∈At. It follows
+from (3.6), Gronwall’s lemma, the Burkholder–Davis–Gundy inequality and (3.3)
+
+
+===== PAGE 17 =====
+Optimal execution with stochastic delay
+17
+that there exists a constant C > 0 such that
+E
+
+sup
+t≤s≤T
+|Xt,x,ℓ,α1
+s
+|2
+< C(1 + |x|2),
+E
+
+sup
+t≤s≤T
+|Xt,x,α0
+s
+|2
+< C(1 + |x|2).
+The trader evaluates the performance of the execution strategy α with the function
+(α) = g(Xα
+T ) +
+ T
+0
+h(Xα
+s )ds +
+
+˜τi≤T
+C(X˜τi−, F˜τi,li),
+where g : R3 →R, h : R3 →R, C : R4 →R are
+g(s,q,c) = c + q
+
+s + ζ −a(q −1)
+
+(1 −ρ),
+h(s,q,c) = −φq2,
+C(s,q,c, f,ℓ) = −ρ(s + f)f (ℓ−s −f).
+(3.9)
+Here, a ≥0 is the terminal inventory penalty parameter, and φ ≥0 is the running
+inventory penalty parameter.
+The function g consists of three terms: (i) c, the cash accumulated by the strategy,
+(ii) q(s + ζ), the mark-to-market value of the inventory (net of fees), which includes
+the expected value ζ =
+
+R zν(dz) of the ﬂicker, and (iii) aq(q −1), the costs of
+walking the LOB (net of fees) when the terminal inventory is greater than one child
+order.
+The function h represents the urgency of the agent to complete the execution pro-
+gramme. Everything else being equal, the higher the value of φ ≥0, the quicker will
+the trader liquidate inventory at the beginning of the trading interval. Each trader de-
+cides the urgency of their trade or set of trades. For example, the value of the urgency
+parameter is arbitrarily high for a trader who requires immediate execution. On the
+other hand, a patient liquidity taker who has time to retry missed trades will set the
+value of φ close to or at zero.
+The function C represents transaction costs per unit of inventory traded. These
+costs are based on the notional traded, which is (s + f)f (l −s −f) per one unit of
+inventory, and ρ ∈(0,1) is the transaction cost parameter.
+The controlled processes (Cα
+t )0≤t≤T , (Sα
+t )0≤t≤T and (Qα
+t )0≤t≤T obey the bounds,
+which do not depend on the strategy α or t ∈[0,T ],
+|Cα
+t | ≤
+NT
+
+i=1
+|Zi| + NT
+sup
+0≤u≤T
+Su + κN2
+T ,
+|Sα
+t | ≤sup
+0≤u≤T
+|Su| + κNT ,
+|Qα
+t | ≤M + NT .
+(3.10)
+
+
+===== PAGE 18 =====
+18
+Á. Cartea, L. Sánchez-Betancourt
+Furthermore, we see that
+sup
+(x,f,ℓ)∈R3×R×L
+|g(x)| + |h(x)| + |C(x, f,ℓ)|
+1 + |f| + |x|2
+< ∞,
+which ensures that the value functions we present below are well deﬁned, i.e., they
+are ﬁnite as a consequence of the inequality above and (3.8) and (3.10).
+When there is one pending order in the exchange, the trader’s performance crite-
+rion and value function are
+J1(t,x,ℓ,α) = E
+
+g(Xt,x,ℓ,α
+T
+) +
+ T
+t
+h(Xt,x,ℓ,α
+s
+)ds +
+
+˜τi≤T
+C(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,ℓi)
+
+and
+v1(t,x,ℓ) = sup
+α∈At,ℓ
+J1(t,x,ℓ,α),
+(3.11)
+respectively, for (t,x) ∈[0,T ] × R × (−∞,M] × R, ℓ∈L, α ∈At,ℓ.
+Similarly, when the trader does not have an order pending in the exchange, we have
+J0(t,x,α) = E
+
+g(Xt,x,α
+T
+) +
+ T
+t
+h(Xt,x,α
+s
+)ds +
+
+˜τi≤T
+C(Xt,x,α
+˜τi−, Ft,0
+˜τi ,li)
+
+,
+for (t,x) ∈[0,T ] × R × (−∞,M] × R, α ∈At, with the corresponding value func-
+tion
+v0(t,x) = sup
+α∈At
+J0(t,x,α).
+(3.12)
+In Appendix A, we show in Theorem A.1 that the trader’s value functions satisfy
+the dynamic programming principle (DPP). The part of the proof that deals with mea-
+surable selection arguments is omitted (see Bouchard and Touzi [8] for the deriva-
+tion of the dynamic programming equation in the sense of viscosity solutions). In
+Sect. A.1, we derive the HJBQVI satisﬁed by the value functions, and in Sect. A.2,
+we study the viscosity properties of the value functions.
+3.6 Benchmarks
+In Appendix B, we develop two new strategies to benchmark the performance of
+the random-latency-optimal trading strategy. Throughout, most of the notation is the
+same as in the previous sections. We derive optimal execution strategies when latency
+is zero in the marketplace, and when latency is greater than zero and deterministic,
+respectively. In both cases, the trader solves an impulse control problem. In the ﬁrst
+model, the strategy determines the optimal times to send MOs to the exchange, and
+in the second, the strategy determines the timing and the limit rate of each MLO.
+We remark that most approaches in the execution literature assume that agents send
+MOs at a continuous rate. Although agents cannot continuously trade in the market,
+
+
+===== PAGE 19 =====
+Optimal execution with stochastic delay
+19
+this assumption is convenient because in some cases one ﬁnds strategies in closed
+form; see Cartea et al. [12, Sect. 6] and Guéant [20, Part II]. One notable exception is
+the paper by Cartea and Jaimungal [10], where the authors solve an impulse control
+problem in which the trader employs both MOs and limit orders to execute a large
+position in a ﬁnancial instrument when there is zero latency in the marketplace.
+4 Performance of execution strategy
+We employ ultra-high-frequency market data for the currency pair EUR/USD to
+compare the performance of the random-latency-optimal strategy (RLOS) devel-
+oped in Sect. 3 with four benchmarks (of which the ﬁrst two are characterised in
+Appendix B): (i) deterministic-latency-optimal strategy (DLOS), (ii) zero-latency-
+optimal strategy (ZLOS), (iii) time-weighted-average-price (TWAP), and (iv) execu-
+tion now (ENOW). (RLOS, DLOS and ZLOS are computed using ﬁnite differences.
+Convergence results for these algorithms remain to be studied.) TWAP sends MOs of
+equal size and at equally spaced time intervals over the trading window. ENOW is a
+hypothetical benchmark that assumes there is enough liquidity at the best bid rate in
+the LOB to execute all the inventory with one MO, with zero latency, at the beginning
+of the trading window.
+Recall that in our formulation, the fundamental bid rate St is an input to RLOS,
+DLOS, ZLOS. However, market participants observe the best bid rate posted on the
+LOB of the exchange, a rate that consists of the fundamental bid rate St and short-
+lived deviations. Here, we employ LOB observations of the best bid rates and of the
+quoted spreads in the LOB of the exchange to estimate the fundamental bid rate St.
+In Sect. 2.3, the bottom panel of Fig. 1 depicted the evolution of the best rates in the
+LOB of the EUR/USD currency pair, where we saw that most ﬂickers cause short-
+lived widening of the quoted spread: most ﬂickers in the best bid rate are positive,
+and most ﬂickers in the best ask rate are negative. Thus we assume here that at time t,
+the fundamental best bid rate St is the bid rate in the LOB the last time the spread
+in the LOB was less than υ ticks. Throughout, we assume that υ = 11 ticks – our
+results are robust to various choices of the value of υ.
+The trader’s execution horizon is T = 6 seconds, and the inventory to liquidate is
+M = 10 lots, where each lot is €500’000; so the objective is to exchange €5’000’000
+into USD. The execution value of ENOW in a frictionless market is the value of M
+lots exchanged at the best bid rate in the LOB at the start of the trading horizon. For
+TWAP and ZLOS, the MO for each lot is processed with the liquidity posted at the
+best bid rate in the LOB of the exchange, and if necessary, the order will walk down
+until ﬁlled in full. Similarly, if the limit rate of the MLO allows it, RLOS and DLOS
+will also walk down the LOB if the liquidity in the best quotes is not enough – we
+do so even though the strategies characterised in this paper assume that orders of size
+one do not walk the LOB.
+To compute RLOS, DLOS, ZLOS, we assume that the fundamental best bid rate
+satisﬁes
+St = S0 + σWt,
+(4.1)
+
+
+===== PAGE 20 =====
+20
+Á. Cartea, L. Sánchez-Betancourt
+where σ is a volatility parameter. However, we remark that when we implement the
+liquidation strategies, we do not simulate the fundamental best bid rate and do not
+simulate the ﬂickers that affect the MLO when it is processed by the exchange. In-
+stead, we use the best bid rate in the LOB of LMAX. The only aspect of the model
+that we simulate is the latency of the trader that employs the strategy – in Sect. 4.5,
+we perform robustness checks with respect to latency. Thus the results we report are
+robust to model and parameter misspeciﬁcation. We assume that our trades do not im-
+pact the dynamics of the LOB. Ideally, one would like to test the model when other
+market participants react to the activity generated by the latency-optimal strategy;
+however, it is not possible to endogenise the reaction of other market participants to
+our trades.
+We employ data from 1 August 2019 to 31 August 2019 to estimate the parameters
+of the model, and data between 1 September 2019 and 29 February 2020 to implement
+and compute the performance of RLOS and the benchmark strategies. Each day, we
+implement the liquidation strategy over three ten-minute windows. We use the data
+in the ten minutes starting at 9.00am, at 2.00pm and at 7.00pm for each trading day
+between 1 September 2019 and 29 February 2020. Times reported in this paper are in
+London time. At 9.00am and 2.00pm, the foreign exchange activity tends to be very
+high because by 9.00am, many ﬁnancial markets in London are open and very active,
+and many ﬁnancial markets in the US open at around 2.00pm. Later in the afternoon,
+foreign exchange activity decreases, and by 7.00pm, many markets worldwide are
+outside the hours of their main trading activity.
+4.1 Model parameters
+We employ data from August 2019 to estimate the parameters of the model as fol-
+lows:
+(i) Volatility of fundamental best bid rate dynamics: We compute the quadratic
+variation of the fundamental best bid rate to estimate the volatility parameter σ in
+(4.1). The estimates over the three ten-minute windows are: (9.00am to 9.10am)
+ˆσ9am = 2.1 × 10−4; (2.00pm to 2.10pm) ˆσ2pm = 2.9 × 10−4; (7.00pm to 7.10pm)
+ˆσ7pm = 1.7 × 10−4. The estimate of the volatility from 9.00am to 8.00pm is given
+by ˆσ = 1.9 × 10−4; we use this parameter estimate in Sect. 4.4 when trading around
+news events.
+(ii) Distribution of the size of the ﬂicker that affects the MLOs at processing times:
+Recall that the law of the ﬂickers is
+ν(dz) = p0δ{0}(dz) + p+η+e−η+z1{z>0} dz
+
+
+
+price improvement
++p−η−eη−z1{z<0} dz
+
+
+
+slippage
+.
+Agents use their trade activity to estimate their expected latency in the marketplace;
+here, we assume that their estimate is one of 10, 30, 60, 90 ms. Next, for a given
+expected latency and for a value of υ to obtain the fundamental best bid rate, agents
+estimate the parameters of the distribution of ﬂickers as follows: employ LOB data to
+study the hit and miss of MLOs with limit rates equal to the fundamental best bid rate
+when latency is exponentially distributed; use ten minutes of LOB data (beginning at
+
+
+===== PAGE 21 =====
+Optimal execution with stochastic delay
+21
+Table 4 Trading window 9.00am to 9.10am. Fundamental best bid rate is obtained with spread ﬁlter of
+υ = 11 ticks. EL stands for expected latency
+ˆσ9am
+ˆp+
+ˆp−
+ˆη+, ˆη−
+ˆa
+EL
+φ
+κ
+c
+2.1 × 10−4
+0.05
+0.08
+{1.87,2.66} × 10−5
+1.80 × 10−5
+30 ms
+0
+0
+3 × 10−6
+9.00am, 2.00pm and 7.00pm) of each trading day in August to simulate over one mil-
+lion MLOs; compute the SPIs of the MLOs; and ﬁnally, obtain maximum likelihood
+estimates of the parameters p0,p+,p−,η+,η−for each ten-minute trading interval
+and for each expected latency.
+(iii) Terminal penalty: We employ the liquidity-taking trades that walk the LOB
+to compute the value of the terminal penalty parameter a. For each order, we look at
+the excess traded quantity above the liquidity posted at the best quotes and perform a
+linear regression where the explanatory variable is the excess traded quantity, bought
+or sold, and the dependent variable is the excess rate paid or received in the quote
+currency for walking the book. The slope of the regression for data in August 2019
+is ˆa = 1.80 × 10−5, which the agent uses to compute the optimal strategies. On the
+other hand, to test the performance of the strategy from September 2019 to February
+2020, we use ˆa = 1.61 × 10−5, which is the in-sample estimate, and we remark that
+the trader does not know this value.
+We assume that the value of the permanent price impact parameter κ is zero be-
+cause we use LOB data to run the simulations; so we cannot include the permanent
+impact that the trader’s orders would have had on the market. Recall that in the im-
+plementations, the MLOs walk the book if necessary (while obeying the price limit),
+and the strategies incorporate the fees paid to the exchange. Thus we account for
+all trading frictions except the friction arising from the permanent price impact. The
+central scenarios we study assume that the liquidity trader is patient; so we set the
+value of the urgency parameter φ to zero. Finally, the transaction cost parameter is
+c = 3 × 10−6, i.e., 3 USD per million USD traded, which are the fees paid by active
+traders in the foreign exchange market. Table 4 summarises the model parameters for
+RLOS, DLOS, ZLOS to trade between 9.00am and 9.10am when expected latency is
+30 ms. In the interest of space, we do not report the parameters for the other scenarios
+we study.
+4.2 Simulations and performance measure
+There are 128 days of market data in the period from 1 September 2019 to 29 Febru-
+ary 2020. For each day, we split the ten-minute window into 100 intervals of six
+seconds. For each interval of six seconds, we combine the one market run of the
+best bid rate posted on the LOB with 100 simulated runs of the random latency that
+the trader would face in each trade attempt. Thus the total number of runs for each
+ten-minute window (9.00am to 9.10am, 2.00pm to 2.10pm, 7.00pm to 7.10pm) is
+128 × 100 × 100 = 1’280’000. In each run, the strategy exchanges 5’000’000 EUR
+into USD, which is 10 times the volume that one normally observes posted at the best
+bid rate in the exchange, i.e., M = 10 lots of 500’000 EUR each.
+
+
+===== PAGE 22 =====
+22
+Á. Cartea, L. Sánchez-Betancourt
+For RLOS, DLOS, ZLOS, we recall that the cost of liquidating terminal inventory
+with one MO is as follows: if QT −= 1 lot, the order does not walk the LOB. How-
+ever, if QT ≥2, the ﬁrst lot does not walk the book, and the remaining QT −1 lots
+walk the LOB, so that the USD received from exchanging the ﬁnal position in EUR
+is QT −(ST + ζ −a(QT −−1))(1 −ρ); see (3.9).
+The measure of performance is
+E[TCT (RLOS)] −E[TCT (B)]
+V0
+× 106,
+(4.2)
+where TCT is the terminal cash in USD obtained by the strategy, V0 is the value of the
+position to exchange at the beginning of the trading window, and B represents one of
+the four benchmark strategies. The numerator of (4.2) is in USD and the denominator
+is in EUR; so the units of the performance measure are $/€M, i.e., USD per million of
+EUR exchanged. Finally, when the benchmark is ENOW, the performance measure is
+‘implementation shortfall’, which is a widely used benchmark to assess implicit costs
+and the liquidity of markets. ENOW is seldom achieved because large orders need
+much more than the liquidity available at the best quotes of the LOB; see Almgren
+[3] and Cartea et al. [12, Sect. 4]. Generally, one computes implementation shortfall
+with the midprice. Here, we use the best bid rate for a liquidation problem.
+4.3 Results: performance of RLOS and benchmarks
+In this subsection, we present the results of the execution strategy for the three ten-
+minute trading windows that start at 9.00am, 2.00pm and 7.00pm for various levels
+of the trader’s expected latency in the marketplace. Later, in Sect. 4.4, we examine
+the performance of the strategies around news announcements. The main ﬁnding we
+report is the superior performance of the latency-optimal strategies RLOS and DLOS.
+Both RLOS and DLOS perform similarly; we do not ﬁnd evidence at 95% conﬁdence
+to reject the hypothesis that their mean performance is the same. The outperformance
+of RLOS over DLOS is positive in most scenarios, but is always less than $0.5/€M in
+absolute value. RLOS and DLOS produce similar performances because the optimal
+limit rates coincide for most of the simulations when rounded to the nearest tick size.
+The cash value of the outperformance is approximately the same as the fees paid by
+traders in foreign exchange markets; the value of the outperformance considerably
+increases during news events. The outperformance stems from the speculative MLOs
+sent by RLOS and DLOS, which are more valuable when the market is more active.
+There are two key insights. First, the performance of MLOs depends on the dis-
+tribution of the ﬂickers. When activity in the markets increases, the value of MLOs
+increases because both the probability of receiving a price improvement and the size
+of the improvements increase – the value of MLOs is highest during news events.
+On the other hand, an increase in either the size or the probability of slippage during
+times of heightened activity has little effect on the performance of latency-optimal
+strategies because the rate limits in the sell MLOs prevent orders from walking down
+the LOB. This is in contrast with strategies that send MOs (e.g. TWAP and ZLOS)
+because these orders are exposed to adverse changes in the rates. Second, traders use
+speed to complete the execution programme with as many MLOs as possible because
+
+
+===== PAGE 23 =====
+Optimal execution with stochastic delay
+23
+Table 5 Values of performance
+measure (4.2) from 9.00am to
+9.10am, T = 6 seconds, φ = 0.
+The revenues from RLOS and
+from DLOS (not shown) are
+statistically the same
+Performance 9.00am–9.10am
+Expected latency in ms
+10
+30
+60
+90
+ZLOS
+4.56
+3.40
+2.74
+2.34
+TWAP
+5.14
+3.80
+3.09
+2.65
+ENOW
+3.91
+2.57
+1.86
+1.42
+they can retry missed speculative MLOs before reaching the end of the trading inter-
+val. Thus the lower the latency of the trader, the more opportunities the trader will
+have to ﬁll speculative MLOs, so the better is the performance of latency-optimal
+strategies that use MLOs over strategies that employ MOs.
+Cartea and Sánchez-Betancourt [15] estimate the range of the stochastic latency
+of an active trader in the foreign exchange market to be between 10 and 50 ms. Ta-
+ble 5 reports the results of the performance measure (4.2) over the window 9.00am to
+9.10am for a patient trader with 10, 30, 60, 90 ms of expected latency. RLOS receives
+approximately between 5.14 and 2.65 USD more than TWAP for every million EUR
+exchanged into USD, and RLOS receives between 4.56 and 2.34 USD more than
+ZLOS per million EUR exchanged, and RLOS outperforms ENOW by between 1.42
+and 3.91 USD per million EUR exchanged. Finally, the average USD amount that
+RLOS receives is statistically the same as that received by DLOS, so the table does
+not report the results for DLOS. Here, two means are statistically the same if the Stu-
+dent t-test does not reject the hypothesis that the two means are the same with 95%
+conﬁdence. All outperformances we report are statistically different from zero. For
+example, in Table 5, the outperformance of RLOS over TWAP when the expected
+latency is 30 ms is $3.80/€M. Here, we reject the null hypothesis that the two means
+are the same with a p-value of 2.15 × 10−5.
+The results in Table 5 show that the value of the outperformance of RLOS (and
+DLOS) decreases as the value of the expected latency increases – we provide two
+stylised facts of the strategies to explain the results in the table. First, as expected
+latency increases, it is more likely that at the end of the trading interval, all strategies
+will fall short of liquidating the target inventory. In the extreme case where expected
+latency is arbitrarily large, it is very likely that by the terminal time T , most of the
+target inventory will remain in euros, i.e., is not exchanged into USD. Thus at time T ,
+the remaining lots of currency pairs will be liquidated with one MO, where the trader
+pays the costs of walking the book; the costs are the same for all strategies (except
+for ENOW).
+Second, for a ﬁxed trading window and for a ﬁxed liquidation target, faster traders
+(i.e., with lower expected latency) have on average more opportunities than slow
+traders to send MLOs to the exchange (recall that in our model, the trader cannot
+send another trade if her previous order is pending in the exchange). Therefore, com-
+pared with slow traders, faster traders send more (and ﬁll more) MLOs that seek a
+rate improvement, which explains the results we report in the table – we return to
+this point below. In an extreme case, a patient trader with nearly zero latency will
+use her superior speed advantage to send a large amount of MLOs that seek price
+
+
+===== PAGE 24 =====
+24
+Á. Cartea, L. Sánchez-Betancourt
+Table 6 Expected latency is 30 ms, T = 6 seconds, so expected number of attempts is 200, and φ = 0.
+LR: limit rate of MLO. St : fundamental best bid rate when the trader decides to send the MLO
+Expected latency is 30 ms, start time 9.00am
+MLO Attempts
+MLO Fills
+QT −≥2
+LR < St
+LR = St
+LR > St
+RLOS
+195.07
+9.95
+0.00
+1.00
+5.71
+188.35
+DLOS
+197.44
+9.64
+0.07
+1.26
+5.01
+191.17
+ZLOS
+10.00
+10.00
+0.00
+10.00
+–
+–
+TWAP
+10.00
+10.00
+0.00
+10.00
+–
+–
+ENOW
+1.00
+1.00
+0.00
+–
+1.00
+–
+improvements, and due to the ﬂickers in the best bid rate in the LOB, the trader will
+exchange a large proportion of the initial inventory in EUR into USD with these spec-
+ulative MLOs. A very fast and very patient trader will not employ her speed in the
+marketplace to liquidate the target inventory quickly and ahead of time; the trader
+will use her low latency to ﬁll as many speculative trades as possible to complete the
+execution target.
+Our results show that the slower the trader, the less she beneﬁts from latency-
+optimal strategies. However, on the other hand, an implication of our ﬁndings is that
+slow traders may proﬁt from investing in co-location, software and other services
+to increase their speed in the marketplace if the improvement in the performance of
+the execution strategies outweighs the costs to reduce their latency, which largely
+depends on the volumes traded.
+To gain further insights, we report summary statistics of the behaviour of the
+strategies from 9.00am to 9.10am when expected latency is 30 ms. Table 6 reports:
+the average number of trade attempts (there are 200 periods of 30 ms for an execu-
+tion horizon of six seconds); the average number of ﬁlled orders; the proportion of
+runs for which the strategy sends an MO at time T to liquidate the terminal inventory
+and pays extra costs from walking the LOB (i.e., average number of runs for which
+QT −≥2); the proportion of the number of attempts for which the limit rate (LR) of
+the MLO is lower than the fundamental best bid rate St (the trader is willing to walk
+the LOB to complete the trade); the average number of attempts for which LR = St,
+and the average number of attempts where LR > St, which are speculative trades that
+target a rate improvement (relative to the fundamental exchange rate).
+On average, RLOS and DLOS employ a similar number of MLO attempts, of
+which RLOS ﬁlls 9.95 and DLOS ﬁlls 9.65 (these ﬁgures exclude the MOs sent, if
+necessary, at time T ). Approximately 97% of the attempted MLOs by both strate-
+gies are speculative, of which 2.4% (2.3%) sent by RLOS (DLOS) were ﬁlled. As
+discussed above, ﬁlled speculative MLOs are the main source of the superior per-
+formance of latency-optimal strategies. Within the trading window, the limit rates of
+the speculative MLOs become less ambitious if the inventory is not on target and the
+terminal date approaches. However, the latency-optimal strategies cannot guarantee
+that at time T , the inventory in EUR is drawn to QT −< 2. The table shows that
+in approximately 0.3% (6.9%) of the runs, RLOS (DLOS) arrives at the end of the
+trading horizon with two or more lots that are liquidated with one MO. Finally, the
+
+
+===== PAGE 25 =====
+Optimal execution with stochastic delay
+25
+Table 7 Expected latency is 30 ms, T = 6 seconds, so expected number of attempts is 200, and φ = 10−3.
+LR: limit rate of MLO. St : fundamental best bid rate when the trader decides to send the MLO
+Expected latency is 30 ms, start time 9.00am, φ = 10−3
+MLO Attempts
+MLO Fills
+QT −≥2
+LR < St
+LR = St
+LR > St
+RLOS
+10.20
+10.00
+0.00
+10.20
+–
+–
+DLOS
+10.21
+10.00
+0.00
+10.21
+–
+–
+ZLOS
+10.00
+10.00
+0.00
+10.00
+–
+–
+TWAP
+10.00
+10.00
+0.00
+10.00
+–
+–
+ENOW
+1.00
+1.00
+0.00
+–
+1.00
+–
+percentage of runs where RLOS outperforms is 57% for DLOS, 61% for ZLOS, 67%
+for TWAP and 55% for ENOW.
+As Table 6 reports, when the value of the urgency parameter φ is zero, RLOS
+and DLOS miss approximately 95% of attempts with MLOs – the majority of the
+MLOs seek a price improvement that does not materialise. To examine the role of
+the urgency parameter, we implement the execution strategies described above for
+a range of values of φ and report a summary of the ﬁndings for φ = 5 × 10−5 and
+φ = 1 × 10−3. These two choices represent impatient liquidity takers who have more
+urgency to liquidate the position than the patient trader with φ = 0.
+When φ = 1 × 10−4, RLOS misses 85% of the MLOs and outperforms TWAP by
+1.68 USD per million euro exchanged. Similarly, when φ = 1 × 10−3, RLOS misses
+2% of the MLOs and outperforms TWAP by 0.79 USD per million euro exchanged.
+The performance of latency-optimal strategies is similar to that of TWAP because
+the urgency with which RLOS must liquidate inventory precludes the strategy from
+sending speculative trades, and because the limit rates of the MLOs are set low to
+increase the probability of a ﬁll at the expense of price protection. In Table 7, we
+observe that RLOS sends nearly all MLOs with a limit rate below the fundamental
+best bid rate to ensure a prompt liquidation and does not send speculative MLOs –
+due to the trader’s impatience, in 99.97% of the simulations, the strategy completes
+the liquidation early. These results are in stark contrast with those reported in Table 6,
+where the trader was patient and used the entire window to complete the execution
+programme with as many speculative MLOs as possible, and where the majority of
+orders sent are retries of missed speculative MLOs.
+When we amalgamate the MLOs of all traders in our data set between 1 September
+2019 and 29 February 2020 in the EUR/USD currency pair, we ﬁnd that 57.1% of
+MLOs sent by all traders missed the trade. On the other hand, when we look at the
+MLOs sent by each trader, we ﬁnd that approximately 35% of the traders miss up to
+25% of their MLOs, and approximately 6% of traders miss between 75% and 100%
+of their MLOs – these traders also send other types of orders to the exchange (e.g.
+MOs), see Table 1. Finally, one cannot tell from the data which trades are part of an
+execution programme (i.e., child orders) or which trades are a single execution that
+is not part of a larger order. However, as discussed above, our model is designed to
+execute one stand-alone order or to execute a large parent order that is split into child
+orders.
+
+
+===== PAGE 26 =====
+26
+Á. Cartea, L. Sánchez-Betancourt
+Table 8 Values of performance
+measure (4.2) from 9.00am to
+9.10am (ﬁrst column), from
+2.00pm to 2.10pm (second
+column), and from 7.00pm to
+7.10pm (third column), T = 6
+seconds, and expected latency is
+30 ms
+Performance measure (4.2)
+9.00am to 9.10am
+2.00pm to 2.10pm
+7.00pm to 7.10pm
+ZLOS
+3.40
+3.36
+1.93
+TWAP
+3.80
+3.51
+2.25
+ENOW
+2.57
+2.84
+1.17
+Table 9 Values of performance
+measure (4.2) starting at 9.00am,
+T = 6 seconds, and φ = 0
+Trader assumes expected latency of 30 ms
+True expected latency in marketplace is:
+20 ms
+30 ms
+40 ms
+ZLOS
+3.73
+3.39
+3.14
+TWAP
+4.20
+3.79
+3.50
+ENOW
+2.97
+2.55
+2.27
+In the remainder of this subsection, we focus on a trader with 30 ms of expected
+latency. Table 8 reports the performance measure when the ten-minute execution win-
+dows start at 9.00am, 2.00pm and 7.00pm. We ﬁnd that the outperformance of RLOS
+over ZLOS, TWAP, ENOW is worse when the start time is 7.00pm, which is the least
+active period we study and one for which the probability of positive ﬂickers in the
+best bid rate is lowest, so MLOs are less valuable.
+Next, we study the performance of RLOS when the trader estimates 30 ms of ex-
+pected latency in the market, but her latency is one of 20 ms (underestimated speed
+in the marketplace), 30 ms (correct speed estimate), 40 ms (overestimated speed in
+the marketplace). The results, reported in Table 9, show that the value of the outper-
+formance of the RLOS and DLOS over the other strategies is slightly higher (lower)
+when the agent underestimates (overestimates) expected latency. Recall that over the
+trading window, for a lower (higher) value of the expected latency, the trader has
+more (fewer) attempts on average to execute her inventory.
+4.4 Trading around news events
+Throughout the calendar year, many pieces of news are released according to a sched-
+ule. Market participants know the timing of the release, but do not know the content.
+In general, trade activity and volatility of the exchange rates tend to increase around
+the time of the news release. Here, we employ the EUR/USD news event information
+provided by FXStreet between 1 September 2019 and 29 February 2020 (see https://
+www.fxstreet.com/economic-calendar). During this period, there are 117 news events
+marked as high impact for EUR and for USD, and the time of the release of each event
+is timestamped with precision up to one minute.
+We use the estimate ˆσ = 1.9 × 10−4, which is the volatility of the fundamental
+best bid between 9.00am to 8.00pm (see Sect. 4.1), to compute the trading strategies
+around the time of the arrival of the scheduled news; results are robust to employ-
+ing volatility estimates computed with the data around news events in August 2019.
+The execution horizon is T = 6 seconds and the agent trades during 1, 3, 5, 7 and
+
+
+===== PAGE 27 =====
+Optimal execution with stochastic delay
+27
+Table 10 Performance measure
+around news events, T = 6
+seconds, φ = 0, and expected
+latency is 30 ms
+News events: Performance measure (4.2)
+Minutes around news announcements:
+1 min
+3 mins
+5 mins
+7 mins
+10 mins
+ZLOS
+36.31
+15.16
+10.62
+8.66
+7.21
+TWAP
+29.45
+13.35
+9.62
+8.12
+6.92
+ENOW
+23.86
+10.23
+7.28
+6.06
+5.15
+Table 11 Period is from 1 September 2019 to 29 February 2020. Expected latency is 30ms
+Parameters of the distribution of ﬂickers (ex-post)
+ˆp−
+slippage
+ˆp0 on
+target
+ˆp+
+price improvement
+1/ˆη−
+slippage
+1/ˆη+
+price improvement
+9am
+0.057
+0.901
+0.042
+2.68 × 10−5
+1.92 × 10−5
+2pm
+0.064
+0.889
+0.047
+2.66 × 10−5
+2.04 × 10−5
+7pm
+0.054
+0.923
+0.023
+2.81 × 10−5
+2.00 × 10−5
+News 1 min
+0.229
+0.715
+0.056
+1.62 × 10−4
+2.52 × 10−5
+News 3 min
+0.158
+0.792
+0.050
+1.08 × 10−4
+2.25 × 10−5
+News 5 min
+0.131
+0.821
+0.047
+8.92 × 10−5
+2.18 × 10−5
+News 7 min
+0.118
+0.835
+0.047
+7.94 × 10−5
+2.14 × 10−5
+News 10 min
+0.107
+0.844
+0.049
+6.89 × 10−5
+2.12 × 10−5
+10 minutes around the news event. For example, the ISM manufacturing index was
+scheduled to be released at 2.00pm on 3 September 2019; so for the one-minute win-
+dow, we employ market data from 1.59.30pm to 1.59.36pm for the ﬁrst simulation,
+data from 1.59.36pm to 1.59.42pm for the second simulation, and so on, until the
+tenth simulation from 2.00.24pm to 2.00.30pm. For each six-second execution inter-
+val, we perform 100 simulations of the random latency faced by the trader. Thus for
+the one-minute window, the study consists of 117×10×100 = 117’000 simulations.
+Table 10 reports the results of the performance measure in (4.2).
+The value of the outperformance of RLOS over ZLOS and TWAP is approximately
+between two and ten times the value reported in Table 5. This signiﬁcant improvement
+in the performance of RLOS follows from an increase in the number of speculative
+MLOs that are ﬁlled. Table 11 shows the ex-post parameters of the distribution of
+ﬂickers faced by the trader with 30 ms of expected latency. It is clear that during news
+announcements, the value of speculative MLOs is higher because the probability of a
+price improvement (respectively, slippage) and the size of the positive (respectively,
+negative) ﬂickers are greater than those of the distribution of ﬂickers for the ten-
+minute trading windows that start at 9.00am, 2.00pm and 7.00pm.
+4.5 Robustness checks
+In the results we showed above, the fundamental best bid rate was the current or
+most recent observed best bid rate when the spread was less than υ = 11 ticks; recall
+that one tick is 10−5 USD. Table 12 shows that the outperformance of RLOS over
+
+
+===== PAGE 28 =====
+28
+Á. Cartea, L. Sánchez-Betancourt
+Table 12 Performance measure
+from 9.00am to 9.10am, T = 6
+seconds, and expected latency
+30 ms
+Filter with ν ticks to obtain fundamental price
+7
+9
+11
+13
+∞
+ZLOS
+3.03
+3.45
+3.61
+3.55
+3.34
+TWAP
+3.29
+3.71
+3.87
+3.81
+3.60
+ENOW
+1.89
+2.31
+2.47
+2.41
+2.20
+the benchmarks is robust for υ ∈{7,9,11,13,∞} ticks, where expected latency is
+30 ms. Note that when υ = ∞ticks, the fundamental best bid rate is the observed bid
+rate, i.e., ˆSt = St.
+The value of the outperformance of RLOS and DLOS over other benchmarks
+peaks for υ = 11 ticks. In addition, we note that for the outperformance of RLOS
+over TWAP, any two consecutive results are statistically the same. For example, the
+outperformance of RLOS over TWAP for υ = 9 and υ = 11 are statistically the same.
+Finally, the performances of RLOS and DLOS are robust to misspeciﬁcation of the
+volatility parameter of the fundamental best rate. We ran simulations with volatility
+estimates σ ∈{1,2,3}×10−4 and expected latency 30 ms. The performance measure
+are as those reported above plus minus $0.4/€M.
+5 Conclusions
+We have solved a general stochastic impulse control problem in which there is a
+stochastic delay between the action and its outcome. As an application, an investor
+liquidates a large position in a ﬁnancial instrument when there is latency in the mar-
+ketplace. We have derived the optimal strategies for stochastic and for deterministic
+latencies, and compared their performance with that of three benchmarks, including
+TWAP. During normal trading hours, we have found that the latency-optimal strate-
+gies outperform the benchmarks by an amount similar to that of the fees paid by
+traders in the foreign exchange market. Around news events, the value of the outper-
+formance increases to between two and ten times the value of the fees. The superior
+performance of the latency-optimal strategies stems from both the speculative MLOs
+sent by the trader and the rate protection provided by the MLOs. We have shown that
+fast and patient traders use their superior speed to execute the target inventory with as
+many speculative MLOs as possible; they do not use their speed advantage to ﬁnish
+the execution programme early, or to hit the best quotes they observe in the LOB.
+In ﬁnancial applications, interesting research problems include a study of the effect
+that latency has on the ﬁnancial performance of electronic trading strategies, e.g.
+market making, pairs trading and other statistical arbitrage strategies. In particular,
+one could try to extend the recent works of Kalsi et al. [23] and Cartea et al. [14]
+to account for latency. In these works, the authors use techniques from rough path
+theory to solve relevant algorithmic trading problems, where it is assumed that there
+is no delay between trade attempts and executions. Finally, from a mathematical point
+of view, a challenging problem is to extend the current framework to include other
+distributions of the delay in the marketplace, and to extend the model so that there
+can be more than one pending order in the system when latency is stochastic.
+
+
+===== PAGE 29 =====
+Optimal execution with stochastic delay
+29
+Appendix A: Random latency
+To simplify notation, we let L0 = ∅and L1 = L, and we drop the argument of a
+mathematical object if it is the empty set. For example, we write At instead of At,∅, or
+Xt,x,α instead of Xt,x,∅,α, etc. Finally, when the index of a function is the empty set,
+the function returns the empty set. For k ∈{0,1}, the domains of the value functions
+vk are
+Dk = {(t,x,ℓ) : (t,x) ∈[0,T ) × R × (−∞,M] × R and ℓ∈Lk}.
+Here, we prove the DPP satisﬁed by vk(t,x,ℓ), k ∈{0,1}, t ∈[0,T ] and ℓ∈Lk.
+We introduce the function ι(t,α) which returns the index of the pending order (if
+any) at time t and strategy α. That is,
+ι(t,α) =
+
+i
+if there is a pending order, i.e., i such that τi ≤t and ˜τi > t,
+∅
+otherwise.
+Theorem A.1 The value functions in (3.11) and (3.12) satisfy the dynamic program-
+ming principle (DPP). That is, for k ∈{0,1}, (t,x,ℓ) ∈Dk and θ ∈Tt,T , the set of
+stopping times valued in [t,T ], we have
+vk(t,x,ℓ) = sup
+α∈At,ℓ
+E
+
+ θ
+t
+h(Xt,x,ℓ,α
+s
+)ds
++
+
+˜τi≤θ
+C(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,li) + vk(θ,α)(θ,Xt,x,ℓ,α
+θ
+,lι(θ,α))
+
+,
+where l∅= ∅. In other words, for k ∈{0,1}, (t,x,ℓ) ∈Dk, we have:
+(a) DPP1. For all α ∈At,ℓ, we have for all stopping times θ valued in [t,T ] that
+vk(t,x,ℓ) ≤E
+
+ θ
+t
+h(Xt,x,ℓ,α
+s
+)ds
++
+
+˜τi≤θ
+C(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,li) + vk(θ,α)(θ,Xt,x,ℓ,α
+θ
+,lι(θ,α))
+
+.
+(b) DPP2. For all ϵ > 0, there exists α ∈At,ℓsuch that for all stopping times θ
+valued in [t,T ], we have
+vk(t,x,ℓ) ≥E
+
+ θ
+t
+h(Xt,x,ℓ,α
+s
+)ds
++
+
+˜τi≤θ
+C(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,li) + vk(θ,α)(θ,Xt,x,ℓ,α
+θ
+,lι(θ,α))
+
+−ϵ.
+Before proceeding to the proof, we remark that from the dynamics of the con-
+trolled system Xα in (3.7), the independence of the marks and the memoryless prop-
+erty of the exponential distribution of latency, we have the following properties:
+
+
+===== PAGE 30 =====
+30
+Á. Cartea, L. Sánchez-Betancourt
+(1) Markov property of (Xα,k(·,α),lι(·,α)): For any α ∈A, we have
+E[ψ(Xα
+θ2)|Fθ1] = E
+
+ψ(Xα
+θ2)
+
+Xα
+θ1,k(θ1,α),lι(θ2,α)
+	
+,
+(A.1)
+for any bounded measurable function ψ and stopping times θ1 ≤θ2 a.s.
+(2) Causality of the control: For any α = (τi,li)i≥1 ∈A and stopping time θ,
+αθ ∈Aθ,lι(θ,α)
+and
+lι(θ,α) ∈Lk(θ,α),
+(A.2)
+where αθ = (τi+ι(θ,α),li+ι(θ,α))i≥1.
+(3) Pathwise uniqueness of the state process:
+Xt,x,ℓ,α = Xθ,Xt,x,ℓ,α
+θ
+,lι(θ,α),αθ
+(A.3)
+on [0,T ], for any (t,x,ℓ) ∈Dk,k = 0,1,α ∈At,ℓand θ ∈Tt,T .
+Proof of Theorem A.1 (a) Fix (t,x,ℓ) ∈Dk, k ∈{0,1} and take an arbitrary control
+α ∈At,ℓ. By the law of iterated conditional expectations, we have
+Jk(t,x,ℓ,α)
+= E
+
+ θ
+t
+h(Xt,x,ℓ,α
+s
+)ds +
+
+˜τi≤θ
+C(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,li)
++ E
+ T
+θ
+h(Xt,x,ℓ,α
+s
+)ds +
+
+θ<˜τi≤T
+C(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,li) + g(Xt,x,ℓ,α
+T
+)
+Fθ
+
+,
+and because of the joint Markov property of (Xα,k(·,α),lι(·,α)), the causality of the
+control and the pathwise uniqueness of Xt,x,ℓ,α (see (A.1)–(A.3)), we have
+Jk(t,x,ℓ,α)
+= E
+
+ θ
+t
+h(Xt,x,ℓ,α
+s
+)ds +
+
+˜τi≤θ
+C(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,li)
++ Jk(θ,α)(θ,Xt,x,ℓ,α
+θ
+,lι(θ,α),αθ)
+
+≤E
+
+ θ
+t
+h(Xt,x,ℓ,α
+s
+)ds +
+
+˜τi≤θ
+C(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,li) + vk(θ,α)(θ,Xt,x,ℓ,α
+θ
+,lι(θ,α))
+
+.
+Now take the supremum over α ∈At,ℓon both sides to obtain the desired result.
+(b) Fix (t,x,ℓ) ∈Dk, k = 0,1 and take an arbitrary control α ∈At,ℓ. By the deﬁ-
+nition of vk, for any ϵ > 0 and ω ∈, there exists αϵ,ω ∈Aθ(ω),lι(θ(ω),α(ω)) which is an
+ϵ-optimal control for vk(θ(ω),α(ω)) at the point
+
+θ(ω),Xt,x,ℓ,α
+θ(ω)
+,lι(θ(ω),α(ω))
+
+.
+
+
+===== PAGE 31 =====
+Optimal execution with stochastic delay
+31
+Next, by a measurable selection argument, see Bertsekas and Shreve [7, Chap. 7], one
+can show that there is ¯αϵ ∈Aθ,lι(θ,α) such that ¯αϵ(ω) = αϵ,ω(ω) for almost all w ∈,
+so that
+vk(θ,α)(θ,Xt,x,ℓ,α
+θ
+,lι(θ,α)) −ϵ ≤Jk(θ,α)(θ,Xt,x,ℓ,α
+θ
+,lι(θ,α), ¯αϵ).
+(A.4)
+Next, concatenate the controls α and ¯αϵ; that is, take ¯α to be α for the impulses
+that are before (or include) time θ, and take ¯αϵ for the impulses that are strictly
+after time θ. By construction, ¯α ∈At,ℓso that Xt,x,ℓ,α
+u
+= Xt,x,ℓ,¯α
+u
+for all u ∈[t,θ],
+k(θ,α) = k(θ, ¯α), lι(θ,α) = lι(θ,¯α) and ¯αθ = ¯αϵ. Therefore, following the same steps
+as in the proof of (a), we have
+Jk(t,x,ℓ, ¯α) = E
+
+ θ
+t
+h(Xt,x,ℓ,¯α
+s
+)ds +
+
+˜τi≤θ
+C(Xt,x,ℓ,¯α
+˜τi−
+, Ft,0
+˜τi ,li)
++ Jk(θ,¯α)(θ,Xt,x,ℓ,¯α,lι(θ,¯α), ¯αϵ)
+
+,
+which together with (A.4) yields
+Jk(t,x,ℓ, ¯α) ≥E
+
+ θ
+t
+h(Xt,x,ℓ,¯α
+s
+)ds +
+
+˜τi≤θ
+C(Xt,x,ℓ,¯α
+˜τi−
+, Ft,0
+˜τi ,li)
++ vk(θ,¯α)(θ,Xt,x,ℓ,¯α
+θ
+,lι(θ,¯α))
+
+−ϵ,
+where ¯α can be replaced by α because ¯α is less than or equal to θ. Now take the
+supremum over α ∈At,ℓon both sides to conclude that
+vk(t,x,ℓ) ≥sup
+α∈At,ℓ
+E
+
+ θ
+t
+h(Xt,x,ℓ,α
+s
+)ds +
+
+˜τi≤θ
+C(Xt,x,ℓ,α
+˜τi−
+, Ft,0
+˜τi ,li)
++ vk(θ,α)(θ,Xt,x,ℓ,α
+θ
+,lι(θ,α))
+
+−ϵ,
+which completes the proof because ϵ is arbitrary.
+□
+We characterise the value functions with the following two corollaries which are
+stated without proof (they follow from Theorem A.1). In what follows, Z is a ran-
+dom variable with law ν(dx) as in (3.2), independent of W and of the exponentially
+distributed delays between trade attempts and notiﬁcations.
+
+
+===== PAGE 32 =====
+32
+Á. Cartea, L. Sánchez-Betancourt
+Corollary A.2 For k = 1, (t,x,ℓ) ∈D1, p ∈R and θ ∈Tt,T , we have
+v1(t,x,ℓ) = E
+
+ θ∧˜t
+t
+h(Xt,x
+s )ds +
+
+v0
+˜t,(Xt,x
+˜t−,Z,ℓ)
+
++ C(Xt,x
+˜t−,Z,ℓ)
+
+1{˜t≤θ}
++ v1(θ,Xt,x
+θ ,ℓ)1{˜t>θ}
+
+.
+In particular, when θ = T , it is possible to characterise v1 in terms of v0 via
+v1(t,x,ℓ) = E
+
+ T ∧˜t
+t
+h(Xt,x
+s )ds +
+
+v0
+˜t,(Xt,x
+˜t−,Z,ℓ)
+
++ C(Xt,x
+˜t−,Z,ℓ)
+
+1{˜t≤T }
++ v0(T,Xt,x
+T )1{˜t>T }
+
+(A.5)
+and v1(T,x,ℓ) = v0(T,x) = c + q(s + ζ −a(q −1))(1 −ρ), for all ℓ∈L.
+Corollary A.3 For (t,x) ∈D0 and θ ∈Tt,T , we have
+v0(t,x) =
+sup
+(τ,l)∈It
+E
+
+ θ∧τ
+t
+h(Xt,x
+s )ds
++ v0(θ,Xt,x
+θ )1{θ<τ} + v1(τ,Xt,x
+τ ,l)1{τ≤θ}
+
+,
+(A.6)
+where It is the set of all pairs (τ,l) where τ is a stopping time with t ≤τ < T or
+τ = ∞a.s., and l is an Fτ-measurable random variable valued in L.
+We use the following corollary to prove the subsolution property of the value func-
+tion (see Theorem A.9).
+Corollary A.4 For (t,x) ∈D0 and θ ∈Tt,T , we have
+v0(t,x) =
+sup
+(τ,l)∈It
+E
+
+ θ∧˜τ
+t
+h(Xt,x
+s )ds + v0(θ,Xt,x
+θ )1{θ<τ}
++ v1(θ,Xt,x
+θ ,l)1{τ≤θ<˜τ} + v0
+
+˜τ,(Xt,x
+˜τ−,Z,l)
+
+1{τ<˜τ<θ}
+
+.
+A.1 PDE system viscosity characterisation
+In Corollaries A.2 and A.3, we let θ →t to characterise the value functions v0 and v1.
+
+
+===== PAGE 33 =====
+Optimal execution with stochastic delay
+33
+Theorem A.5 The value functions satisfy the dynamic programming equation
+min
+
+−∂v0
+∂t (t,x) −Lv0(t,x) −h(x),v0(t,x) −sup
+ℓ∈L
+v1(t,x,ℓ)
+
+= 0
+on D0
+(A.7)
+and
+∂v1
+∂t (t,x,ℓ) + Lv1(t,x,ℓ) + h(x) −λv1(t,x,ℓ)
++ λE
+
+v0
+
+t,(x,Z,ℓ)
+
++ C(x,Z,ℓ)
+	
+= 0
+on D1,
+(A.8)
+where λ > 0 is the parameter of the exponential distribution that describes the ran-
+dom latency,
+L = b(s) ∂
+∂s + 1
+2σ 2(s) ∂2
+∂s2 ,
+the random variable Z has law ν(dx) as in (3.2) and the terminal conditions are
+v1(T,x,ℓ) = v0(T,x) = c + q
+
+s + ζ −a(q −1)
+
+(1 −ρ)
+for all ℓ∈L.
+The intuition for the result in Theorem A.5 is as follows. With no pending orders,
+the trader will submit an order with limit rate l∗when it is better to have one order
+pending in the exchange than none; this decision is determined by the QVI in (A.7).
+The crucial tradeoff is that once the agent sends an order, she must wait until it is pro-
+cessed by the exchange before sending another order; thus, a pending order precludes
+the trader from taking advantage of any opportunities that arise while a pending or-
+der is being processed during the period of latency. Finally, the trader’s value function
+satisﬁes the dynamic programming equation in (A.8) when there is an order pending
+in the exchange.
+A priori, in (A.7), it is not clear that the candidate optimal control is well deﬁned.
+If v1(t,x,ℓ) is continuous in ℓ, then given that L is compact, we can deﬁne the can-
+didate optimal control as ℓ∗= argmaxℓv1(t,x,ℓ) whenever v0(t,x) = v1(t,x,ℓ∗).
+On the other hand, if v1(t,x,ℓ) is not continuous in ℓ, we can take the set L to be
+a ﬁnite collection of points in R. Recall that L is the set of possible limit rates, and
+limit rates in EUR/USD take values with precision of (at most) ﬁve decimals. Thus
+we can deﬁne L to be all limit rates with ﬁve decimals of precision between zero and
+a ﬁxed ¯ℓ– in practice, any number that is twice the current level of the exchange rate
+sufﬁces.
+We use (A.5) to make a key simpliﬁcation to the system in (A.7) and (A.8). We
+plug (A.5) into (A.7) to obtain an HJBQVI that characterises the value function v0.
+We remark that once we know v0, we compute v1 by means of (A.5). Equation (A.7)
+
+
+===== PAGE 34 =====
+34
+Á. Cartea, L. Sánchez-Betancourt
+becomes
+min
+
+−∂v0
+∂t (t,x) −Lv0(t,x) −h(x),v0(t,x)
+−sup
+ℓ∈L
+E
+
+ T ∧˜t
+t
+h(Xt,x
+s )ds +
+
+v0
+˜t,(Xt,x
+˜t−,Z,ℓ)
+
++ C(Xt,x
+˜t−,Z,ℓ)
+
+1{˜t≤T }
++ v0(T,Xt,x
+T )1{˜t>T }
+
+= 0
+on D0,
+(A.9)
+with terminal condition v0(T,x) = c + q(s + ζ −a(q −1))(1 −ρ). We propose the
+ansatz v0(t,s,q,c) = c + h0(t,s,q) to reduce the system (A.9) to
+0 = min
+
+−∂h0
+∂t (t,s,q) −Lh0(t,s,q) + φq2,
+h0(t,s,q) + q
+
+q φ
+λ (1 −e−λ(T −t)) + a(q −1)e−λ(T −t)
+
+−qe−λ(T −t)E[St,s
+T ]
+−sup
+ℓ∈L
+E
+
+(1 −ρ)(St,s
+˜t−+ Z)f (ℓ−St,s
+˜t−−Z)
++ h0
+˜t, ˜(St,s
+˜t−,Z,q,ℓ)
+
+1{˜t≤T }
+
+,
+(A.10)
+with terminal condition h0(T,s,q) = (qs + qζ −aq(q −1))(1 −ρ), and
+˜(s,Z,q,ℓ) =
+
+s −κf (ℓ−s −Z),q −f (ℓ−s −Z)
+
+.
+A.2 Viscosity properties of the value function v0
+The value functions v0 and v1 do not need to be smooth a priori. We focus on the
+viscosity properties of the HJBQVI satisﬁed by v0 because we fully characterised v1
+in terms of v0 (see Corollary A.2). Bruder and Pham [9] use backward and forward
+iterations on the domains and value functions because they have more than two cou-
+pled value functions. In our case, a more ‘standard’ approach sufﬁces because of the
+reduction in (A.9). For classical references on the subject of viscosity solutions we
+refer the reader to Crandall et al. [16, Sects. 1–3] and Fleming and Soner [17, Sect. 5].
+For a locally bounded function w on D0, we denote by w (respectively, w) the
+lower-semicontinuous (respectively, upper-semicontinuous) envelope of w, given by
+w(t,x) =
+liminf
+(t′,x′)→(t,x)w(t′,x′),
+w(t,x) =
+limsup
+(t′,x′)→(t,x)
+w(t′,x′),
+(t,x) ∈D0.
+
+
+===== PAGE 35 =====
+Optimal execution with stochastic delay
+35
+For any locally bounded function u on D0, deﬁne the locally bounded function
+Hu on D0 by
+Hu(t,x) = sup
+ℓ∈L
+E
+
+ T ∧˜t
+t
+h(Xt,x
+s )ds +
+
+u
+˜t,(Xt,x
+˜t−,Z,ℓ)
+
++ C(Xt,x
+˜t−,ℓ)
+
+1{˜t≤T }
++ u(T,Xt,x
+T )1{˜t>T }
+
+.
+Lemma A.6 Let w be a locally bounded function on D0. Then Hw is upper-semi-
+continuous, and Hw ≤Hw.
+Proof First, we prove that Hw is upper-semicontinuous. Fix (t,x) ∈D0 and let
+(tn,xn)n≥1 be a sequence in D0 converging to (t,x) as n →∞. There exists a se-
+quence (ln)n∈N valued in L such that Hw(tn,xn) is equal to
+E
+
+ T ∧˜tn
+tn
+h(Xtn,xn
+s
+)ds +
+
+w
+˜tn,(Xtn,xn
+˜tn−,Z,ln)
+
++ C(Xtn,xn
+˜tn−,Z,ln)
+
+1{˜tn≤T }
++ w(T,Xtn,xn
+T
+)1{˜tn>T }
+
+for n ≥1 because w is upper-semicontinuous and L is compact. By the Bolzano–
+Weierstrass theorem, the sequence (ln)n∈N converges (up to a subsequence) to an
+element ˇl ∈L. Thus we get
+Hw(t,x) ≥E
+
+ T ∧˜t
+t
+h(Xt,x
+s )ds +
+
+w
+˜t,(Xt,x
+˜t−,Z,ˇl)
+
++ C(Xt,x
+˜t−,Z,ˇl)
+
+1{˜t≤T }
++ w(T,Xt,x
+T )1{˜t>T }
+
+≥limsup
+n→∞
+E
+
+ T ∧˜tn
+tn
+h(Xtn,xn
+s
+)ds
++
+
+w
+˜tn,(Xtn,xn
+˜tn−,Z,ln)
+
++ C(Xtn,xn
+˜tn−,Z,ln)
+
+1{˜tn≤T }
++ w(T,Xtn,xn
+T
+)1{˜tn>T }
+
+= limsup
+n→∞
+Hw(tn,xn),
+where the ﬁrst inequality follows because ˇl ∈L. The second inequality follows be-
+cause ¯w is upper-semicontinuous,  is continuous and by Fatou’s lemma. Finally, the
+last equality follows by deﬁnition. Hence Hw is upper-semicontinuous, as required.
+Next, to prove that Hw ≤Hw, ﬁx (t,x) ∈D0 and let (tn,xn)n≥1 be a sequence in
+D0 converging to (t,x) as n →∞such that Hw(tn,xn) →Hw(t,x). Then by the
+
+
+===== PAGE 36 =====
+36
+Á. Cartea, L. Sánchez-Betancourt
+properties of the sequence and the upper-semicontinuity of w, we have that
+Hw(t,x) = lim
+n→∞Hw(tn,xn) ≤limsup
+n→∞
+Hw(tn,xn) ≤Hw(t,x),
+where the last inequality follows from the upper-semicontinuity of Hw. Thus we
+obtain Hw ≤Hw.
+□
+Deﬁnition A.7 A locally bounded function w on D0 is a viscosity supersolution of
+(A.9) on D0 if for all (t0,x0,ψ) ∈D0 × C2(D0) such that w −ψ attains a minimum
+at (t0,x0), we have
+min
+
+−∂ψ
+∂t (t0,x0) −Lψ(t0,x0) −h(x0),
+w(t0,x0) −sup
+ℓ∈L
+E
+
+
+w
+˜t0,(Xt0,x0
+˜t0−,Z,ℓ)
+
++ C(Xt0,x0
+˜t0−,Z,ℓ)
+
+1{˜t0≤T }
++ w(T,Xt0,x0
+T
+)1{˜t0>T } −
+ T ∧˜t0
+t0
+h(Xt0,x0
+s
+)ds
+
+≥0.
+It is a viscosity subsolution of (A.9) on D0 if for all (t0,x0,ψ) ∈D0 × C2(D0) such
+that w −ψ attains a maximum at (t0,x0), we have
+min
+
+−∂ψ
+∂t (t0,x0) −Lψ(t0,x0) −h(x0),
+w(t0,x0) −sup
+ℓ∈L
+E
+
+
+w
+˜t0,(Xt0,x0
+˜t0−,Z,ℓ)
+
++ C(Xt0,x0
+˜t0−,Z,ℓ)
+
+1{˜t0≤T }
++ w(T,Xt0,x0
+T
+)1{˜t0>T } −
+ T ∧˜t0
+t0
+h(Xt0,x0
+s
+)ds
+
+≤0.
+Finally, we say that w is a viscosity solution of (A.9) on D0 if it is a viscosity super-
+solution and a viscosity subsolution of (A.9) on D0.
+Before we state the main theorem of this section, we present a comparison re-
+sult that we need in the proof of uniqueness of the viscosity solution. The following
+growth condition for the value function is assumed for the remainder of the paper:
+sup
+(t,x)∈D0
+|v0(t,x)|
+1 + |x| < ∞.
+(A.11)
+This assumption is not too restrictive. If b(s) ≡b ∈R and σ(s) ≡σ ∈R+ in the
+dynamics of the fundamental best bid rate process, then a calculation shows that the
+bound is satisﬁed. Note that in Sect. 4, we use b(s) ≡0 and σ(s) ≡σ > 0. The
+bound in (A.11) is required for the comparison result which guarantees uniqueness.
+However, if we relax this assumption, it is not clear we could ensure uniqueness.
+
+
+===== PAGE 37 =====
+Optimal execution with stochastic delay
+37
+Proposition A.8 Let u0 (respectively, w0) be a viscosity subsolution (respectively, su-
+persolution) of (A.9) satisfying the growth condition (A.11). Suppose that w0 satisﬁes
+w0 ≥Hw0 on D0, and that u0(T,x) ≤w0(T,x) for all x ∈R×(−∞,M]×R. Then
+u0 ≤w0 on D0.
+We state the steps one needs to follow (together with the assumptions needed) to
+complete the proof. First, we show that for any η > 0, there is a viscosity η-strict su-
+persolution1 wη
+0 of (A.9) satisfying wη
+0 ≥Hwη
+0 on D0 and such that for (t,x) ∈D0,
+we have w0+ηC1 |x|2 ≤wη
+0 ≤w0+ηC2(1+|x|2) for some positive constants C1,C2
+independent of η. Such a construction is in Bruder and Pham [9, Lemma 7.4] where
+we take m = 1. It then follows by the linear growth condition that ηC1 |x|2 −C2 ≤wη
+0
+on D0 for some positive constants C1,C2. Similarly to [9], the main step in the proof
+of Proposition A.8 is to compare a viscosity subsolution to a viscosity η-strict super-
+solution. It is then standard to write the sub viscosity inequalities2 and η-strict super-
+solution inequality in terms of semi-jets, and then conclude with Ishii’s lemma. For
+the proof, we require (i) continuity of f , (ii) the Lipschitz property of b,σ, (iii) the
+growth condition (A.11), and (iv) the two inequalities above. Finally, comparison of
+η-strict supersolutions implies comparison for supersolutions by letting η →0.
+Theorem A.9 The value function v0 is the unique viscosity solution of the HJBQVI in
+(A.9) on D0, satisfying (A.11), with v0(T,x) = c + q(s + ζ −a(q −1))(1 −ρ) and
+satisfying v0 ≥Hv0 on D0.
+Proof (Local boundedness) Let (t,x) ∈D0. From (A.11), there exists r1 > 0 that
+does not depend on (t,x) such that |v0(t,x)| ≤r1(1 + |x|). Thus the value function
+v0 is locally bounded.
+(Supersolution property) Let (t0,x0,ψ) ∈D0 × C2(D0) be such that v0 −ψ
+attains a minimum at (t0,x0) with v0(t0,x0) = ψ(t0,x0). By the deﬁnition of v0,
+there is a sequence (tn,xn)n≥1 ∈D0 such that v0(tn,xn) →v0(t0,x0) with
+(tn,xn) →(t0,x0). Let ℓ1 ∈L and (t,x) ∈D0. Use (A.6) and Corollary A.2 with
+an immediate impulse and price limit ℓ1, i.e., τ = t, θ = T and l = ℓ1, to write
+v0(t,x) ≥v1(t,x,ℓ1)
+= E
+
+ T ∧˜t
+t
+h(Xt,x
+s )ds +
+
+v0
+˜t,(Xt,x
+˜t
+,Z,ℓ1)
+
++ C(Xt,x
+˜t−,Z,ℓ1)
+
+1{˜t≤T }
++ v0(T,Xt,x
+T )1{˜t>T }
+
+.
+1See Bruder and Pham [9] for a deﬁnition of a viscosity η-strict supersolution.
+2These inequalities would be the analogues of [9, Eqs. (7.22) and (7.23)].
+
+
+===== PAGE 38 =====
+38
+Á. Cartea, L. Sánchez-Betancourt
+Thus
+liminf
+n→∞v0(tn,xn)
+≥liminf
+n→∞E
+
+ T ∧˜tn
+tn
+h(Xtn,xn
+s
+)ds
++
+
+v0
+˜tn,(Xtn,xn
+˜tn
+,Z,ℓ1)
+
++ C(Xtn,xn
+˜tn−,Z,ℓ1)
+
+1{˜tn≤T }
++ v0(T,Xtn,xn
+T
+)1{˜tn>T }
+
+.
+Next, use Fatou’s lemma, the continuity of  and the deﬁnition of v0 to obtain
+v0(t0,x0) ≥E
+
+ T ∧˜t0
+t0
+h(Xt,x
+s )ds
++
+
+v0(˜t0,(Xt,x
+˜t0 ,Z,ℓ1)) + C(Xt,x
+˜t0−,Z,ℓ1)
+
+1{˜t0≤T }
++ v0(T,Xt,x
+T )1{˜t0>T }
+
+.
+Therefore,
+v0(t0,x0) ≥sup
+ℓ∈L
+E
+
+ T ∧˜t0
+t0
+h(Xt,x
+s )ds
++
+
+v0
+˜t0,(Xt,x
+˜t0 ,Z,ℓ)
+
++ C(Xt,x
+˜t0−,Z,ℓ)
+
+1{˜t0≤T }
++ v0(T,Xt,x
+T )1{˜t0>T }
+
+because the price limit ℓ1 is arbitrary. Finally, to complete the viscosity supersolution
+property, use Corollary A.3 with τ = ∞, Itô’s formula for ψ ∈C2(D0), the property
+that v0 −ψ attains a minimum at (t0,x0) with v0(t0,x0) = ψ(t0,x0), and let θ →t0
+to obtain
+−∂ψ
+∂t (t0,x0) −Lψ(t0,x0) −h(x0) ≥0.
+We base the next part on Bruder and Pham [9].
+(Subsolution property) Let (t0,x0,ψ) ∈D0 × C2(D0) be such that v0 −ψ at-
+tains a maximum at (t0,x0), ψ(t0,x0) = v0(t0,x0) and ψ ≥v0 on D0. If we have
+v0(t0,x0) ≤Hv0(t0,x0), the desired inequality follows and the proof is complete.
+On the other hand, if v0(t0,x0) > Hv0(t0,x0), we proceed by contradiction, i.e., we
+assume there is η > 0 such that
+η = −∂ψ
+∂t (t0,x0) −Lψ(t0,x0) −h(x0) > 0.
+
+
+===== PAGE 39 =====
+Optimal execution with stochastic delay
+39
+By the deﬁnition of v0 and the continuity of ψ, there exist ˜ϵ > 0 and a sequence
+(tn,xn)n≥1 ⊆
+
+(t0 −˜ϵ,t0 + ˜ϵ) × B(x0, ˜ϵ)
+
+∩D0
+such that
+v0(tn,xn) −→v0(t0,x0)
+with (tn,xn) →(t0,x0),
+(A.12)
+−∂ψ
+∂t −Lψ −h > η
+2
+on
+
+(t0 −˜ϵ,t0 + ˜ϵ) × B(x0, ˜ϵ)
+
+∩D0,
+(A.13)
+v0 −ψ < η
+4
+on
+
+(t0 −˜ϵ,t0 + ˜ϵ) × B(x0, ˜ϵ)
+
+∩D0.
+Here B(x0, ˜ϵ) is the open ball with centre in x0 and radius ˜ϵ under the Euclidean
+metric. By continuity of ψ and (A.12), we also have
+γn := v0(tn,xn) −ψ(tn,xn) −→0
+as n →∞.
+(A.14)
+By Corollary A.4, for each n ≥1, there is a control (τn,ln) ∈Itn such that
+v0(tn,xn) −η
+4ϵn
+≤E
+
+ θn∧˜τn
+t
+h(Xt,x
+s )ds + v0(θn,Xt,x
+θn )1{θn<τn}
++ v1(θn,Xt,x
+θn ,ln)1{τn≤θn<˜τn} + v0
+
+˜τn,(Xt,x
+˜τn−,Z,ln)
+
+1{τn<˜τn<θn}
+
+.
+(A.15)
+Choose θn = (tn + ϵn) ∧ϑn ∧˜tn with
+ϑn = inf{s ≥tn : Xtn,xn
+s
+/∈B(x0, ˜ϵ/2),s ≤tn + ˜ϵ/2,s ≤T } ∈Ttn,T
+and (ϵn)n∈N a strictly positive sequence that satisﬁes ϵn →0 and γn/ϵn →0 as
+n →∞. After simple inspection of (A.15) and because ˜tn is the ﬁrst time there is
+a jump in N after tn, write
+v0(tn,xn) −η
+4ϵn
+≤E
+
+ θn
+t
+h(Xt,x
+s )ds + v0(θn,Xt,x
+θn )1{θn<τn} + v1(θn,Xt,x
+θn ,ln)1{τn≤θn}
+
+.
+(A.16)
+Use Lemma A.6 to write Hv0(t0,x0) ≤Hv0(t0,x0) < v0(t0,x0) = ψ(t0,x0). As Hv0
+is upper semicontinuous, ψ is continuous and Hv0(t0,x0) < ψ(t0,x0), the inequal-
+ity Hv0 ≤ψ holds in a neighbourhood of (t0,x0). Thus for n sufﬁciently large and
+because v1(tn,xn,ln) ≤Hv0(tn,xn), we obtain
+v1(θn,Xtn,xn
+θn
+,ln)1{τn≤θn} ≤ψ(θn,Xtn,xn
+θn
+)1{τn≤θn}.
+(A.17)
+
+
+===== PAGE 40 =====
+40
+Á. Cartea, L. Sánchez-Betancourt
+Equation (A.16) together with (A.14) and (A.17) yields
+ψ(tn,xn) + γn −η
+4ϵn ≤E
+
+ θn
+tn
+h(Xtn,xn
+s
+)ds + ψ(θn,Xtn,xn
+θn
+)
+
+.
+Use Itô’s formula between tn and θn, divide by ϵn and use the bound in (A.13) to
+obtain
+γn
+ϵn
+−η
+4 ≤1
+ϵn
+E
+
+ θn
+tn
+(∂tψ + Lψ + h)(s,Xtn,xn
+s
+)ds
+
+≤−η
+2E
+
+θn −tn
+ϵn
+
+.
+Let n →∞to get −η/4 ≤−η/2, which is a contradiction. Thus the subsolution
+property follows. Finally, uniqueness is a direct consequence of the comparison result
+in Proposition A.8.
+□
+Here, the lack of regularity of the value function precludes us from proving a
+veriﬁcation-type result, as in the case of classical solutions to HJB equations, to
+prove that the strategy we ﬁnd is indeed optimal. However, as shown by our results,
+the latency-optimal strategy outperforms the four benchmarks we consider (among
+which there is the robust and well-known TWAP), which lends strong support to our
+assumption that the random-latency strategy is the optimal strategy.
+A.3 A note about numerical approximations
+To compute a numerical approximation to the value function v0, we proceed as fol-
+lows. First, use the ansatz v0(t,x) = c + h0(t,s,q) and compute an approximation to
+h0 satisfying (A.10) with terminal condition h0(T,s,q)=(qs+qζ−aq(q−1))(1−ρ).
+Next, consider the grid discretisation [0,T ] × [S0 −100t,S0 + 100t] × [0,Q0] with
+1000 points in the time axis, 201 points in the price axis and 11 in the inventory
+axis – here t = 10−5 which is the tick-size in EUR/USD in LMAX. At the terminal
+time T , the value of the function is given by the terminal condition. Then for any
+point (t,s,q) in the grid, we approximate
+sup
+ℓ∈L
+E
+
+(1 −ρ)(St,s
+˜t−+ Z)f (ℓ−St,s
+˜t−−Z) + h0
+˜t, ˜(St,s
+˜t−,Z,q,ℓ)
+
+1{˜t≤T }
+
+(A.18)
+together with the control ℓ∗∈L that attains the supremum in (A.18), which we obtain
+as follows. Split the set L into intervals of size 10−5 considering 100 ticks above
+and 100 ticks below St = s – considering more ticks is not necessary because the
+probability that {|S˜t −s| > 100×10−5} is negligible. We perform (i) 104 simulations
+for ˜t, where we use as ˆt ∈(t,T ] the closest value to ˜t in the time grid, (ii) 104
+simulations for St,s
+ˆt
+rounded to ﬁve decimals, and (iii) 104 simulations for Z. If for a
+given simulation, the fundamental best bid rate St,s
+ˆt
+is not in the grid, we use a cubic
+spline approximation with the functions x →h(ˆt,x,q) and x →h(ˆt,x,q −1). We
+store the optimal ℓ∗∈L as a function of (t,s,q) together with a variable that ﬂags
+when an impulse happens.
+
+
+===== PAGE 41 =====
+Optimal execution with stochastic delay
+41
+The methodology described above is effective, but computationally expensive.
+However, once the value function is approximated, the implementation of the op-
+timal strategy is fast enough so that it can be used to trade in the market. Further
+analysis of numerical methods for this type of problems is left for future research.
+Appendix B: Benchmarks
+B.1 Optimal execution with zero latency
+Assume there is no latency in the marketplace. The trader controls the times at which
+she sends sell MOs to the exchange. The size of all MOs is one and the ﬁlled trades
+have permanent price impact as in the model of Sect. 3.
+Let τ = (τi)i≥1 denote an increasing sequence of stopping times when the trader
+sends sell MOs to the exchange. Observe that if latency is zero, a sell MO of size one
+at time τi is the same as a sell MLO for a unit size with a limit price Sτ
+τi−because the
+trader observes and acts with no delay in the marketplace and the exchange processes
+the order with no delay. The dynamics of the best bid price process, denoted by
+Sτ = (Sτ
+t )t≥0, follow
+Sτ
+t = S0 +
+ t
+0
+b(Sτ
+u)du +
+ t
+0
+σ(Sτ
+u)dWu −κ
+
+τi≤t
+1,
+where the functions b,σ : R →R are Lipschitz-continuous and κ is the permanent
+bid rate impact parameter. The cash process Cτ = (Cτ
+t )t≥0 and the inventory process
+Qτ = (Qτ
+t )t≥0 are given by
+Cτ
+t =
+
+τi≤t
+Sτ
+τi−,
+Qτ
+t = M −
+
+τi≤t
+1.
+For each execution strategy τ over the trading window [0,T ], the trader computes
+(τ) = g(Xτ
+T ) +
+ T
+0
+h(Xτ
+s )ds +
+
+τi≤T
+C(Xτ
+τi−),
+where g,h : R3 →R are as in (3.9) and the function C(s,q,c) = −ρs represents
+a transaction cost every time a trade of unit size is executed. The trader solves the
+control problem supτ∈A E[(τ)], where
+A = {τ = (τi)i≥1 : for each i ≥1, τi is an F-stopping time, and τi+1 > τi}.
+For (t,x) ∈[0,T ]×R×(−∞,M]×R and τ ∈At := {τ = (τi)i≥1 ∈A : τ1 ≥t}, the
+system Xt,x,τ is given by
+Xt,x,τ
+s
+= x +
+ s
+t
+b(Xt,x,τ
+u
+)du +
+ s
+t
+σ(Xt,x,τ
+u
+)dWu +
+
+t<τi≤s
+
+(Xt,x,τ
+τi−) −Xt,x,τ
+τi−
+
+,
+
+
+===== PAGE 42 =====
+42
+Á. Cartea, L. Sánchez-Betancourt
+where (s,q,c) = (s −κ,q −1,c + s). The trader’s performance criterion and value
+function are
+J(t,x,τ) = E
+
+g(Xt,x,τ
+T
+) +
+ T
+t
+h(Xt,x,τ
+s
+)ds +
+
+τi≤T
+C(Xτi−)
+
+,
+v(t,x) = sup
+τ∈At
+J(t,x,τ).
+Finally, for zero latency, the characterisations of the value function are standard re-
+sults in the theory of impulse control, and we do not mention them here for brevity.
+B.2 Optimal execution with deterministic latency
+The trader employs MLOs and operates in the market with a ﬁxed and known la-
+tency. The execution strategy has at most one pending order at any one time – we
+can easily extend this framework so the agent can have up to m ∈N pending orders.
+Our approach is based on the work of Bruder and Pham [9], who develop a general
+framework for impulse control with deterministic delay.
+Let  > 0 be the ﬁxed and known delay of the trader in the marketplace and
+(Zn)n∈N a collection of i.i.d. random variables with law as in (3.2) such that for i ∈N,
+Zi is Ft-measurable for t ≥i. As in Sect. 3, we use the sequence of marks (Zn)n∈N
+to model the ﬂickers that affect the trader’s MLO when the exchange processes the
+order.
+The agent’s execution strategy is β = (τi,li)i≥1, where (τi) is an increasing se-
+quence of stopping times at which the agent sends MLOs with limit price li. We
+require that τi+1 −τi ≥ a.s. for all i, because the trader can have at most one
+pending order in the exchange. The set of admissible strategies is
+A = {β = (τi,li)i≥1 : for all i ≥1,τi+1 −τi ≥ a.s. and li is Fτi-measurable}.
+Interventions in the system Xβ
+t = (Sβ
+t ,Qβ
+t ,Cβ
+t ) are at time τi, but processed by the
+exchange and notiﬁed to the trader at τi + ; so the system evolves from Xβ
+(τi+)−
+to Xβ
+τi+ = (Xβ
+(τi+)−,Z⌊(τi+)/⌋,li), where  is as in (3.5) and ⌊·⌋is the ﬂoor
+function. The value of j = ⌊(t +)/⌋is the index of the random variable Zj which
+is measurable at time j ∈(t,t + ].
+Let β = (τi,li)i≥1 ∈A. The fundamental best bid price process is
+Sβ
+t = S0 +
+ t
+0
+b(Sβ
+u )du +
+ t
+0
+σ(Sβ
+u )dWu
+−κ
+
+τi+≤t
+f (li −Sβ
+(τi+)−−Z⌊(τi+)/⌋),
+where f is as in the random latency case. The cash process satisﬁes
+Cβ
+t =
+
+τi+≤t
+f (li −Sβ
+(τi+)−−Z⌊(τi+)/⌋)(Sβ
+(τi+)−+ Z⌊(τi+)/⌋),
+
+
+===== PAGE 43 =====
+Optimal execution with stochastic delay
+43
+and the inventory is
+Qβ
+t = M −
+
+τi+≤t
+f (li −Sβ
+(τi+)−−Z⌊(τi+)/⌋).
+For X0 = (S0,M,0), the controlled system Xβ
+t is the solution to the SDE
+Xβ
+t = X0 +
+ t
+0
+b(Xβ
+u)du +
+ t
+0
+σ(Xβ
+u)dWu
++
+
+τi+≤t
+
+(Xβ
+(τi+)−,Z⌊(τi+)/⌋,li) −Xβ
+(τi+)−
+
+,
+(B.1)
+where the functions b,σ : R3 →R3 are given by b(x1,x2,x3) = (b(x1),0,0) and
+σ(x1,x2,x3) = (σ(x1),0,0), and b, σ are Lipschitz-continuous. Finally, the function
+ : R4 × L →R3 is as in (3.5).
+Now ﬁx a ﬁnite horizon T < ∞and assume that T − ≥0 to avoid trivialities.
+As above, the agent computes
+(β) = g(Xβ
+T ) +
+ T
+0
+h(Xβ
+s )ds +
+
+τi+≤T
+C(Xβ
+(τi+)−,Z⌊(τi+)/⌋,li),
+where g,h : R3 →R and C : R4 × L →R are as in (3.9). Thus the agent solves the
+control problem supβ∈A E[(β)], which is well posed if
+E
+
+sup
+s≤T
+|Xβ
+s |2
+< ∞.
+The system in (B.1) is non-Markovian. Given an impulse, the future of Xβ is inﬂu-
+enced by a possible pending order attempted between t − and t. For any t ∈[0,T ],
+k = 0,1, we let Pt(0) = ∅and
+Pt(1) = {p = (t1,ℓ1) ∈[0,T −] × L : t − < t1 ≤t}
+denote whether there is a pending order in the exchange. For any p = (t1,ℓ1) ∈Pt(1),
+t ∈[0,T ], the set of admissible strategies at time t with pending order p is
+At,p = {β = (τi,li)i≥1 ∈A : (τ1,l1) = (t1,ℓ1) and τ2 ≥t1 + }.
+Similarly, if there is no pending order in the exchange,
+At,∅= At = {β = (τi,li)i≥1 ∈A : τ1 ≥t}.
+For any (t,x) ∈[0,T ] × R3, p ∈Pt(k) for k = 0,1 and β ∈At,p, we denote by
+Xt,x,p,β the solution to
+Xt,x,p,β
+s
+= x +
+ s
+t
+b(Xt,x,p,β
+u
+)du +
+ s
+t
+σ(Xt,x,p,β
+u
+)dWu
++
+
+t<τi+≤s
+
+(Xt,x,p,β
+(τi+)−,Z⌊(τi+)/⌋,li) −Xt,x,p,β
+(τi+)−
+
+.
+
+
+===== PAGE 44 =====
+44
+Á. Cartea, L. Sánchez-Betancourt
+Next, consider the performance criterion
+Jk(t,x,p,β) = E
+
+g(Xt,x,p,β
+T
+) +
+ T
+t
+h(Xt,x,p,β
+s
+)ds
++
+
+τi+≤T
+C(Xt,x,p,β
+(τi+)−,Z⌊(τi+)/⌋,li)
+
+for (t,x) ∈[0,T ] × R3, p ∈Pt(k), k = 0,1, β ∈At,p, and the corresponding value
+functions
+vk(t,x,p) = sup
+β∈At,p
+Jk(t,x,p,β),
+k = 0,1 and (t,x,p) ∈Dk,
+where Dk = {(t,x,p) : (t,x) ∈[0,T ) × R3,p ∈Pt(k)}. Recall that for k = 0,
+Pt(0) = ∅; therefore we write v0(t,x) = v0(t,x,∅), D0 = [0,T ) × R3.
+We state the DPP that holds for deterministic latency. Let t ∈[0,T ], β ∈A, with
+β = (τi,li)i≥1. Denote the number of executed orders by ι(t,β), the number of pend-
+ing orders at time t by kt(β) (which is zero or one), and the pending order by p(t,β)
+(which is the empty set if there is no pending order); so
+ι(t,β) = inf{i ≥1 : τi > t −} −1 ∈N ∪{∞},
+kt(β) = card{i ≥1 : t − < τi ≤t} ∈{0,1},
+p(t,β) = (τi+ι(t,β),li+ι(t,β))1≤i≤kt(β) ∈Pt
+
+kt(β)
+
+.
+For the proofs of the theorems that follow, see Bruder and Pham [9, Sects. 3 and 4].
+Theorem B.1 Let θ be any stopping time valued in [t,T ], possibly depending on β.
+For k ∈{0,1}, (t,x,p) ∈Dk,
+vk(t,x,p) = sup
+β∈At,p
+E
+
+ θ
+t
+h(Xt,x,p,β
+s
+)ds +
+
+t<τi+≤θ
+C(Xt,x,p,β
+(τi+)−,Z⌊(τi+)/⌋,li)
++ vk(θ,α)
+
+θ,Xt,x,p,β
+θ
+,p(θ,β)
+
+.
+The following corollary is a consequence of the DPP. For all t ∈[0,T ], denote by
+It the set of pairs (τ,l) where τ is a stopping time with t ≤τ ≤T − or τ = ∞a.s.,
+and l is an Fτ-measurable random variable in L.
+Corollary B.2 Let (t,x) ∈[0,T ) × Rd.
+(1) For any stopping time θ valued in [t,t1 + ) and for p = (t1,ℓ1) ∈Pt(1),
+v1(t,x,p) = E
+
+ θ
+t
+h(Xt,x,0
+s
+)ds + v1(θ,Xt,x,0
+θ
+,p)
+
+.
+
+
+===== PAGE 45 =====
+Optimal execution with stochastic delay
+45
+(2) For any stopping time θ valued in [t,t + ),
+v0(t,x,∅) =
+sup
+(τ,l)∈It
+E
+
+ θ
+t
+h(Xt,x,0
+s
+)ds
++ v0(θ,Xt,x,0
+θ
+,∅)1{θ<τ} + v1
+
+θ,Xt,x,0
+θ
+,(τ,l)
+
+1{θ≥τ}
+
+.
+The proof is a straightforward modiﬁcation of the proofs of Theorem 3.1 and
+Bruder and Pham [9, Corollary 3.2]. Deﬁne D1,2
+k
+for k =0,1 as D1
+0=(T −,T )×R3,
+D2
+0 = [0,T −] × R3, D1
+1 = D1, D2
+1 = ∅.
+Theorem B.3 For k ∈{0,1}, (t,x,p) ∈D1,2
+k , the value functions satisfy the dynamic
+programming equation
+min
+
+−∂vk
+∂t (t,x,p) −Lvk(t,x,p) −h(x),
+vk(t,x,p) −sup
+ℓ∈L
+vk+1
+
+t,x,(t,ℓ)
+
+= 0
+on D2
+0, for k = 0,
+(B.2)
+and
+−∂vk
+∂t (t,x,p) −Lvk(t,x,p) −h(x) = 0
+on D1
+k, for k = 0,1.
+(B.3)
+From the system of equations (B.2) and (B.3), we have the Feynman–Kac repre-
+sentation
+v1
+
+t,x,(t1,ℓ1)
+
+= E
+
+ t1+
+t
+h(Xt,x
+s )ds + C(Xt,x
+(t1+)−,Z,ℓ1)
++ v0
+
+t1 + ,(Xt,x
+(t1+)−,Z,ℓ1)
+
+(B.4)
+for all (t1,ℓ1) ∈[0,T −] × L, t ∈[t1,t1 + ) × R3, and where Z is an
+independent random variable with law as in (3.2). Substitute (B.4) in (B.2) to ob-
+tain the variational inequality satisﬁed by v0, and transform the original problem
+into
+a
+non-delay
+impulse
+control
+problem.
+Finally,
+we
+use
+the
+ansatz
+v0(t,x) = v0(t,s,q,c) = c+h0(t,s,q) to reduce the dimension of the value function
+by one.
+Acknowledgements We are grateful to I. Cialenco, S. Cohen, R. Cont, R. Donnelly, L. Hughston, S. Jai-
+mungal, J. Muhle-Karbe, J. Penalva, H. Pham, J. Ricci and A. Stewart for comments and discussions. We
+are grateful to seminar participants at SIAM SIAG/FME virtual seminars series, U. of Leeds and U. of
+Oxford.
+Declarations
+Competing Interests The authors declare no competing interests.
+
+
+===== PAGE 46 =====
+46
+Á. Cartea, L. Sánchez-Betancourt
+Open Access This article is licensed under a Creative Commons Attribution 4.0 International License,
+which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as
+you give appropriate credit to the original author(s) and the source, provide a link to the Creative Com-
+mons licence, and indicate if changes were made. The images or other third party material in this article
+are included in the article’s Creative Commons licence, unless indicated otherwise in a credit line to the
+material. If material is not included in the article’s Creative Commons licence and your intended use is not
+permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly
+from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/
+4.0/.
+References
+1. Alfonsi, A., Fruth, A., Schied, A.: Optimal execution strategies in limit order books with general
+shape functions. Quant. Finance 10, 143–157 (2010)
+2. Almgren, R.: Optimal execution with nonlinear impact functions and trading-enhanced risk. Appl.
+Math. Finance 10, 1–18 (2003)
+3. Almgren, R.: Execution costs. In: Cont, R. (ed.) Encyclopedia of Quantitative Finance, pp. 612–616.
+Wiley, New York (2010)
+4. Almgren, R., Chriss, N.: Optimal execution of portfolio transactions. J. Risk 3, 5–39 (2000)
+5. Barger, W., Lorig, M.: Optimal liquidation under stochastic price impact. Int. J. Theor. Appl. Finance
+22, 1850059 (2019)
+6. Bayraktar, E., Ludkovski, M.: Optimal trade execution in illiquid markets. Math. Finance 21, 681–701
+(2010)
+7. Bertsekas, D.P., Shreve, S.: Stochastic Optimal Control: The Discrete-Time Case. Academic Press,
+San Diego (1978)
+8. Bouchard, B., Touzi, N.: Weak dynamic programming principle for viscosity solutions. SIAM J. Con-
+trol Optim. 49, 948–962 (2011)
+9. Bruder, B., Pham, H.: Impulse control problem on ﬁnite horizon with execution delay. Stoch. Process.
+Appl. 119, 1436–1469 (2009)
+10. Cartea, Á., Jaimungal, S.: Optimal execution with limit and market orders. Quant. Finance 15,
+1279–1291 (2015)
+11. Cartea, Á., Jaimungal, S.: Incorporating order-ﬂow into optimal execution. Math. Financ. Econ. 10,
+339–364 (2016)
+12. Cartea, Á., Jaimungal, S., Penalva, J.: Algorithmic and High-Frequency Trading. Cambridge Univer-
+sity Press, Cambridge (2015)
+13. Cartea, Á., Jaimungal, S., Ricci, J.: Buy low, sell high: a high frequency trading perspective. SIAM J.
+Financ. Math. 5, 415–444 (2014)
+14. Cartea, Á., Arribas, I.P., Sánchez-Betancourt, L.: Double-execution strategies using path signatures.
+SIAM J. Financ. Math. 13(4), 1379–1417 (2022). https://doi.org/10.1137/21M1456467
+15. Cartea, Á., Sánchez-Betancourt, L.: The shadow price of latency: improving intraday ﬁll ratios in
+foreign exchange markets. SIAM J. Financ. Math. 12, 254–294 (2021)
+16. Crandall, M.G., Ishii, H., Lions, P.L.: User’s guide to viscosity solutions of second order partial dif-
+ferential equations. Bull. Am. Math. Soc. 27, 1–67 (1992)
+17. Fleming, W.H., Soner, H.M.: Controlled Markov Processes and Viscosity Solutions. Springer, Berlin
+(2006)
+18. Gao, X., Wang, Y.: Optimal market making in the presence of latency. Quant. Finance 20, 1495–1512
+(2020)
+19. Guéant, O.: Optimal execution and block trade pricing: a general framework. Appl. Math. Finance 22,
+336–365 (2015)
+20. Guéant, O.: The Financial Mathematics of Market Liquidity: From Optimal Execution to Market
+Making. CRC Press, Boca Raton (2016)
+21. Guéant, O., Lehalle, C.A., Fernandez-Tapia, J.: Optimal portfolio liquidation with limit orders. SIAM
+J. Financ. Math. 3, 740–764 (2012)
+22. Guilbaud, F., Pham, H.: Optimal high-frequency trading with limit and market orders. Quant. Finance
+13, 79–94 (2013)
+23. Kalsi, J., Lyons, T., Perez Arribas, I.: Optimal execution with rough path signatures. SIAM J. Financ.
+Math. 11, 470–493 (2020)
+
+
+===== PAGE 47 =====
+Optimal execution with stochastic delay
+47
+24. Moallemi, C.C., Saˆglam, M.: The cost of latency in high-frequency trading. Oper. Res. 61, 1070–1086
+(2013)
+25. Øksendal, B., Sulem, A.: Optimal stochastic impulse control with delayed reaction. Appl. Math. Op-
+tim. 58, 243–255 (2008)
+Publisher’s Note Springer Nature remains neutral with regard to jurisdictional claims in published maps
+and institutional afﬁliations.

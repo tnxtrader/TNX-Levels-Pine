@@ -1,0 +1,263 @@
+### Bond University 
+
+Research Repository 
+
+
+
+Do initial stop-losses stop losses? 
+
+Vanstone, Bruce J 
+
+Published in: JASSA 
+
+Licence: Other 
+
+Link to output in Bond University research repository. 
+
+Recommended citation(APA): 
+
+Vanstone, B. J. (2008). Do initial stop-losses stop losses? JASSA, (4), 5-8. https://www.finsia.com/docs/defaultsource/jassa-new/jassa-2008/7_10-vanstone-jassa-n4-2008_web.pdf?sfvrsn=6 
+
+###### General rights 
+
+Copyright and moral rights for the publications made accessible in the public portal are retained by the authors and/or other copyright owners and it is a condition of accessing publications that users recognise and abide by the legal requirements associated with these rights. 
+
+For more information, or if you believe that this document breaches copyright, please contact the Bond University research repository coordinator. 
+
+Download date: 08 Oct 2026 
+
+## **Bond University ePublications@bond** 
+
+Information Technology papers 
+
+Bond Business School 
+
+1-1-2008 
+
+# Do initial stop-losses stop losses? 
+
+Bruce Vanstone 
+
+_Bond University_ , bruce_vanstone@bond.edu.au 
+
+Follow this and additional works at: http://epublications.bond.edu.au/infotech_pubs Part of the <u>Portfolio and Security Analysis Commons</u> 
+
+Recommended Citation 
+
+Bruce Vanstone. (2008) "Do initial stop-losses stop losses?" _,_ , . 
+
+http://epublications.bond.edu.au/infotech_pubs/83 
+
+This Journal Article is brought to you by the Bond Business School at ePublications@bond. It has been accepted for inclusion in Information Technology papers by an authorized administrator of ePublications@bond. For more information, please contact Bond University's Repository Coordinator. 
+
+## **Do Initial Stop-Losses stop losses?** 
+
+Dr. Bruce Vanstone Bond University Gold Coast, Queensland, Australia 
+
+<u>bruce_vanstone@bond.edu.au</u> 
+
+### **ABSTRACT** 
+
+_A great many traders use stop-loss rules in their everyday trading.  In addition, during periods of high volatility, many traders attempt to protect their downside by moving their stops closer to the price action. However, there appears to be little real justification for doing this.  There is a shortage of evidence that demonstrates that stops are actually providing the benefits that traders believe they are.  This paper is an empirical study of the use of stops within a defined trading strategy.  The methodology used within this paper can easily be ported to any individual traders’ strategy.  In the specific case studied in this paper, the results suggest that initial stops degrade long-term portfolio performance._ 
+
+#### **1. INTRODUCTION** 
+
+The idea of using a stop-loss rule seems fundamentally sound.  A trader attempts to protect his positions from adverse downside movement.  Although traders use many different ways to determine where/when to set a stop value, it appears that some traders set their initial stops based on the amount they can afford to lose.  Other traders attempt to set an initial stop as close to the price action as they can, subject to the amount of volatility in the market.  Finally, some systems traders use simple MAE histograms to judge where to set their initial stops (see Figure 2). 
+
+There is a big risk that many traders may observe a stoploss rule saving them from a potentially larger loss on an individual trade-by-trade basis, and then assuming that this beneficial behaviour of the stop-loss also applies at the portfolio level. 
+
+There is very little formal work in this area. Theoretical results from Kaminski and Lo (2008) appear to suggest that trading models based on momentum can be improved by the addition of stop-losses.  However, there appears to be no practical evidence that this is possible. 
+
+By taking a specific system, we can define rules that determine when to enter and exit trades, and see the effect that stops based on fixed percentages or ranges of volatility based movement have on the overall system returns.  We can then perform a number of statistical tests on these results to show whether the stops have benefited the trader in the longer term. 
+
+This paper uses a simple trading strategy as its test-bed. The buy signal for this system is that price crosses above a 50-day EMA, and the sell signal is that price moves below the 50-day EMA. 
+
+For this paper, only long-side trades are considered, and those trades are implemented as day+1 market orders. The data for this study is the ASX200 constituents, including delisted data, adjusted for splits and code changes.  The data contains no survivorship bias, and accounts for transaction costs using a simple $20 each way transaction cost.  Data for the study covers the test period April 2000 (S&P/ASX200 inception) through December 2007. 
+
+Initially, the results of such a system are presented without any stops.  Subsequently, a number of different stops are introduced into the system, with the goal of determining whether they are increasing the financial viability of the system in the longer-term. 
+
+The following different stop structures are introduced into the initial system: 
+
+- a) Initial Stop Loss 1: Money Management stop – this style of stop is a fixed percentage distance from price action (eg. initial stop if price falls by 5%) 
+
+- b) Initial Stop Loss 2: Volatility stop – this style of stop is often based on a multiple of ATR (eg. initial stop if price moves 2xATR below its current price) 
+
+To enable the behaviour of the stops to be studied, the tests cover the following ranges: 
+
+- a) Initial stops (Money Management) range from 1% to 10%, in steps of 1% 
+
+#### **2. METHODOLOGY** 
+
+The approach taken in this paper is to demonstrate how to determine whether stops are having the desired effect on trading results.  Although a stop may save the trader money in a specific trade, the bigger question is whether, in the longer-term, stops will degrade or enhance the performance of a trading strategy. 
+
+- b) Initial stops (Volatility) range from 1xATR to 5xATR, in steps of 1xATR 
+
+Each test that is run and reported below is a combination of the initial strategy with the one of the stop structures described above. 
+
+To accurately study the effect of the stops, it is necessary to run each test twice.  This is to allow us to study firstly, 
+
+1 
+
+the effect of the stop rules on individual trades, and secondly, the effect of the stop rules on the portfolio itself. 
+
+To study the effect of each combination of stop rules on the individual trades, we calculate: 
+
+- a) Average number of days each trade is open 
+
+- b) Daily Mean Trade Return: Mean ($) return of each trade divided by the number of days this trade is open 
+
+In this approach, every possible trade is taken, with a fixed capital of $10,000 per trade. 
+
+To study the effect of each combination of stop rules on the traders overall portfolio, we calculate: 
+
+- a) Actual monthly return for every month (presented graphically in the case of the benchmark, for clarity) 
+
+In this approach, a portfolio is created with a starting capital of $1m, and every trade is taken (subject to availablefunds).  The value of each trade is sized at 2% of portfolio equity. 
+
+We can then use ANOVA comparisons to compare the complete sets of trades generated under each combination of stopping conditions, with the complete set of trades without stops set, on the basis of their daily mean trade return, to determine whether any of the combinations of stops actually result in a benefit to the trader on a trade-by-trade basis.  Furthermore, we can then use the sets of monthly returns for each portfolio generated under each set of stopping conditions, to determine whether the trader actually benefits (in a longterm, portfolio sense) from employing any of the stopping strategies tested. 
+
+#### **3. RESULTS** 
+
+##### **3.1. INITIAL RESULTS (BENCHMARK)** 
+
+The following results form the benchmark for comparison.  They are created by the following rules: 
+
+- a) buy when price closes above a 50 day EMA and stock was a constituent of the ASX200 
+
+- b) sell when price closes below a 50 day EMA 
+
+- c) transaction costs $20 each way 
+
+The following tables and figures provide the benchmark data for the simple 50-day EMA Crossover system, with no initial stop-losses implemented. 
+
+|Total Number of Trades|15,073|
+|---|---|
+|Daily Mean Return  ($)|1.76|
+|Average number of days<br>trades are open|15.85|
+
+
+
+**Table 1 Raw Trade returns for 50-day EMA Crossover system** 
+
+
+
+##### **Figure 1 Distribution of Monthly Returns for 50-day EMA Crossover system** 
+
+The MAE Histogram below shows the Maximum Adverse Excursion (MAE) for every trade.  Figure 2 shows two columns for every stop loss percentage. The foreground figure shows the number of trades which fell by the initial stop loss percentage, but then rebounded to close profitably.  The background column shows the total number of trades which closed out at the initial stop loss percentage.  For example, 1,397 trades reached the initial stop-loss value of 4%, of which 67 rebounded to close profitably.  Systems traders use this technique to determine where to put their initial stops.  In essence, they are looking for the point where the number of winning trades drops away rapidly (on this histogram, values of 2% or 4% would likely be chosen). 
+
+
+
+**Figure 2 MAE Histogram for 50-day EMA Crossover system** 
+
+##### **3.2. STOP LOSS RESULTS BASED ON PERCENTAGE** 
+
+Table 2 shows the effect that the different levels of initial stops based on percentage excursion have had on the average number of days trades are open, and Daily Mean Return for the system.  The total number of trades is 15,073 in all cases. 
+
+|Initia<br>Loss|l<br>Stop<br>(Percent)|Average<br>of days<br>are open|number<br>trades|Daily<br>Return|Mean<br>($)|
+|---|---|---|---|---|---|
+||1||10.44||0.34|
+||2||13.09||1.02|
+||3||14.52||1.35|
+||4||15.12||1.42|
+||5||15.43||1.48|
+
+
+
+2 
+
+|6|15.55|1.72|
+|---|---|---|
+|7|15.58|1.70|
+|8|15.70|1.69|
+|9|15.72|1.75|
+|10|15.73|1.73|
+
+
+
+**Table 2 Stop Loss results based on percentage** 
+
+From the above table, it is clear that there is no case where inclusion of an initial stop loss based on percentage excursion has improved the result of the system. 
+
+However, it is necessary to compare the 10 portfolios with the benchmark portfolio on the basis of monthly returns to determine whether a trader is actually financially better off by using a stop in the longer term. 
+
+This process is conducted using the ANOVA test.  When all sets of monthly returns are compared, there is found to be no significant difference between them, specifically F(10,1012)=0.097. 
+
+Table 3 shows the Sharpe ratio for each of the portfolios. Although it is difficult to statistically compare Sharpe ratios, clearly there is no portfolio whose Sharpe ratio significantly exceeds the portfolio without stops. 
+
+|Initial<br>Stop|Sharpe Ratio|
+|---|---|
+|Loss  (Percent)||
+|none|0.50|
+|1|0.25|
+|2|0.28|
+|3|0.34|
+|4|0.34|
+|5|0.37|
+|6|0.52|
+|7|0.48|
+|8|0.53|
+|9|0.50|
+|10|0.50|
+
+
+
+**Table 3 Sharpe ratios of portfolios formed under all percentage stop loss conditions** 
+
+##### **3.3. STOP LOSS RESULTS BASED ON ATR MULTIPLES** 
+
+Table 4 shows the effect that the different levels of initial stops based on multiples of ATR have had on the total number of trades, and Daily Mean Return for the system. 
+
+|Initial<br>Stop<br>Loss (multiple<br>of ATR)|Average<br>of days<br>are open|number<br>trades|Daily<br>Mean<br>Return ($)|
+|---|---|---|---|
+|1||2.74|-18.28|
+|2||5.40|-6.53|
+|3||7.44|-3.16|
+|4||9.15|-1.05|
+|5||10.53|-0.54|
+
+
+
+**Table 4 Stop Loss results based on ATR multiples** 
+
+From the above table, it is clear that there is no case where inclusion of an initial stop based on multiples of ATR has improved the result of the system.  A comparison of the monthly returns shows that none of the combinations of ATR based initial stops provide any benefit whatsoever, indeed, the 1xATR test is statistically worse (specifically F(5,552)=8.476). 
+
+Table 5 shows the Sharpe ratio for each of the portfolios. Clearly there has been no improvement in the risk/return relationship, all combinations are significantly worse. 
+
+|Initial<br>Stop|Sharpe Ratio|
+|---|---|
+|Loss  (Percent)||
+|none|0.50|
+|1|-3.27|
+|2|-0.77|
+|3|-0.32|
+|4|0.06|
+|5|0.29|
+
+
+
+**Table 5 Sharpe ratios of portfolios formed under all ATR stop loss conditions** 
+
+#### **4. CONCLUSIONS** 
+
+The vast majority of trading books persistently urge traders to use initial stops.  The implication is that trading without stops is like driving without a seat belt – risky. 
+
+Although the logic of saving a losing trade from losing even more money appears impeccable, the conclusion from this work is that implementing initial stop losses into a trading strategy will degrade portfolio performance in the longer-term. 
+
+Having conducted the methodology described in this paper on a large number of trading systems, it appears that initial stops placed using the methods detailed in this paper are counterproductive. 
+
+In no case tested does the use of stops either significantly reduce risk or significantly increase returns 
+
+3 
+
+– both of which should be the primary goals of every trader. 
+
+Many traders may feel uncomfortable with the idea of not using initial stops.  However, from conducting this study on a variety of trading systems, one observation is crystal clear: If a trading strategy has a positive expectation, then the use of initial stops will only serve to degrade performance. 
+
+Further work required is to conduct the same tests using trailing stops, to determine whether trailing stops are capable of decreasing risk or increasing returns. 
+
+#### **5. REFERENCES** 
+
+- KAMINSKI, K. AND A. LO (2008). "WHEN DO STOP-LOSS RULES STOP LOSSES?" <u>SWEDISH INSTITUTE FOR FINANCIAL RESEARCH</u> **63** (MAY 2008). 
+
+4 
+

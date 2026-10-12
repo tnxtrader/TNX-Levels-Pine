@@ -1,0 +1,51 @@
+This is an extremely trivial type of trading rule, but the strategy here is to look at the simplest
+versions of trading rules following common practices. This helps to reduce the impact of data
+snooping biases brought on by searching the entire space of trading rules for the best performers.
+
+The application of this rule will be simplified to make some of the analysis clearer. Let py =
+log(P;), and rz, rf? be the domestic and foreign rates of interest respectively. Dynamic returns from
+the strategy will be defined as,
+
+ty = 8:(pi41 — pe — (log(1 +r) — log(1 + r7))). (3)
+
+The value on the right side is simply the log difference on the exchange rate corrected for the interest
+differential. This return is then multiplied by +1 or —1 depending on the buy or sell signal. This
+corresponds roughly to a zero cost strategy of borrowing in one currency to go long in the other.!?
+For completeness the strategy will also be implemented without the interest rate differential,
+
+Ly = $:(Pt41 — Pr). (4)
+
+Table 3: Trading Rule Tests
+
+Series [X[Mean [Sed [eeto [Shape [Trade Fraction [Palo |
+DM Daily: No Interest |[ 3304 [0.081 [0.73 244 | 0.666 | 0027 | 0.014 |
+-DM Daily: Interest || 3394 [ 0.033 [0.73 | 2.62 | oie | 0.027 | 0.004 _|
+"DM Weekly: No Interest | 694 [0.149 [161 | 244 | 0.667 | 0.065 | 0.004 _|
+[DM Weekly: Interest || 694 [0.161 [1.61| 262 | o7i7 | 0.065 | 0.002_|
+
+IY Daily: No Interest [3304 [0.036 [0.66| 319 | oa72 | o0i7 | 0.002 |
+PSY Daily: Interest [3304 | 0.084 [0.66 | 3.50 | 0.958 | 0.017 | 0.000_|
+JY Weekly: No Interest [| 694 | 0.167 [1.46 [3.02 | 0.826 | 0.049 | 0.004_|
+IY Weekly: Interest [| 604 | 0.185 [1.47 [332 | 0.909] 0.049 | 0.000_|
+
+Tests for significance of 1 period trading rule returns. N is the number observations in the sample,
+and mean is their mean value. t-ratio is a t-test for the mean 1 period return. Sharpe is the estimated
+1 year Sharpe ratio. Trade Fraction is the fraction of days on which a trade takes place. P-value is
+the fraction of 500 simulated random walks generating a return as large as that in the actual data.
+
+Table 3 examines these dynamic trading returns for both daily and weekly exchange rates. The
+t-statistics in the table test whether the mean returns are zero. It is clear from the table that the
+means from the dynamic strategies are statistically different from zero at any reasonable significance
+level. It also appears that adjusting for the interest differentials and changing from daily to weekly
+returns does not affect the results greatly. These t-tests may not be the proper way to test for
+significance because of the deviations from normality in the foreign exchange returns, so a second
+experiment is performed. A sample of bootstrapped random walk price series is generated using the
+log price differences of the original series. These differences are scrambled with replacement and
+a new price series is built.12, Then the returns from the dynamic strategies, implemented on these
+
+The interest rates used are 1 week Eurorates. This covers the correct return span for the weekly returns. For the
+daily returns it is only an approximation.
+
+121n the cases where interest rates are ignored this is a simple reconstruction of a random walk from the scrambled
+returns. In the interest rate cases, the returns less the interest rate differentials are scrambled, and rebuilt into a
+price series, adding the actual differentials back as the drift.

@@ -1,0 +1,22 @@
+Rolling 1 Year Sharpe Ratio
+
+Year .
+
+400
+
+200
+
+-200
+
+-400
+
+Intervention (Millions of $)
+
+-600
+
+-800
+
+80 82 84 86 88 90 92
+Year
+
+Figure 2: Rolling 1 Year Sharpe Ratios and Federal Reserve Intervention for the DM

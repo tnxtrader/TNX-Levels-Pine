@@ -1,0 +1,31 @@
+{
+  "file": "quantitative/time_series/2022 - Zhang - A Model Combining LightGBM and Neural Network for High-frequency Realized Volatility Forecastin.pdf",
+  "slug": "2022_Zhang_A_Model_Combining_LightGBM_and_Neural_Network_for_High_frequency_Real",
+  "pages": 7,
+  "metadata": {
+    "format": "PDF 1.5",
+    "title": "",
+    "author": "KEO",
+    "subject": "",
+    "keywords": "",
+    "creator": "Microsoft\u00ae Word 2016",
+    "producer": "Microsoft\u00ae Word 2016; modified using iText 5.0.6 (c) 1T3XT BVBA",
+    "creationDate": "D:20220322190725+05'30'",
+    "modDate": "D:20230619183402+05'30'",
+    "trapped": "",
+    "encryption": null
+  },
+  "embedded_images": 4,
+  "figure_pages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "tables": 3,
+  "text_chars": 28090,
+  "needs_ocr": false
+}

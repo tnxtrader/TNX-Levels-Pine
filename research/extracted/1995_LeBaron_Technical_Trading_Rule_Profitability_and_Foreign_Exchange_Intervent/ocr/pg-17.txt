@@ -1,0 +1,62 @@
+References
+
+Almekinders, G. J. 1995. Foreign Exchange Intervention: Theory and Evidence. E. Elgar, Brook-
+field, VT, US.
+
+Baumol, W. 1957. Speculation, profitability, and stability. Review of Economics and Statistics
+39, 263-71.
+
+Bekaert, G. and R. J. Hodrick. 1992. Characterizing predictable components in excess returns on
+equity and foreign exchange markets. The Journal of Finance 47, 467-511.
+
+Bilson, J. F. and D. Hsieh. 1987. The profitability of currency speculation. International Journal
+of Forecasting 3, 115-130.
+
+Bollerslev, T. 1986. Generalized autoregressive conditional heteroskedasticity. Journal of Econo-
+metrics 21, 307-328.
+
+Bollerslev, T., R. Y. Chou, N. Jayaraman and K. F. Kroner. 1990. ARCH modeling in finance:
+A review of the theory and empirical evidence. Journal of Econometrics 52(1), 5-60.
+Bollerslev, T., R. F. Engle and D. B. Nelson. 1995. ARCH models. In Handbook of Econometrics,
+
+vol. 4. North-Holland, New York, NY.
+
+Dominguez, K. M. and J. A. Frankel. 1993. Does Foreign exchange intervention work? Institute
+for International Economics, Washington, DC.
+
+Dominguez, K. M. 1993. Does central bank intervention increase the volatility of foreign exchange
+rates? Technical Report 4532, National Bureau of Economic Research, Cambridge, MA.
+
+Dooley, M. P. and J. Shafer. 1983. Analysis of short-run exchange rate behavior: March 1973
+to november 1981. In Exchange Rate and Trade Instability: Causes, Consequences, and
+Remedies, D. Bigman and T. Taya (eds). Ballinger, Cambridge, MA.
+
+Edison, H. J. 1993. The Effectiveness of Central-bank Intervention: A Survey of the Litera-
+ture After 1982. Number 18 in Special Papers in International Economics. Department of
+Economics, Princeton University, Princeton, New Jersey.
+
+Engel, C. 1995. The forward discount anomaly and the risk premium: A survey of recent evidence.
+Technical Report 5312, National Bureau of Economic Research.
+
+Engle, R. F. 1982. Autoregressive conditional heteroskedasticity with estimates of the variance of
+united kingdom inflation. Econometrica 50, 987-1007.
+
+Fama, E. F. and M. Blume. 1966. Filter rules and stock market trading profits. Journal of
+Business 39, 226-241.
+
+Frankel, J. A. and K. A. Froot. 1987. Using survey data to test standard propositions regarding
+exchange rate expectations. American Economic Review 77(1), 133-153.
+
+Friedman, M. 1953. The case for flexible exchange rates. In Essays in positive economics.
+University of Chicago Press, Chicago, IL.
+
+Goodhart, C. A. E. and T. Hesse. 1993. Central bank forex intervention assessed in continuous
+time. Journal of international money and finance 12, 368-389.
+
+Hart, O. D. and D. M. Kreps. 1986. Price destabilizing speculation. Journal of Political Economy
+94, 927-952.
+
+Hodrick, R. J. 1987. The Empirical Evidence on the Efficiency of Forward and Futures Foreign
+Exchange Markets. Harwood Academic Publishers, New York, NY.
+
+15

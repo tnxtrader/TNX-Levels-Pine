@@ -1,0 +1,44 @@
+Table 5: Trading Rule Statistical Tests: No Intervention
+
+2902
+519 | 0.0861
+
+3205
+PSY Weekly: No Interest || 606 | 0.062 | 1368 | 1112 | 0.926 [0.054 | _0.198_|
+PIV Weekly: Interest || 606 | 0.080 [1.374
+
+Tests for significance of 1 period trading rule returns with intervention periods removed, /¢4, = 0.
+N is the number observations in the sample, and mean is their mean value. t-ratio is a t-test for the
+mean 1 period return. Sharpe is the estimated 1 year Sharpe ratio. Trade Fraction is the fraction of
+days on which a trade takes place. P-value is the fraction of 500 simulated random walks generating
+a return as large as that in the actual data.
+
+Table 6: Markov Comparisons
+
+[Wea Mean No Tat | Markov Mean | Markov Variance | P-value |
+(DM Daily [0.0330 0.008 | 0033 | 0.005 + 0.002 |
+"DM Weekly |[ 0.161 | 0.035 [0.156 | 0.038 | 0.004 |
+IY Daily [0.030 [0.017 [0.040 | 0.003__| 0.002 _|
+IY Weekly [0.185 [0.080 | 0.186 | 0.02 | 0.002 _|
+
+Trading returns are estimated removing a simulated intervention series. Mean and Mean No Int.
+repeat the earlier mean returns with and without intervention periods. Markov mean is the mean
+from the 500 iterations of the simulated series. The P-value shows the fraction of the simulation
+runs giving a mean return as large as the No Intervention series from the original intervention data.
+
+interventions are given by I,, where this series takes only values of 0 or 1, for no intervention,
+or intervention respectively. These simulated series are aligned with the actual returns, and the
+returns without intervention (Legs = 0) are estimated. Table 6 shows the results removing this
+artificial intervention process. The table repeats the mean returns from the original series with and
+without intervention as well as the mean from 500 simulations removing the simulated intervention
+series. In each case only the results including interest adjustment are reported. The mean and
+variance from these simulations show the distribution to be much closer to that from the original
+series than the no intervention series. Finally, the p-value records the fraction of simulations giving
+a return lower than the no intervention series. For all the series this is close to zero. These results
+suggest that there really is something different about the intervention series, and it is unlikely that
+randomly removing points would give the results in table 5.
+
+The next table presents some explorations into the dynamics of intervention periods and rule
+predictability to get some idea of what the mechanism is that is driving these results. Table 7
+shows estimates of the probability of equal signs for s;, /:41, and the raw returns from ¢ tot +1.
+All of these results are conditioned on /;4; being nonzero. The first column shows the estimated

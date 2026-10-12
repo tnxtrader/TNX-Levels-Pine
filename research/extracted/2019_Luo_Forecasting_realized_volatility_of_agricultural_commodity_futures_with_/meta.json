@@ -1,0 +1,40 @@
+{
+  "file": "quantitative/time_series/2019 - Luo - Forecasting realized volatility of agricultural commodity futures with infinite Hidden Markov HAR.pdf",
+  "slug": "2019_Luo_Forecasting_realized_volatility_of_agricultural_commodity_futures_with_",
+  "pages": 43,
+  "metadata": {
+    "format": "PDF 1.4",
+    "title": "Forecasting Realized Volatility of Agricultural Commodity Futures with Infinite Hidden Markov HAR Models",
+    "author": "Luo, Jiawen; Klein, Tony; Ji, Qiang; Hou, Chenghan",
+    "subject": "Economics: 330",
+    "keywords": "Agriculture commodity futures, Realized volatility forecasts, Infinite Hidden Markov switching process, HAR models, C52, G17, Q14",
+    "creator": "Apache FOP Version 2.8",
+    "producer": "Apache FOP Version 2.8",
+    "creationDate": "D:20261008030047+02'00'",
+    "modDate": "D:20190809160115+02'00'",
+    "trapped": "",
+    "encryption": null
+  },
+  "embedded_images": 34,
+  "figure_pages": [
+    1,
+    2,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43
+  ],
+  "tables": 13,
+  "text_chars": 100421,
+  "needs_ocr": false
+}

@@ -1,0 +1,52 @@
+cessively volatile periods might be ones in which central banks are intervening heavily to try to
+stabilize markets.!9 Also, high volatility periods might add extra risk to dynamic strategies imply-
+ing a higher risk premium, and therefore greater predictability. This hypothesis is tested in table
+10 where volatility is estimated using a GARCH(1,1) model.?° This model forecasts volatility as a
+function of lagged squared returns,
+
+hy = a9 + Bhi-1 + are. (6)
+
+Since the intervention periods account for about 10 percent of the samples, all days are removed
+whose expected volatility lies in the upper 10 percent of the overall volatility distribution for each
+foreign exchange series. Results of the basic trading rule tests with these volatile periods removed
+are presented in table 10. There is little change here from the results in table 3 in that the trading
+rules are still performing well. Therefore it is unlikely that a single volatility related factor could
+be driving both interventions and predictability.
+
+Table 10: Trading Rule Returns: Volatile Periods Removed
+
+Series [_N_] Mean [Std. | tratio | Sharpe | T Fraction |
+rDMDaily [304 [0033 [073] 262 | ovis | 0.027 |
+DM Daily: Vol. Removed | 3064] 0.044] 0.69] 3.49 | 1.004 | 0.026 _|
+Iv Daily ___———_(3894 | 0.034 [0.665| 3.50 | 0958 | 0.0I7 |
+JY Daily! Vol. Removed [3064 | 0.038 [0.63 | 3.34 | 0.963 [0.017 |
+
+Upper 10 % of expected volatility days are removed. Conditional volatility is estimated using
+a GARCH(1,1). Original results are included for comparison. Both cases include interest rate
+adjustments.
+
+The perfect experiment to test for causality versus simultaneity hypothesis would be to have a
+time period where for some reason interventions were outlawed as a policy. There is a close proxy
+to this in the period from 1981-1984. During this time period, The Under Secretary for Monetary
+Affairs, Beryl Sprinkel, announced an explicit noninterventionist policy.?! Observation of actual
+series in figure 1 shows that there were a few interventions during this time, but they were sporadic
+and small in magnitude. Table 11 repeats the tests of table 3 for this time period alone. The
+results here show little predictive ability for the trading rules during this time period with limited
+interventions which is supportive of the hypothesis that interventions themselves are important to
+the technical trading predictability. Although it would be impossible to rule out the existence of a
+single common factor driving these results, these 3 experiments make it look unlikely that it will
+be easy to find.
+
+6 Conclusions
+
+The fact that simple trading rules produce unusually large profits in foreign exchange series presents
+a serious challenge to the efficient market hypothesis. Further, the magnitude of these returns and
+
+°Dominguez (1993) presents some evidence indicating that interventions have led to reductions in volatility.
+
+20The ARCH/GARCH models developed in Engle (1982) and Bollerslev (1986) are surveyed in Bollerslev et al.
+(1990) and Bollerslev et al. (1995).
+
+21See Dominguez & Frankel (1993) for a summary of U.S. intervention policies.
+
+13

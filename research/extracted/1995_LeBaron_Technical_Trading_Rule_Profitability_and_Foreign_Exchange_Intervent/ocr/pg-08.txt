@@ -1,0 +1,51 @@
+simulated random walk series, are compared to the original. The column labeled P-Value presents
+the fraction of simulations generating a dynamic return larger than the original. The column agrees
+with the t-tests in indicating the significance of these means. The column labeled Sharpe estimates
+the Sharpe ratio over a one year horizon. This is approximated as,
+
+Jn Ew (5)
+Or
+
+where o, is the standard deviation over the short horizon. N is the number of short periods in a
+one year period. This approximation would be correct if the dynamic returns were independent
+over time. The values in table 3 show that, ignoring transactions costs, Sharpe ratios in the range
+of 0.6 — 0.9 are attained. This compares with Sharpe ratios of around 0.3 or 0.4 for buy and hold
+strategies on aggregate U.S. stock portfolios.!3 Finally, the column labeled “Trade Fraction” shows
+the fraction of days on which an actual trade took place, or in other words the fraction of times the
+strategy had to switch currencies. The low numbers here foreshadow the relatively small impact
+from transactions costs that will be shown in table 4.
+
+Table 4: 1 Year Return Experiments
+
+[__ Zero Cost Returns | Sharpe Ratios for Varying Costs |
+Series [Mean | Std. [Max | Min ] 0% [01% ]02%| 05% |
+PDM Daily [7.00 [10.16 | 33.05 | -22.46 | 0.689 | 0.626] 0.443 | 0.155 _|
+(DM Weekly [7.91 | 12.34 | 36.89 | -27.15 | 0.641 | 0.509 | 0.532 | 0.327_|
+
+IY Daily 9.73 | 9.41 | 42.97 | -6.35 | 1.083 0.981 | 0.864 | 0.670_|
+IY Weekly [| 10.02 | 10.61 | 44.03 | -9.22 | 0.045 [ 0.903 | 0.819 | 0.694_|
+
+Maximum, minimum, and simulated Sharpe ratios for varying transactions costs. All values are for
+1 year horizon interest rate adjusted returns.
+
+To better asses the economic significance of this predictability, table 4 presents some simulation
+estimates of risk/return tradeoffs. One year periods are chosen at random from the entire sample
+and the returns over that period are summed. After 500 of these 1 year subperiods have been chosen
+the mean and standard deviation are estimated and used to estimate Sharpe ratios. Different levels
+of transactions costs are simulated by subtracting the costs every time a trade is made (change in
+sign in s;). The table is in general agreement with the previous one for the zero cost Sharpe ratios.
+It also tells us that implementing the rules with a 0.1 percent transaction cost does not greatly
+reduce the Sharpe ratios which are still in the range of 0.6—0.9.!4 The table does show an eventual
+drop off in the Sharpe ratio as the costs are increased. It is also clear that for the DM there are
+some 1 year periods in which the rule performs badly with returns less than —20 percent.
+
+Another cost that will impact dynamic trading strategies of this kind is the spread between
+borrowing and lending rates in the offshore money markets. The numbers reported here use the
+offer (borrowing) interest rates for both long and short transactions. The return on loaned funds
+
+13See Hodrick (1987), or LeBaron (1991) for some further references and examples of Sharpe ratios on aggregate
+portfolios. Also, see Sharpe (1994) for a summary of related work. For connections between Sharpe ratios to variance
+bounds tests and more information on conditional Sharpe ratios for other portfolios, see Bekaert & Hodrick (1992).
+
+‘This transaction cost is considered a reasonable upper bound for what large traders face in foreign exchange
+markets in many other trading experiments such as Bilson & Hsieh (1987).

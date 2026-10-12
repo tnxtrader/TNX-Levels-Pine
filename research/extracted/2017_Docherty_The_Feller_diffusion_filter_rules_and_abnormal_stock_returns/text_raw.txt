@@ -1,0 +1,4381 @@
+
+
+===== PAGE 1 =====
+ 
+ 
+ 
+The Feller Diffusion, Filter Rules and Abnormal 
+Stock Returns 
+Paul Dochertya, Yizhe Dongb, Xiaojong Songc and Mark Tippetta,d,* 
+a Business School, University of Newcastle, Callaghan, NSW, 2308, Australia 
+b Business School, University of Aberdeen, Dunbar Street, Aberdeen, AB24 3QY, UK ; 
+c Business School, University of East Anglia, Chancellor’s Drive, Norwich, NR4 7TJ, UK; 
+d Business School, University of Sydney, Codrington Street, Sydney, NSW, 2008, Australia 
+ 
+We determine the conditional expected logarithmic (that is, continuously compounded) 
+return on a stock whose price evolves in terms of the Feller diffusion and then use it to 
+demonstrate how one must know the exact probability density that describes a stock’s 
+return before one can determine the correct way to calculate the abnormal returns that 
+accrue on the stock.  We show in particular that misspecification of the stochastic process 
+which generates a stock’s price will lead to systematic biases in the abnormal returns 
+calculated on the stock.  We examine the implications this has for the proper conduct of 
+empirical work and for the evaluation of stock and portfolio performance. 
+ 
+Keywords: Feller diffusion; Fokker-Planck equation; Geometric Brownian Motion; 
+Logarithmic return 
+ 
+JEL Classification: C52, G14, G17 
+______________________________________________________________________ 
+*Corresponding author. Email: M.Tippett@lboro.ac.uk.  The authors acknowledge the helpful comments 
+and suggestions of the Editor and referee.  The usual disclaimer applies. 
+ 
+
+
+===== PAGE 2 =====
+ 
+2
+1.  Introduction 
+ 
+The Feller (1951a) diffusion (or continuous time branching process) has often been 
+advanced as a model of stock price behaviour (Cox and Ross 1976; Cox 1996; Ashton et 
+al. 2003, Gan and Waxman 2015).  In this paper we determine the conditional expected 
+logarithmic (that is, continuously compounded) return on a stock whose price evolves in 
+terms of the Feller diffusion.  We then use it to show that one must know the exact 
+probability density that generates a stock’s return before one can determine the correct 
+way to calculate the abnormal returns that accrue on the stock.  We show, for example, 
+that if one mistakenly applies the abnormal returns formula for the Geometric Brownian 
+Motion to a stock whose returns actually evolve in terms of the Feller diffusion, then 
+there will be systematic biases in the computed abnormal returns which will give the 
+appearance of abnormal returns when, in fact, there are no abnormal returns at all.  Our 
+analysis is purely theoretical in the sense that it contrasts key properties of two widely 
+applied stochastic processes in the asset pricing literature and shows how they lead to 
+contradictory specifications of the expected logarithmic returns that accrue on risky 
+assets.  We then develop the implications of this outcome for the way that abnormal stock 
+returns ought to be calculated in the empirical work of the discipline.1 
+ 
+We commence our analysis in Section 2 by using the hyperbolic (sinh-arcsinh) functions 
+(Jones and Pewsey 2009) to model the evolution of stock prices in terms of a discrete 
+time binomial filtration (Nelson and Ramaswamy 1990).  Binomial models are 
+particularly simple because they assume a stock’s price will either increase with given 
+probability or decline with complementary probability at each of the discrete points in 
+time on which the modelling procedures are based.  Moreover, variations in the stock’s 
+                                                          
+1  We emphasise in particular that we are not suggesting that the expected logarithmic returns formula for 
+determining abnormal returns under the Feller diffusion is in any way superior to that of the equivalent 
+formula for the Geometric Brownian Motion.   
+
+
+===== PAGE 3 =====
+ 
+3
+price and the probabilities associated with them can often be specified in such a way as to 
+ensure that desired modelling requirements are satisfied - as, for example, when the 
+stock’s price cannot be negative or when increments in the stock’s price must possess a 
+mean and variance with given attributes.2  We exploit this feature of the binomial 
+filtration by specifying the discrete time mean and variance of increments in a stock’s 
+price in such a way as to ensure that as the time between stock price movements tends 
+toward zero, the stock price itself will converge in distribution to the Feller diffusion.  
+We then use the stochastic differential equation defined by these procedures to resolve an 
+apparent inconsistency in the distributional properties of the Feller diffusion arising from 
+the application of the Laplace transform to the Fokker-Planck (that is, Chapman-
+Kolmogorov) equation in Feller (1951b). 
+ 
+In Section 3 we broaden our use of the Fokker-Planck equation by determining the 
+expected logarithmic return on a stock whose price evolves in terms of the Feller 
+diffusion.  We show, in particular, that the expected logarithmic return for the Feller 
+diffusion varies according to the conditional probability of ultimate extinction (that is, the 
+probability that the stock’s price will eventually fall away to zero or equivalently, the 
+firm will enter bankruptcy).  This contrasts with the more commonly employed 
+Geometric Brownian Motion for which the conditional expected logarithmic return is the 
+same irrespective of the prevailing stock price.  We demonstrate in particular, how the 
+differing distributional properties of the Feller diffusion and the Geometric Brownian 
+Motion will mean that it is crucially important for empirical researchers to test the 
+compatibility of the observed returns on a given stock with the distributional assumptions 
+on which the empirical analysis is based, before deciding on an appropriate quadrature 
+                                                          
+2 This also makes binomial models particularly attractive because of the straightforward way in which they 
+can be empirically implemented.   
+
+
+===== PAGE 4 =====
+ 
+4
+formula through which to determine the abnormal returns that accrue on the stock.  
+Section 4 concludes the paper. 
+ 
+2.  Feller Diffusion 
+ 
+Let 
+0
+)
+(
+
+t
+x
+ be a stock’s price at time t.  Now, suppose the increment in the stock’s price 
+over the period from time t until time 
+)
+(
+t
+t
+
+
+ will be either positive, in the amount: 
+ 
+                    
+]
+)
+[(
+)
+(
+]
+)
+(
+sinh[
+)
+(
+)
+(
+)
+(
+2
+3
+t
+O
+t
+t
+x
+t
+t
+x
+t
+x
+t
+t
+x
+t
+x
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+                                                                                                                              (1a)                                    
+ 
+or negative, in the amount: 
+ 
+        
+]
+)
+[(
+)
+(
+]
+)
+(
+sinh[
+)
+(
+)
+(
+)
+(
+2
+3
+t
+O
+t
+t
+x
+t
+t
+x
+t
+x
+t
+t
+x
+t
+x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        
+                                                                                                                               (1b) 
+ 
+where  is a parameter whose meaning will become clear from context.  Moreover, the 
+probability of a positive increment in the stock’s price is: 
+ 
+                       
+]}
+)
+[(
+)
+(
+1
+{
+2
+1
+]}
+)
+(
+tanh[
+1
+{
+2
+1
+2
+3
+t
+O
+t
+t
+x
+t
+t
+x
+
+
+
+
+
+
+
+
+
+
+
+              (2a)                      
+ 
+where again,  is a parameter whose meaning will become clear from context.  This in 
+turn will mean that the probability of a negative increment in the stock’s price will be: 
+ 
+                        
+]}
+)
+[(
+)
+(
+1
+{
+2
+1
+]}
+)
+(
+tanh[
+1
+{
+2
+1
+2
+3
+t
+O
+t
+t
+x
+t
+t
+x
+
+
+
+
+
+
+
+
+
+
+
+             (2b) 
+                                        
+Bringing these results together shows that the expected increment in the stock’s price 
+over the period from time t until time (t + t) will be:  
+ 
+                 
+
+
+
+
+
+
+
+
+
+
+]}
+)
+[(
+)
+(
+1
+]}{
+)
+[(
+)
+(
+{
+2
+1
+)]
+(
+[
+2
+3
+2
+3
+t
+O
+t
+t
+x
+t
+O
+t
+t
+x
+t
+x
+E
+
+
+
+ 
+ 
+
+
+===== PAGE 5 =====
+ 
+5
+                             
+]}
+)
+[(
+)
+(
+1
+]}{
+)
+[(
+)
+(
+{
+2
+1
+2
+3
+2
+3
+t
+O
+t
+t
+x
+t
+O
+t
+t
+x
+
+
+
+
+
+
+
+
+
+
+
+                  (3a) 
+                                                                                                                                                                         
+or, upon evaluation: 
+                                              
+]
+)
+[(
+)
+(
+)]
+(
+[
+2
+3
+t
+O
+t
+t
+x
+t
+x
+E
+
+
+
+
+
+
+                                 (3b)                                 
+ 
+One can then take limits across the above expression in which case it follows that the 
+instantaneous expected increment (per unit time) in the stock’s price will be: 
+ 
+                                             
+)
+(
+)]
+(
+[
+)
+(
+[
+t
+x
+dt
+t
+dx
+E
+t
+t
+x
+E
+Limit
+t
+
+
+
+
+
+
+
+
+                               (4)                                  
+ 
+Note, in particular, how this shows that is the expected proportionate change in the 
+stock’s price or equivalently, the expected instantaneous buy and hold return on the stock 
+on a per unit time basis.  Similar procedures show that the variance of the increment in 
+the stock’s price will be: 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+]}
+)
+[(
+)
+(
+1
+{
+]}
+)
+[(
+)
+(
+)
+(
+{
+2
+1
+)]
+(
+[
+2
+3
+2
+2
+3
+t
+O
+t
+t
+x
+t
+O
+t
+t
+x
+t
+t
+x
+t
+x
+Var
+
+
+
+
+ 
+                                                                                                                                (5a) 
+]}
+)
+[(
+)
+(
+1
+{
+]}
+)
+[(
+)
+(
+)
+(
+{
+2
+1
+2
+3
+2
+2
+3
+t
+O
+t
+t
+x
+t
+O
+t
+t
+x
+t
+t
+x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+  
+or upon evaluation: 
+ 
+                                         
+]
+)
+[(
+)
+(
+)]
+(
+[
+2
+3
+2
+t
+O
+t
+t
+x
+t
+x
+Var
+
+
+
+
+
+
+                                 (5b) 
+ 
+One can again take limits across the above expression in which case it follows that the 
+instantaneous variance of the increment in the stock’s price will be: 
+ 
+
+
+===== PAGE 6 =====
+ 
+6
+                                    
+)
+(
+)]
+(
+[
+)
+(
+[
+2
+t
+x
+dt
+t
+dx
+Var
+t
+t
+x
+Var
+Limit
+t
+
+
+
+
+
+
+
+
+                             (6)                                     
+ 
+This in turn will mean that the variance of instantaneous increments in the stock’s price 
+will be proportional to the current stock price, with 2 serving as the constant of 
+proportionality.  One can then use this and previous results to define the standardised 
+variable: 
+ 
+                                  
+dt
+t
+x
+dt
+t
+x
+t
+dx
+t
+dx
+Var
+t
+dx
+E
+t
+dx
+t
+q
+)
+(
+)
+(
+)
+(
+)]
+(
+[
+)]
+(
+[
+)
+(
+)
+(
+
+
+
+
+
+
+                             (7)                                    
+ 
+It then follows that the instantaneous increment in the stock’s price will be governed by 
+the stochastic differential equation for the Feller diffusion; namely: 
+ 
+                                           
+)
+(
+)
+(
+)
+(
+)
+(
+t
+dq
+t
+x
+dt
+t
+x
+t
+dx
+
+
+
+
+                                     (8)                                   
+ 
+where 
+dt
+t
+q
+t
+dq
+)
+(
+)
+(
+
+  is a white noise process with unit variance parameter (Hoel, Port 
+and Stone 1987, 142).   
+ 
+Now, one can use the differential equation (8) for the Feller diffusion in conjunction with 
+the Fokker-Planck equation (Cox and Miller 1965, 213-215) to show that the conditional 
+probability density, p(x(0),x(t),t), for the stock’s price, x(t), at time t will satisfy the 
+partial differential equation (Feller 1951a, 235): 
+ 
+                               
+t
+p
+p
+t
+x
+p
+t
+x
+t
+x
+p
+t
+x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+)
+(
+))
+(
+(
+)
+(
+)
+(
+2
+1
+2
+2
+2
+2
+                      (9)                              
+ 
+Moreover at t = 0 the stock’s conditional probability density will take the form of a Dirac 
+delta function which is completely concentrated at x(0) (Sneddon 1961, 51-53; Cox and 
+
+
+===== PAGE 7 =====
+ 
+7
+Miller 1965, 209).  One can obtain the solution of this initial value problem by first 
+making the substitution (Nariboli 1977, 165): 
+ 
+            
+}
+)1
+(
+)
+(
+2
+)1
+(
+)
+0
+(
+2
+exp{
+)1
+(
+)
+(
+)
+),
+(
+),
+0
+(
+(
+2
+2
+2
+2
+
+
+
+
+
+
+t
+t
+t
+t
+e
+t
+x
+e
+x
+e
+e
+t
+t
+x
+x
+p
+
+
+
+
+
+
+
+
+
+
+          (10) 
+ 
+where 
+.
+)1
+(
+)
+(
+2
+
+
+t
+t
+e
+e
+t
+x
+
+
+
+  Differentiation and tedious algebra will then show that under these 
+transformations the Fokker-Planck equation (9) is reduced to the ordinary differential 
+equation: 
+ 
+                    
+0
+)
+(
+))
+0
+(
+1
+(
+2
+)
+(
+)
+2
+(
+)
+(
+2
+1
+2
+2
+2
+2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+x
+ 
+                                                                                                                                (11)  
+ 
+Hence, if one then makes the further substitution:  
+ 
+                                     
+)
+(
+)
+0
+(
+}
+))
+0
+(
+(
+2
+exp{
+2
+)
+(
+2
+2
+
+
+
+
+
+
+
+
+
+G
+x
+x
+
+
+
+                     (12)                                  
+ 
+the differential equation (11) becomes: 
+ 
+                        
+0
+)
+(
+}
+)
+0
+(
+2
+8
+{
+)
+(
+2
+)
+(
+2
+1
+2
+2
+2
+2
+2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+G
+x
+G
+G
+         (13) 
+ 
+Direct substitution into equation (13) will then show:  
+ 
+                             
+)
+1
+)
+(
+)
+0
+(
+4
+(
+)
+)
+0
+(
+4
+(
+)
+(
+2
+1
+2
+1
+
+
+
+t
+t
+e
+e
+t
+x
+x
+I
+x
+I
+G
+
+
+
+
+
+
+
+
+                         (14) 
+    
+
+
+===== PAGE 8 =====
+ 
+8
+where 
+)
+(
+1 
+I
+ is the modified Bessel function of the first kind of order one.3  It then follows 
+that the conditional probability density of the stock’s price is given by: 
+ 
+
+)
+),
+(
+),
+0
+(
+(
+t
+t
+x
+x
+p
+ 
+                                                                                                                               (15) 
+ 
+}
+)1
+(
+)
+(
+2
+)1
+(
+)
+0
+(
+2
+exp{
+)1
+(
+)
+(
+)
+0
+(
+}
+)
+0
+(
+(
+2
+exp{
+2
+2
+2
+2
+2
+2
+2
+
+
+
+
+
+
+
+t
+t
+t
+t
+e
+t
+x
+e
+x
+e
+e
+G
+x
+x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+or upon substituting for :4 
+ 
+
+)
+),
+(
+),
+0
+(
+(
+t
+t
+x
+x
+p
+ 
+                                                                                                                                (16) 
+1
+2
+0
+2
+2
+2
+}
+1
+)
+(
+)
+0
+(
+2
+{
+)!
+1
+(!
+1
+}
+1
+)
+(
+)
+0
+(
+2
+exp{
+)
+(
+)
+0
+(
+)1
+(
+2
+
+
+
+
+
+
+
+
+
+j
+j
+t
+t
+t
+t
+t
+t
+e
+e
+t
+x
+x
+j
+j
+e
+t
+x
+e
+x
+t
+x
+e
+x
+e
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+Moreover, if one then makes the substitutions: 
+ 
+,
+1
+)
+(
+)
+0
+(
+2
+2
+
+
+t
+t
+e
+e
+t
+x
+x
+y
+
+
+
+
+  
+,
+1
+)
+(
+)
+(
+)
+0
+(
+2
+
+
+t
+t
+e
+t
+dx
+t
+x
+e
+x
+dy
+
+
+
+
+  
+1
+)
+0
+(
+2
+2
+
+
+t
+t
+e
+e
+x
+
+
+
+
+
+ 
+ 
+                                                          
+3   In order to obtain this result, one must use the recurrence relationships 
+)
+(
+1
+)
+(
+)
+(
+1
+0
+1
+z
+I
+z
+z
+I
+dz
+z
+dI
+
+
+ and 
+)
+(
+)
+(
+1
+0
+z
+I
+dz
+z
+dI
+
+, where I0(z) is the modified Bessel function of the first kind of order zero (Abramowitz and 
+Stegun 1964, 376). 
+ 
+4  Feller (1951a, 235) states this probability density without proof, whilst Feller (1951b, 180) uses the 
+Fokker-Planck equation (9) to determine the Laplace transform of the probability density which he then 
+inverts to determine the probability density itself.  Unfortunately, the probability density determined in 
+Feller (1951a, 235) differs from that stated in Feller (1951b, 180) by a multiple of 2b - where b =  in our 
+analysis is the expected buy and hold return on the stock on a per unit time basis.  It thus follows that the 
+probability density determined in Feller (1951b, 180) is incorrect - something that is of considerable 
+importance given that the probability density summarised in Feller (1951b, 180) has been widely used in 
+empirical analysis for parameter estimation (Gibbons and Ramaswamy, 1993). 
+ 
+
+
+===== PAGE 9 =====
+ 
+9
+it follows that the probability density for the Feller diffusion possesses the following 
+canonical representation: 5 
+ 
+                                
+
+
+
+
+
+
+
+
+0
+1
+2
+2
+2
+)!
+1
+(!
+)}
+1(
+exp{
+2
+)
+),
+(
+),
+0
+(
+(
+j
+j
+j
+j
+y
+y
+t
+t
+x
+x
+p
+
+
+                    (17) 
+ 
+One can then use this latter result in conjunction with a simple application of the Algebra 
+of Limits to show:  
+ 
+0
+)
+),
+(
+),
+0
+(
+(
+0
+)
+(
+
+
+t
+t
+x
+x
+p
+Limit
+t
+x
+  and   
+0
+)
+),
+(
+),
+0
+(
+(
+)
+(
+
+
+
+t
+t
+x
+x
+p
+Limit
+t
+x
+ 
+ 
+which are necessary conditions for the existence of convergent moments (Gan and 
+Waxman 2015).  We also demonstrate in the Appendix how one can use these results to 
+show that the conditional probability of the stock’s price falling away to zero at some 
+unspecified time in the future (that is, the conditional probability of eventual bankruptcy) 
+amounts to 
+}
+)
+0
+(
+2
+exp{
+2
+
+x
+
+ (Feller 1951a, 236).6 
+ 
+3.  Expected Logarithmic Return 
+
+The conditional expected logarithmic return over the period from time zero until time t 
+on a stock whose price evolves in terms of the Feller diffusion is defined as follows: 
+ 
+                                                          
+5   In the Appendix we use this result to show (Feller 1951a, 236): 
+ 
+
+
+
+
+
+
+0
+2
+}
+1
+)
+0
+(
+2
+exp{
+1
+)
+(
+)
+),
+(
+),
+0
+(
+(
+t
+e
+x
+t
+dx
+t
+t
+x
+x
+p
+
+
+
+ 
+ 
+Note how this result shows that at t = 0 the conditional probability density for the Feller diffusion as given 
+by equation (16) will take the form of a Dirac delta function which is completely concentrated at x(0) 
+(Sneddon 1961, 51-53; Cox and Miller 1965, 209). 
+ 
+6  Feller (1951a, 236) again states this result without proof.  Cox and Miller (1965, 236-237) provide an 
+alternative proof based on a series expansion of the moment generating function for the probability density 
+(16). 
+
+
+===== PAGE 10 =====
+ 
+10
+                          
+
+
+
+
+0
+)
+(
+)
+),
+(
+),
+0
+(
+(
+])
+0
+(
+)
+(
+log[
+]}
+)
+0
+(
+)
+(
+{log[
+)
+(
+t
+dx
+t
+t
+x
+x
+p
+x
+t
+x
+x
+t
+x
+E
+t
+M
+              (18) 
+ 
+Differentiating through this expression and then substituting the Fokker-Planck equation 
+for the Feller diffusion will then show (Cox and Miller 1965, 213-215): 
+ 
+
+
+
+
+
+
+
+)
+(
+)
+),
+(
+),
+0
+(
+(
+])
+0
+(
+)
+(
+log[
+)
+(
+0
+t
+dx
+t
+t
+t
+x
+x
+p
+x
+t
+x
+t
+M
+ 
+                                                                                                                                 (19) 
+)
+(
+)]}
+),
+(
+),
+0
+(
+(
+)
+(
+[
+)
+(
+)]
+),
+(
+),
+0
+(
+(
+)
+(
+2
+1
+[
+)
+(
+]{
+)
+0
+(
+)
+(
+log[
+2
+0
+2
+2
+t
+dx
+t
+t
+x
+x
+p
+t
+x
+t
+x
+t
+t
+x
+x
+p
+t
+x
+t
+x
+x
+t
+x
+
+
+
+
+
+
+
+
+
+ 
+ 
+Moreover, one can apply integration by parts to the second term on the right hand side of 
+the above expression in which case it follows: 
+ 
+
+
+
+
+
+0
+)
+(
+)]
+),
+(
+),
+0
+(
+(
+)
+(
+[
+)
+(
+])
+0
+(
+)
+(
+log[
+t
+dx
+t
+t
+x
+x
+p
+t
+x
+t
+x
+x
+t
+x
+
+ 
+                                                                                                                                 (20) 
+
+
+
+
+
+
+0
+0
+)
+(
+)
+),
+(
+),
+0
+(
+(
+)]
+),
+(
+),
+0
+(
+(
+)
+(
+][
+)
+0
+(
+)
+(
+log[
+
+
+
+t
+dx
+t
+t
+x
+x
+p
+t
+t
+x
+x
+p
+t
+x
+x
+t
+x
+ 
+ 
+One can also apply repeated integration by parts to the first term in equation (19) in 
+which case we have: 
+ 
+
+
+
+
+
+)
+(
+)]
+),
+(
+),
+0
+(
+(
+)
+(
+2
+1
+[
+)
+(
+])
+0
+(
+)
+(
+log[
+2
+0
+2
+2
+t
+dx
+t
+t
+x
+x
+p
+t
+x
+t
+x
+x
+t
+x
+
+ 
+                                                                                                                                 (21)                                 
+
+
+
+
+
+
+
+
+
+0
+2
+0
+2
+)
+(
+)
+(
+)
+),
+(
+),
+0
+(
+(
+2
+1
+)
+(
+)]
+),
+(
+),
+0
+(
+(
+)
+(
+2
+1
+[
+)
+(
+)
+(
+1
+t
+dx
+t
+x
+t
+t
+x
+x
+p
+t
+dx
+t
+t
+x
+x
+p
+t
+x
+t
+x
+t
+x
+
+
+ 
+ 
+Bringing these results together by substituting equation (20) and equation (21) into 
+equation (19) shows that the conditional expected logarithmic return on the stock satisfies 
+the following differential equation: 
+ 
+ 
+
+
+===== PAGE 11 =====
+ 
+11
+}
+)
+(
+1
+{
+2
+1
+)
+(
+)
+(
+)
+),
+(
+),
+0
+(
+(
+2
+1
+)
+(
+2
+0
+2
+t
+x
+E
+t
+dx
+t
+x
+t
+t
+x
+x
+p
+t
+M
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+Moreover, integrating across the above equation and applying the initial condition 
+0
+]}
+)
+0
+(
+)
+0
+(
+{log[
+)
+0
+(
+
+
+x
+x
+E
+M
+ will then show: 
+ 
+                                       
+ds
+s
+x
+E
+t
+x
+t
+x
+E
+t
+M
+t
+
+
+
+
+0
+2
+}
+)
+(
+1
+{
+2
+1
+]}
+)
+0
+(
+)
+(
+{log[
+)
+(
+
+
+                (22)                                  
+ 
+where 
+0
+}
+)
+(
+1
+{
+2
+1
+0
+2
+
+
+ds
+s
+x
+E
+t
+
+ by virtue of the fact that stock prices under the Feller 
+diffusion are strictly non-negative.   
+ 
+Note how this result shows that the conditional expected logarithmic return over the 
+period from time zero until time t will be equal to the expected buy and hold return on the 
+stock over this period, t, less a factor which hinges (at least partially) on the volatility 
+parameter, .  Moreover, this result possesses a superficial similarity to the expected 
+logarithmic return on a stock whose price evolves in terms of the Geometric Brownian 
+Motion; namely (Karlin and Taylor 1981, 363-364):  
+ 
+                                                  
+t
+t
+x
+t
+x
+E
+2
+2
+1
+]}
+)
+0
+(
+)
+(
+{log[
+
+
+
+                                     (23) 
+ 
+where  is the expected instantaneous buy and hold return (and t is the buy and hold 
+return over the period from time zero until time t), whilst 2 is the instantaneous variance 
+of the logarithmic return on the stock (and 2t is the variance of the logarithmic return 
+over the period from time zero until time t).  Note how for both the Geometric Brownian 
+Motion and the Feller diffusion the expected logarithmic return is equal to the expected 
+buy and hold return less an adjustment which is related to the volatility of the return.  
+
+
+===== PAGE 12 =====
+ 
+12
+However, for the Geometric Brownian Motion the volatility adjustment, 
+,
+2
+1
+2t
+
+ is a 
+constant which does not depend the opening stock price, x(0).  This is in contrast to the 
+volatility adjustment for the Feller diffusion which varies with the magnitude of the 
+opening stock price and is also related to the probability of the stock’s price eventually 
+falling away to zero.  One can demonstrate this latter point in more detail by considering 
+the conditional expectation of the following exponential integral:7 
+ 
+
+
+
+
+
+
+
+
+)
+(
+)
+0
+(
+0
+)
+(
+)
+0
+(
+2
+2
+)
+(
+)
+),
+(
+),
+0
+(
+(
+])
+)
+(
+(
+2
+exp[
+}
+])
+)
+(
+(
+2
+exp[
+{
+t
+x
+x
+t
+x
+x
+t
+dydx
+t
+t
+x
+x
+p
+y
+y
+t
+x
+dy
+y
+y
+t
+x
+E
+
+
+
+
+ 
+                                                                                                                                  (24) 
+ 
+where, as previously, p(x(0),x(t),t) is the conditional probability density for the Feller 
+diffusion as given by equation (16) and 
+}
+)
+(
+2
+exp{
+2
+
+t
+x
+
+  is the conditional probability of 
+ultimate extinction - that is, the probability that the stock’s price will eventually fall away 
+to zero or equivalently, that the firm will enter bankruptcy (Feller 1951a, 236).  
+Differentiating through this expression and substituting the Fokker-Planck equation for 
+the Feller diffusion will then show: 
+ 
+
+
+
+
+
+
+
+0
+)
+(
+)
+0
+(
+2
+)
+(
+)
+),
+(
+),
+0
+(
+(
+])
+)
+(
+(
+2
+exp[
+t
+x
+x
+t
+dydx
+t
+t
+t
+x
+x
+p
+y
+y
+t
+x
+
+
+ 
+                                                                                                                                  (25) 
+ 
+
+
+
+
+
+
+
+
+
+0
+)
+(
+)
+0
+(
+2
+2
+2
+2
+)
+(
+)]}
+),
+(
+),
+0
+(
+(
+)
+(
+[
+)
+(
+)]
+),
+(
+),
+0
+(
+(
+)
+(
+2
+1
+[
+)
+(
+{
+])
+)
+(
+(
+2
+exp[
+t
+x
+x
+t
+dydx
+t
+t
+x
+x
+p
+t
+x
+t
+x
+t
+t
+x
+x
+p
+t
+x
+t
+x
+y
+y
+t
+x
+
+
+
+
+ 
+                                                          
+7  The exponential integral given here arises in a number of areas relating to the Feller diffusion.  In the 
+Appendix, for example, we demonstrate how the average time it will take for a stock’s price to reach one or 
+other of the upper and lower selling price triggers associated with a filter rule trading strategy (Fama and 
+Blume 1966; Hong and Stein 1999; Sweeney 1988; Chan et al. 1996; D’Aspremont 2011) is stated in terms 
+of the exponential integral given here. 
+
+
+===== PAGE 13 =====
+ 
+13
+Applying repeated integration by parts to the first term on the right hand side of the 
+above expression implies: 
+ 
+
+
+
+
+
+
+
+)
+(
+)]}
+),
+(
+),
+0
+(
+(
+)
+(
+[
+)
+(
+}{
+)
+2
+exp(
+])
+(
+2
+{exp[
+2
+1
+2
+2
+0
+)
+(
+)
+0
+(
+2
+2
+2
+t
+dx
+t
+t
+x
+x
+p
+t
+x
+t
+x
+dy
+y
+y
+t
+x
+t
+x
+x
+
+
+
+
+
+ 
+ 
+
+
+
+
+
+
+0
+2
+2
+)
+(
+)
+0
+(
+2
+2
+4
+2
+2
+)
+(
+)
+),
+(
+),
+0
+(
+(
+)
+(
+}
+)
+(
+2
+)
+(
+1
+)
+2
+exp(
+])
+(
+2
+exp[
+4
+{
+2
+1
+t
+dx
+t
+t
+x
+x
+p
+t
+x
+t
+x
+t
+x
+dy
+y
+y
+t
+x
+t
+x
+x
+
+
+
+
+
+
+
+
+
+ 
+ 
+A similar application of integration by parts to the second term on the right hand side of 
+equation (25) will also show: 
+ 
+
+
+
+
+
+
+
+)
+(
+)]}
+),
+(
+),
+0
+(
+(
+)
+(
+[
+)
+(
+}{
+)
+2
+exp(
+])
+(
+2
+{exp[
+0
+)
+(
+)
+0
+(
+2
+2
+t
+dx
+t
+t
+x
+x
+p
+t
+x
+t
+x
+dy
+y
+y
+t
+x
+t
+x
+x
+
+
+
+
+
+
+ 
+ 
+)
+(
+)]}
+),
+(
+),
+0
+(
+(
+)
+(
+}
+)
+(
+)
+2
+exp(
+])
+(
+2
+{exp[
+2
+{
+0
+)
+(
+)
+0
+(
+2
+2
+2
+2
+t
+dx
+t
+t
+x
+x
+p
+t
+x
+t
+x
+dy
+y
+y
+t
+x
+t
+x
+x
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+Substituting these latter two results into equation (25) will then imply: 
+ 
+
+
+
+
+)
+(
+)
+0
+(
+2
+}
+])
+)
+(
+(
+2
+exp[
+{
+t
+x
+x
+dy
+y
+y
+t
+x
+E
+
+
+ 
+                                                                                                                                  (26) 
+ 
+ds
+s
+x
+E
+t
+dydx
+t
+t
+x
+x
+p
+y
+y
+t
+x
+t
+t
+x
+x
+
+
+
+
+
+
+
+0
+2
+0
+)
+(
+)
+0
+(
+2
+}
+)
+(
+1
+{
+2
+1
+)
+(
+)
+),
+(
+),
+0
+(
+(
+])
+)
+(
+(
+2
+exp[
+
+
+
+ 
+ 
+
+
+===== PAGE 14 =====
+ 
+14
+Taking equation (26) in conjunction with equation (22) will then mean that the 
+conditional expected logarithmic return over the period from time zero until time t on a 
+stock whose price evolves in terms of the Feller diffusion may be expressed as:8 
+ 
+                             
+
+
+
+
+
+)
+(
+)
+0
+(
+2
+}
+])
+)
+(
+(
+2
+exp[
+{
+]}
+)
+0
+(
+)
+(
+{log[
+t
+x
+x
+dy
+y
+y
+t
+x
+E
+t
+x
+t
+x
+E
+
+
+
+                  (27)
+ 
+ 
+One can demonstrate the implementation of this result by considering a stock with an 
+expected instantaneous buy and hold return of = 0.15  (that is, 15% per annum) and a 
+volatility parameter of  = 1.  Substituting these parameter values into equation (27) will 
+then show that the conditional expected annual logarithmic return on the stock will be: 
+ 
+                                
+}
+)]
+)1(
+(
+3.0
+exp[
+{
+15
+.0
+]}
+)
+0
+(
+)1(
+{log[
+)
+1
+(
+)
+0
+(
+dy
+y
+y
+x
+E
+x
+x
+E
+x
+x
+
+
+
+
+               (28) 
+ 
+Table 1 summarises the conditional expected annual logarithmic return on a stock with 
+the above parameter values (that is, = 0.15 and  = 1) for various values of the opening 
+stock price, x(0).9  Thus, when the opening stock price amounts to x(0)=£5 then the 
+conditional expected logarithmic return is 4.65% per annum reflecting the fact that the 
+                                                          
+8  Here it is important to note that a simple application of L’Hôpital’s rule shows:  
+ 
+0
+)
+(
+1
+)
+exp(
+)
+exp(
+)}
+)
+(
+(
+exp{
+2
+2
+2
+2
+2
+)
+(
+2
+)
+(
+)
+0
+(
+2
+)
+(
+)
+0
+(
+2
+
+
+
+
+
+
+
+t
+x
+dy
+y
+dy
+y
+y
+t
+x
+t
+x
+t
+x
+x
+y
+t
+x
+x
+
+
+
+
+
+
+
+
+  
+ 
+as x(t)   - a result which is consistent with the numerical example summarised in Table 1 below. 
+ 
+9  All integrals associated with the Feller diffusion are evaluated numerically using a combination of 50   
+point Gauss-Legendre quadrature and 50 point Gauss-Laguerre quadrature.  These quadrature rules 
+integrate polynomial expressions of order 99 or less exactly (Carnahan, Luther and Wilkes 1969, 101-105).  
+ 
+
+
+===== PAGE 15 =====
+ 
+15
+probability of ultimate extinction (that is, the probability the firm will eventually enter 
+bankruptcy) amounts to  (Feller 1951a, 236): 
+ 
+                              
+2231
+.0
+]
+1
+5
+15
+.0
+2
+exp[
+])
+0
+(
+2
+exp[
+2
+2
+
+
+
+
+
+
+
+x
+                           (29)                                 
+ 
+or, just over 22%.  However, as the opening stock price increases in magnitude and the 
+probability of extinction declines, then the conditional expected logarithmic return on the 
+_____________________________________________ 
+TABLE ONE ABOUT HERE 
+_____________________________________________ 
+ 
+stock increases significantly.  Thus, when the opening stock price is 
+,
+90
+£
+)
+0
+(
+
+x
+ there is 
+only a trivial probability of ultimate extinction and the conditional expected logarithmic 
+return on the stock has grown to 14.48% per annum.10  Hence, the results summarised in 
+this table show how the conditional expected logarithmic return on a stock whose price 
+evolves in terms of the Feller diffusion is not an intertemporal constant but varies 
+according to the conditional probability of ultimate extinction.  This is in direct contrast 
+to the Geometric Brownian Motion (which underscores much of the empirical work 
+conducted in the discipline), for which the conditional expected annual logarithmic return 
+                                                          
+10  One can reinforce this point by using equation (8) in conjunction with Itô’s formula to determine the 
+distributional properties of instantaneous increments in the logarithmic return, 
+].
+)
+0
+(
+)
+(
+log[
+)
+(
+x
+t
+x
+t
+r
+
+  It then 
+follows: 
+ 
+)
+(
+)
+(
+))
+(
+2
+1
+(
+]
+)
+(
+)
+(
+[
+2
+1
+)
+(
+)
+(
+)]
+(
+[
+)
+(
+2
+1
+)
+(
+)
+(
+)
+(
+2
+2
+2
+2
+2
+t
+dq
+t
+x
+dt
+t
+x
+t
+x
+t
+dx
+t
+x
+t
+dx
+t
+dx
+t
+x
+r
+t
+dx
+t
+x
+r
+t
+dr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+This result shows that the instantaneous increment in the logarithmic return (per unit time) will have a 
+mean of 
+))
+(
+2
+1
+(
+)]
+(
+[
+2
+t
+x
+dt
+t
+dr
+E
+
+
+
+ and variance 
+.)
+(
+)]
+(
+[
+2
+t
+x
+dt
+t
+dr
+Var
+
+
+   Note that when 
+
+
+2
+)
+(
+2
+
+t
+x
+ or equivalently, 
+the probability of eventual extinction exceeds 
+,
+367879
+.0
+1 
+
+e
+ then the expected instantaneous change in the  
+stock’s logarithmic return will be negative.  This in turn will mean that in expectations there will be a 
+downward spiral in the logarithmic return that will culminate ultimately, in the firm entering bankruptcy 
+(that is, ultimate extinction).   
+ 
+
+
+===== PAGE 16 =====
+ 
+16
+will be the same irrespective of the opening stock price, x(0).  This in turn will mean that 
+if a researcher mistakenly assumes a stock’s price evolves in terms of a Geometric 
+Brownian Motion when, in fact, the actual process describing the evolution of the stock’s 
+price is the Feller diffusion, there will be systematic biases in the abnormal returns 
+calculated by the researcher.11   
+ 
+This result has important implications for empirical analysis.  There is, for example, an 
+extensive body of empirical literature that documents evidence of a long-run positive 
+(negative) price drift after positive (negative) news announcements.  This drift in 
+abnormal returns has been identified following earnings announcements (Ball and 
+Brown, 1968; Bernard and Thomas, 1989), stock splits (Grinblatt et al., 1984), share 
+repurchases (Lakonishok and Vermaelen, 1990), dividend initiations and omissions 
+(Michaely et al., 1995) and revisions to analysts’ earnings forecasts (Elton et al., 1984).  
+As this post-announcement drift in abnormal returns is difficult to reconcile with models 
+                                                          
+11  Further insight may be obtained into the biases which arise from mistakenly assuming a stock’s price, 
+x(t), evolves in terms of a Geometric Brownian Motion by applying a Taylor series expansion to log[x(t)] 
+about the point x(0)et.  If one then takes expectations across the series expansion and substitutes the first 
+four central moments for the Feller diffusion (Davidson and Tippett 2012, 218 and 232) one will end up 
+with the following series expansion for the expected logarithmic return for the Feller diffusion:  
+ 
+____
+)
+1(
+)
+0
+(
+8
+3
+)
+1(
+)
+0
+(
+4
+1
+)
+1(
+)
+0
+(
+2
+1
+]}
+)
+0
+(
+)
+(
+{log[
+3
+3
+3
+6
+2
+2
+2
+4
+2
+
+
+
+
+
+
+
+
+
+
+
+t
+t
+t
+e
+x
+e
+x
+e
+x
+t
+x
+t
+x
+E
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+Substituting  = 0.15,  = 1 and t = 1 shows that the above expansion exactly replicates the results 
+summarised in Table 1 except when x(0) = $5 and x(0) = $31/3 where the expansion gives expected 
+logarithmic returns of 0.0461 and -0.0168, respectively.  In these latter two cases the series expansion will 
+need to encompass additional terms involving the higher order (fifth, sixth, etc.) moments if it is to give a 
+more satisfactory approximation to the expected logarithmic return.  This contrasts with the Geometric 
+Brownian Motion where equation (23) shows that only the first two moments are necessary to give an exact 
+representation of the expected logarithmic return.  Moreover, the above series expansion shows that the 
+opening stock price, x(0), affects the expected logarithmic return for the Feller diffusion in a way that is 
+entirely absent from the expected logarithmic return for the Geometric Brownian Motion.  
+ 
+
+
+===== PAGE 17 =====
+ 
+17
+of rational expectations, the prevailing view in the literature is that these empirical 
+observations can be attributed to investor under-reaction (Fama, 1998).12 
+ 
+It should be noted that a drift pattern in abnormal returns can also occur if a stock’s 
+benchmark return is based on the Geometric Brownian Motion when in fact the actual 
+process describing the evolution of the stock’s price is the Feller diffusion.  Here it will 
+be recalled that when a stock is associated with positive (negative) news, there will in 
+general be an instantaneous positive (negative) increase in the market price of the given 
+stock.  Moreover, under the assumption that the stock’s price evolves in terms of the 
+Geometric Brownian Motion the instantaneous price shock would have no impact on the 
+benchmark return used to isolate the abnormal returns on the stock.  However, as shown 
+in Table 1, if the stock’s price evolves in terms of the Feller diffusion, the positive price 
+shock would also result in an increased expected return on the stock.  Under these 
+circumstances, mistakenly assuming the stock’s price evolves in terms of a Geometric 
+Brownian Motion will give the appearance of a post-announcement drift in the abnormal 
+returns that accrue on the stock.13   
+ 
+                                                          
+12  A little reflection will convince the reader that our analysis has important implications for a much wider 
+class of issues – including filter trading rules and momentum in stock returns, the prediction of corporate 
+failure and the pricing of derivative securities (Cox 1996).   
+ 
+13  Here it will be recalled that the expected logarithmic return on the Geometric Brownian Motion is a 
+constant which is independent of the opening stock price, x(0).  Whether the stock price is “low” or “high”, 
+the expected logarithmic return is the same.  This in turn means that the expected logarithmic returns in 
+Table 1 under the false assumption of the Geometric Brownian Motion will be the same irrespective of the 
+opening stock price.  One can demonstrate the nature of the biases which arise under the false assumption 
+of the Geometric Brownian Motion by supposing a researcher undertakes parameter estimation when the 
+stock’s price is concentrated around x(0) = £45 per share.  Consistent with the results summarised in Table 
+1 the researcher will find that the average annual logarithmic return over the estimation period will be 
+around 13.96% (per annum).  Given this, the researcher will set this return as the “benchmark” against 
+which the stock’s subsequent performance is to be assessed.  However, if the researcher applies this 
+benchmark to returns based on opening stock prices that are not in the neighbourhood of x(0) = £45, there 
+will be evidence of (fictitious) abnormal returns.  Thus, for example, Table 1 shows that if the stock’s price 
+is in the neighbourhood of x(0) = £30 then applying a benchmark return of 13.96% will lead, on average, to 
+a negative abnormal return of around  (0.1343 - 0.1396 =) -0.53% (per annum).  Similarly, if the stock’s 
+price is in the vicinity of x(0) = £60 there will, on average, be a positive abnormal return of around (0.1422 
+- 0.1396 =) 0.26% (per annum).   
+ 
+
+
+===== PAGE 18 =====
+ 
+18
+Whilst we make no contention about the actual source of post-announcement drift 
+anomalies the results summarised in Table 1 are informative as they identify an 
+alternative set of conditions under which an empirical researcher may identify a post-
+event drift in stock prices.  We would not contend either that the Geometric Brownian 
+Motion or the Feller diffusion is capable of providing a completely satisfactory 
+description of the way stock prices evolve in practice.  It nonetheless warrants 
+emphasising that if two commonly implemented stochastic processes can lead to such 
+conflicting prescriptions for the calculation of abnormal returns, then it is important for 
+researchers (and others) to assess the compatibility of the empirically observed returns on 
+a given stock (or portfolio) with the assumed distributional assumptions on which the 
+calculation of abnormal returns are based.  We note that such goodness of fit testing 
+procedures have rarely been conducted in the empirical literature of the discipline and 
+where they have, it is seldom the case that the empirically calculated returns are 
+compatible with the Gaussian probability density on which most of the commonly 
+employed abnormal returns quadrature rules are based. 
+ 
+4.  Conclusions 
+ 
+We determine the conditional expected logarithmic return on a stock whose price evolves 
+in terms of the Feller (1951a) diffusion and then use it to demonstrate how one must 
+know the exact stochastic process that generates a stock’s return before one can 
+determine the correct way to calculate the abnormal returns which accrue on the stock.  
+We demonstrate this by considering a stock whose price actually evolves in terms of the 
+Feller diffusion but where a researcher mistakenly assumes the stock’s price develops in 
+terms of the more commonly employed Geometric Brownian Motion.  We show that 
+when abnormal returns are calculated under the mistaken belief that the stock’s price 
+
+
+===== PAGE 19 =====
+ 
+19
+evolves in terms of the Geometric Brownian Motion, there will be the appearance of 
+abnormal returns when, in fact, there are no abnormal returns at all.  This occurs because 
+the expected logarithmic return on a stock whose price evolves in terms of the Feller 
+diffusion varies according to the conditional probability of ultimate extinction (that is, the 
+probability that the stock’s price will eventually fall away zero or equivalently, the firm 
+will enter bankruptcy).  This is in contrast with the Geometric Brownian Motion for 
+which the conditional expected logarithmic return is the same irrespective of the current 
+level of the stock’s price.  Our analysis thus suggests that it is crucially important for 
+researchers to test the compatibility of the empirically observed returns on a given stock 
+with the assumed distributional assumptions on which the calculation of abnormal returns 
+are based before deciding on an appropriate quadrature formula through which to isolate 
+the abnormal returns that accrue on the stock.  
+
+
+===== PAGE 20 =====
+ 
+20
+Appendix: Probability Density of the Feller Diffusion 
+ 
+One can integrate through the probability density given by equation (17) of the text, over 
+the semi-infinite real line and thereby show: 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0
+0
+0
+0
+1
+2
+2
+1
+1
+2
+2
+2
+)
+exp(
+)!
+1
+(!
+1
+2
+)!
+1
+(!
+)}
+1(
+exp{
+2
+j
+j
+j
+j
+dy
+y
+y
+j
+j
+e
+dy
+j
+j
+y
+y
+
+
+
+
+ 
+                                                                                                                                 (A1) 
+Here one can let 
+2
+1y
+z
+
+
+ from which it follows 
+.
+2
+1
+ydy
+dz 
+
+  Substitution will then 
+show: 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+e
+j
+j
+e
+dz
+e
+z
+j
+j
+e
+dy
+j
+j
+y
+y
+j
+j
+j
+j
+z
+j
+j
+j
+1
+)!
+1
+(
+)!
+1
+(!
+)!
+1
+(!
+)}
+1(
+exp{
+2
+0
+0
+0
+0
+0
+1
+1
+1
+2
+2
+2
+ 
+                                                                                                                                 (A2) 
+It then follows that the probability of the stock price falls away to nothing before time t is 
+(Feller 1951a, 236): 
+                      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0
+0
+2
+1
+2
+2
+2
+}
+1
+)
+0
+(
+2
+exp{
+)!
+1
+(!
+)}
+1(
+exp{
+2
+1
+j
+t
+j
+e
+x
+e
+dy
+j
+j
+y
+y
+
+
+
+
+
+
+      (A3) 
+Moreover, this result also shows that the probability of the stock’s price falling away to 
+zero at some unspecified future time (that is, the probability of ultimate extinction) 
+amounts to (Feller 1951a, 236): 
+ 
+
+}
+)
+0
+(
+2
+exp{
+}
+1
+)
+0
+(
+2
+exp{
+2
+2
+
+
+
+
+
+x
+e
+x
+Limit
+t
+t
+
+
+
+
+
+
+
+
+ 
+ 
+Appendix: Filter Rule Trading Strategy 
+ 
+Consider a simple filter rule trading strategy under which a stock is purchased at a price 
+of x at time zero (Fama and Blume 1966; Hong and Stein 1999; Sweeney 1988; Chan et 
+al. 1996; D’Aspremont 2011).  If the stock’s price subsequently rises to 
+x
+
+b
+ then the 
+
+
+===== PAGE 21 =====
+ 
+21
+stock is sold and the profits realised.  Alternatively, if the stock’s price falls to 
+x
+a 
+ 
+before it rises to 
+x
+
+b
+ then the investor invokes a “stop loss” strategy of selling the stock 
+and realising the losses.  It then follows that the probability, u(x), of the stock’s price 
+rising from its current level, x, to the upper price selling trigger, 
+,
+b
+x
+
+ before it falls 
+back to the lower price selling trigger, 
+,x
+a 
+ can be determined as the solution of the 
+following differential equation (Cox and Miller 1965, 231): 
+ 
+                                                 
+0
+)
+(
+)
+(
+2
+1
+2
+2
+2
+
+
+dx
+x
+du
+x
+dx
+x
+u
+d
+x
+
+
+                                 (B1) 
+ 
+with the boundary conditions being 
+0
+)
+(
+
+a
+u
+ and 
+.1
+)
+(
+
+b
+u
+  Determining the solution to 
+the above boundary value problem shows: 
+ 
+                                              
+)
+2
+exp(
+)
+2
+exp(
+)
+2
+exp(
+)
+2
+exp(
+)
+(
+2
+2
+2
+2
+
+
+
+
+
+
+
+
+a
+b
+a
+x
+x
+u
+
+
+
+
+
+
+
+                              (B2) 
+ 
+This in turn will mean that the probability of the stock’s price falling to 
+x
+a 
+ before it 
+rises to 
+x
+
+b
+ will be:  
+   
+                                          
+)
+2
+exp(
+)
+2
+exp(
+)
+2
+exp(
+)
+2
+exp(
+)
+(
+1
+2
+2
+2
+2
+
+
+
+
+
+
+
+
+a
+b
+x
+b
+x
+u
+
+
+
+
+
+
+
+
+                             (B3) 
+ 
+Moreover, the average time, (x), it will take the stock’s price to reach one or other of the 
+two (that is, upper and lower) selling price triggers can be determined as the solution of 
+the following differential equation (Cox and Miller 1965, 232): 
+ 
+                                            
+1
+)
+(
+)
+(
+2
+1
+2
+2
+2
+
+
+
+dx
+x
+d
+x
+dx
+x
+d
+x
+
+
+
+
+                                    (B4)
+
+
+===== PAGE 22 =====
+ 
+22
+ 
+with the boundary conditions being (a) = 0 = (b).  Solving the given boundary value 
+problem shows that the average time it will take for the stock’s price to rise to b or 
+alternatively, to fall back to a amounts to: 
+ 
+                                  
+
+
+
+
+}
+])
+)
+(
+(
+2
+exp[
+{
+]}
+)
+0
+(
+)
+(
+{log[
+)
+(
+)
+(
+)
+0
+(
+2
+dy
+y
+y
+t
+x
+E
+x
+t
+x
+E
+x
+t
+x
+x
+
+
+
+
+                (B5) 
+ 
+where: 
+ 
+)
+log(
+))
+(
+1(
+)
+log(
+)
+(
+]}
+)
+0
+(
+)
+(
+{log[
+x
+a
+x
+u
+x
+b
+x
+u
+x
+t
+x
+E
+
+
+
+ 
+ 
+and: 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+a
+x
+b
+x
+t
+x
+x
+dy
+y
+y
+a
+x
+u
+dy
+y
+y
+b
+x
+u
+dy
+y
+y
+t
+x
+E
+)
+0
+(
+2
+)
+0
+(
+2
+)
+(
+)
+0
+(
+2
+])
+(
+2
+exp[
+))
+(
+1(
+])
+(
+2
+exp[
+)
+(
+}
+])
+)
+(
+(
+2
+exp[
+{
+
+
+
+
+
+
+ 
+                                                                                                                                                                         
+Now, from equation (27) of the text it follows that the conditional abnormal logarithmic 
+return over the period from time zero until time t on a stock whose price evolves in terms 
+of the Feller diffusion will amount to: 
+ 
+                              
+
+
+
+
+
+)
+(
+)
+0
+(
+2
+}
+])
+)
+(
+(
+2
+exp[
+{
+]}
+)
+0
+(
+)
+(
+{log[
+t
+x
+x
+dy
+y
+y
+t
+x
+E
+t
+x
+t
+x
+E
+
+
+
+                  (B6) 
+ 
+Hence, comparing equation (27) of the text with equation (B5) above shows that the 
+expected abnormal logarithmic return over the average period, (x), it will take for the 
+stock’s price to either rise to the upper selling price trigger, b, or alternatively, fall back 
+
+
+===== PAGE 23 =====
+ 
+23
+to the lower selling price trigger, a, turns out to be zero - something one would expect 
+given that the stock’s price evolves in terms of a purely random process.14    
+ 
+                                                          
+14  Here it is important to emphasise that the expected abnormal buy and hold return under the filter rule 
+trading strategy considered in this section does not turn out to be zero. This result has important 
+implications for empirical work involving abnormal returns calculated in terms of the buy and hold returns 
+which accrue on stocks (Jegadeesh, and Titman 1993; Jegadeesh, and Titman 2001). 
+
+
+===== PAGE 24 =====
+ 
+24
+ 
+ 
+ 
+Table 1. Conditional expected annual logarithmic return on a stock whose price evolves 
+in terms of the Feller diffusion with an instantaneous expected buy and hold return of  
+ = 0.15 and volatility parameter of  = 1.   
+ 
+ 
+ 
+ 
+ 
+ 
+x(0) 
+
+
+
+
+)
+1
+(
+)
+0
+(
+}
+)]
+)1(
+(
+3.0
+exp[
+{
+x
+x
+dy
+y
+y
+x
+E
+ 
+]}
+)
+0
+(
+)1(
+{log[ x
+x
+E
+ 
+Probability of 
+Bankruptcy 
+ 
+ 
+ 
+ 
+ 
+2
+2 = 10
+3 
+0.15 
+-0.1605 
+-0.0105 
+0.3679 
+5 
+0.15 
+-0.1035 
+0.0465 
+0.2231 
+10 
+0.15 
+-0.0488 
+0.1012 
+0.0498 
+15 
+0.15 
+-0.0320 
+0.1180 
+0.0111 
+20 
+0.15 
+-0.0238 
+0.1262 
+0.0025 
+25 
+0.15 
+-0.0189 
+0.1311 
+0.0006 
+30 
+0.15 
+-0.0157 
+0.1343 
+0.0001 
+35 
+0.15 
+-0.0134 
+0.1366 
+0.0000 
+40 
+0.15 
+-0.0117 
+0.1383 
+0.0000 
+45 
+0.15 
+-0.0104 
+0.1396 
+0.0000 
+50 
+0.15 
+-0.0094 
+0.1406 
+0.0000 
+55 
+0.15 
+-0.0085 
+0.1415 
+0.0000 
+60 
+0.15 
+-0.0078 
+0.1422 
+0.0000 
+65 
+0.15 
+-0.0072 
+0.1428 
+0.0000 
+70 
+0.15 
+-0.0067 
+0.1433 
+0.0000 
+75 
+0.15 
+-0.0062 
+0.1438 
+0.0000 
+80 
+0.15 
+-0.0058 
+0.1442 
+0.0000 
+85 
+0.15 
+-0.0055 
+0.1445 
+0.0000 
+90 
+0.15 
+-0.0052 
+0.1448 
+0.0000 
+ 
+ 
+ 
+ 
+ 
+ 
+Notes: This table determines the expected annual logarithmic return as defined by 
+equation (27) of the text for a stock with an opening price of x(0) and whose terminal 
+price, x(1), evolves in terms of the Feller diffusion with parameter values of  = 0.15  
+and  = 1, respectively.  The integral expression summarised in column 3 is evaluated 
+using 50 point Gauss-Legendre quadrature whilst the expectation of the integral 
+expression is evaluated using 50 point Gauss-Laguerre quadrature (Carnahan, Luther and 
+Wilkes 1969, 101-105).  The probability of eventual extinction (that is, the probability of 
+bankruptcy) appearing in the final column of the table is computed using equation (A4) 
+in the Appendix.   
+ 
+
+
+===== PAGE 25 =====
+ 
+25
+References 
+ 
+Abramowitz, M. and Stegun, I., 1964. Handbook of mathematical functions with 
+formulas, graphs, and mathematical tables. Washington, DC: NBS Applied 
+Mathematics Series 55, National Bureau of Standards. 
+ 
+Ashton, D., Cooke, T. and Tippett, M., 2003. An aggregation theorem for the 
+valuation of equity under linear information dynamics. Journal of Business Finance 
+and Accounting, 30 (3&4), 413-440. 
+ 
+Ball, R. and Brown. P., 1968. An empirical evaluation of accounting income numbers. 
+Journal of Accounting Research, 6(2), 159-178. 
+ 
+Bernard, V. and Thomas, J., 1989. Post-earnings announcement drift: Delayed price 
+response or risk premium. Journal of Accounting Research. 27(Supplement), 1-36. 
+ 
+Carnahan, B. Luther, H and Wilkes, J., 1969. J., Applied Numerical Methods. (New 
+York: Wiley). 
+ 
+Chan L., Jegadeesh, N. and Lakonishok, J., 1996. Momentum strategies. Journal of 
+Finance, 1996, 51(5), 1681-1713. 
+ 
+Cox, D. and Miller, H., 1965. Theory of stochastic processes. (London: Chapman and 
+Hall). 
+Cox, J., 1996. The constant elasticity of variance option pricing model. Journal of 
+Portfolio Management. Special Issue, 15-17. 
+Cox, J. and Ross, S., 1976. The valuation of options for alternative stochastic processes. 
+Journal of Financial Economics, 3(1&2), 145-166. 
+D’Aspremont A., 2011. Identifying small mean reverting portfolios, Quantitative 
+Finance, 11(3), 351-364. 
+ 
+Davidson, I. and Tippett, M., 2012. Principles of equity valuation. (Abingdon, Oxon: 
+Routledge). 
+ 
+Elton, E., Gruber, M. and Gultekin, M., 1984. Professional expectations: accurary and 
+diagnosis of errors. Journal of Financial and Quantitative Analysis. 19(4), 351-363. 
+ 
+Fama, E., 1988. Market efficiency, long-term returns, and behavioral finance. Journal 
+of Financial Economics. 49(3), 283-306. 
+ 
+Feller, W., 1951a. Diffusion processes in genetics. Proceedings of the Second Berkley 
+Symposium on Mathematical Statistics and Probability. 54(1), 227-246. 
+ 
+Feller, W., 1951b. Two singular diffusion processes.” Annals of Mathematics. 173-
+182. 
+ 
+
+
+===== PAGE 26 =====
+ 
+26
+Gan, X. and Waxman, D., 2015. Singular solution of the Feller diffusion equation via 
+a spectral decomposition. Physical Review E. 91(1), 012123-1-10. 
+ 
+Gibbons, M. and Ramaswamy, K., 1993. A test of the Cox, Ingersoll and Ross model 
+of the term structure. Review of Financial Studies. 6(3), 619-658. 
+ 
+Grinblatt, M., Masulis, R. and Titman, S., 1984. The valuation effects of stock splits 
+and stock dividends. Journal of Financial Economics. 13(4), 461-490. 
+ 
+Hoel, P., S. Port, and C. Stone. 1987. Introduction to Stochastic Processes. Long 
+Grove, IL:Waveland Press. 
+ 
+Hong H. and Stein, J., 1999. A unified theory of underreaction, momentum trading, 
+and overreaction in asset markets. Journal of Finance. 54(6), 2143-2184. 
+ 
+Jegadeesh, N. and Titman, S., 1993. Returns to buying winners and selling losers: 
+implications for stock market efficiency. Journal of Finance. 48(1), 65-91. 
+ 
+Jegadeesh, N. and Titman, S., 2001. Profitability of momentum strategies: an 
+evaluation of alternative explanations. Journal of Finance. 56(2), 699 -720. 
+ 
+Jones, M. and Pewsey, A. 2009. Sinh-arcsinh distributions. Biometrika. 96(4), 761-
+780. 
+ 
+Karlin, S. and Taylor, H., 1981. A Second Course in Stochastic Processes. (London: 
+Academic Press).  
+ 
+Lakonishok, J. and Vermaelen, T., 1990. Anomalous price behavior around 
+repurchase tender offers. Journal of Finance. 45(2), 455-477. 
+ 
+Michaely, R., Thaler, R. and Womack, K., 1995. Price reaction to dividend initiations 
+and omissions: overreaction or drift. Journal of Finance. 50(2), 573-608. 
+ 
+Nariboli, G., 1977. Group invariant solutions of the Fokker-Planck equation. 
+Stochastic Processes and their Applications. 5(2), 157-171. 
+ 
+Nelson, D. and Ramaswamy, K., 1990. Simple binomial processes as diffusion 
+approximations in financial models. Review of Financial Studies, 3(3), 393-430. 
+ 
+Sneddon, I. 1961. Fourier Series. London: Routledge & Kegan Paul Ltd. 
+ 
+Sweeney, R., 1988. Some new filter rule tests: methods and results. Journal of 
+Financial and Quantitative Analysis. 23(3), 285-300.  
+ 
+ 

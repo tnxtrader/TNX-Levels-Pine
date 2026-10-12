@@ -1,0 +1,35 @@
+{
+  "file": "trading/risk/2020 - Wu - Convert index trading to option strategies via LSTM architecture.pdf",
+  "slug": "2020_Wu_Convert_index_trading_to_option_strategies_via_LSTM_architecture",
+  "pages": 18,
+  "metadata": {
+    "format": "PDF 1.4",
+    "title": "Convert index trading to option strategies via LSTM architecture",
+    "author": "Jimmy Ming-Tai Wu ",
+    "subject": "Neural Computing and Applications, https://doi.org/10.1007/s00521-020-05377-6",
+    "keywords": "Long short-term memory; Big data; Options; Futures; Kelly criterion; Trading strategy",
+    "creator": "Springer",
+    "producer": "Acrobat Distiller 10.1.8 (Windows)",
+    "creationDate": "D:20201222072030+05'30'",
+    "modDate": "D:20250925220228+05'30'",
+    "trapped": "",
+    "encryption": null
+  },
+  "embedded_images": 3,
+  "figure_pages": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "tables": 5,
+  "text_chars": 68328,
+  "needs_ocr": false
+}

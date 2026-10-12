@@ -1,0 +1,1956 @@
+
+
+===== PAGE 1 =====
+Capital Markets Review Vol. 31, No. 1, pp. 59-71 (2023) 
+59 
+ 
+Weak Form of Call Auction Prices:  
+Simulation Using Monte Carlo Variants  
+ 
+Dinabandhu Bag1 & Saurabh Goel2  
+1National Institute of Technology Rourkela, Odisha, India. 
+2Delhi Technological University, New Delhi, India.  
+ 
+Abstract: Research Question: This paper explores the pre-market auction 
+price behaviour. The pre-market auction is a short duration auction, where the 
+orders are executed with too little time for revision by the makers. The literature 
+paid attention to application of random walk hypothesis (RWH) and its variants 
+in efficient market (EMH) tests. Motivation: The pre-opening auction is an 
+extremely short duration auction where traders are interested in a limited 
+number of large cap stocks and the orders are not transparent. The interest lies 
+on efficiency tests of discrete prices during the pre-market auction for the 
+benefit of investors. Idea: The mechanism of price discovery in call auctions is 
+important since they could impact normal markets. We aim to test major 
+relevant hypotheses for pre-opening equilibrium prices. The rejection of the 
+randomness would mean that it is possible to use historical stock prices alone. 
+Data: The sample comprises all 50 NSE 50 Index constituent stocks sampled 
+during the year 2019. The NSE constituent stocks maintain the highest market 
+capitalization and have a long history of trading. Method/Tools: It summarizes 
+the source literature on objectively driven synthesis on simulation-based 
+decision making since the early period of 1973. Multivariate lognormal 
+distribution is a challenging method than ordinary univariate Monte Carlo. By 
+generating a 50 X 50 covariance matrix of prices and solving for Cholesky 
+roots, the results were compared against lognormal multivariate Monte Carlo 
+simulation to explore the estimates of volatility. Findings: The results 
+demonstrate a good case for the tests of RWH and objectively arriving at the 
+pre-opening equilibrium prices. The co-efficient of variation (COV) remained 
+at 3.33%. We found that the stock prices were correlated among themselves, 
+which infers the weak form of efficiency. Previous results had mentioned that 
+MC generated higher sample variances and unsuitable, however, we found 
+lower variances in using multi-variate Monte Carlo. Contributions: The 
+contribution lies in the attempts using multi-variate log normal distribution to 
+deduce prices with lower estimated variance. The results have implications to 
+making trade decisions and portfolio construction during the Covid period, 
+where high degree of persisting decline happened to indices. 
+ 
+Keywords: Pre-opening, efficient, multivariate log-normal, Monte Carlo.  
+JEL Classification: G11, C14, C15, C19 
+ 
+ 
+ 
+ Corresponding author: Dinabandhu Bag. Tel.: +91-6612462803. Email: dinabandhu.bag@gmail.com 
+ 
+Received 18 January 2022; Final revised 27 Dec 2022; Accepted 16 Mar 2023; Available online 30 Mar 2023. 
+To link to this article: https://www.mfa.com.my/cmr/v31_i1_a4/ 
+© Malaysian Finance Association, 2023. This work is licensed under the terms of the Creative Commons Attribution 
+(CC BY) (http://creativecommons.org/licenses/by/4.0/). 
+
+
+===== PAGE 2 =====
+Dinabandhu Bag & Saurabh Goel 
+60 
+ 
+1. Introduction 
+An efficient stock market attracts genuine investors to the capital market. The weak form of 
+efficient market hypothesis (EMH) states that a stock's current price would be reflected in the 
+stock's historical prices (Fama, 1991). In a pre-market auction, the individual trade orders are 
+collated and the equilibrium opening prices are derived for each stock and publicly displayed 
+each day. During the short period auction, the makers cannot see the order position of each 
+other, until the final allocation are displayed at the end of the auction. In an efficient market 
+such equilibrium prices may follow Random Walk (RWH). However, due to the very nature 
+of the pre-market, one would expect the equilibrium prices to have some degree of influence 
+with the stock closing prices of the previous trading day (historical). Shiller (1981) identified 
+that stock prices were volatile than their expected discounted cash flows would have made 
+Camerer (1990) observed that prices were volatile and random. Further works on efficient 
+market hypothesis on normal markets had provided mixed inferences. The pre-opening 
+auction prices would follow random walk and could be consistent with the weak form of the 
+EMH (see Malkiel, 2003; Fama, 1991). There exist alternative methods to test for the weak 
+form of market efficiency (e.g., runs test, unit root test, etc.) on normal trading data. However, 
+the technique of Monte Carlo simulation (MC) were not used abundantly in field applications. 
+The MC method is more relevant today because of the uncertainty during the Covid period, 
+where high degree of te persisting decline happened to indices. Technical analysis could not 
+be relied on because of its strong demand on historical prices alone.  
+There are few questions examined here; how to use MC simulations to stock prices, how 
+accurate is MC method, how to improve the accuracy and reliability for the simulation of the 
+stock prices, respectively? Although, there are many ways of using MC simulation, this study 
+will concentrate on basic approaches with historical data as input parameters; how effectively 
+and efficiently the prediction may result in knowledge to benefit the investors? The results 
+could demonstrate a good case for the tests of RWH and objectively arriving at the pre-
+opening equilibrium prices. We would find that the stock prices were correlated among 
+themselves, which infers the weak form of efficiency. The contribution would lie in the 
+attempts using multi-variate log normal distribution to deduce prices with lower estimated 
+variance. The results have implications for making trade decisions and portfolio construction 
+during the Covid period. 
+The rest of the paper is divided into sections; Section 2 highlights the literature review; 
+Section 3 discusses the Hypotheses; Section 4 explains the methodology; Section 5 describes 
+the data; Section 6 describes the results of simulation. Lastly, Section 7 gives concluding 
+remarks. 
+ 
+2. Literature Review 
+Early discussions of the RWH quote Tversky and Kahneman (1974) who had suggested ‘the 
+rule of thumb’ in “decision making”. The thumb rule occurs when the current price levels 
+were used as “anchors” to arrive at future prices. Later, a growing body of literature paid 
+attention to application of RWH and its variants in testing forms of the EMH. Camerer (1990) 
+had examined price bubbles to distinguish rational response from irrational herd behaviour in 
+the market. Ariely et al. (2006) argued that the judgment approach led to biased response. 
+Few studies had devoted to comparing the results between ARIMA (time series) and MC 
+methods in models of stock price, real estate price, interest rate yield, derivative and option 
+prices, etc.  
+Table 1 summarizes a chronological account of relevant findings in the literature since 
+early period of 1973. It presents relevant source literature in the domain of objectively driven 
+synthesis on simulation based decision making since early period of 1973. As shown in Table 
+1, many authors have inferred RWH whereas, only a few have negated RWH. Few authors, 
+
+
+===== PAGE 3 =====
+Weak Form of Call Auction Prices: Simulation Using Monte Carlo Variants 
+61 
+ 
+Chang and Ting (2000), negated RWH by variance ratio tests of the Taiwan Stock Exchange 
+index. Lo and MacKinlay (1998) tested RWH using variance ratio and did not confirm it for 
+indices of for USA. The use of MC for auction prices were few. Specifically, the works of 
+Boyle (1977), Hoesli et al. (2005), Whiteside (2008), had been discussed in the literature. 
+Hoesli et al. (2005) applied MC simulation to derive and compare the Swiss real estate market 
+prices. Hoesli et al. (2005) detected the sensitivity of input parameters of MC. Whiteside 
+(2008) had confirmed that MC could be used to simulate conditional distribution in input 
+functions. The useful properties of MC were highlighted in applications of EMH, and RWH. 
+Cheung and Coutts (2001) demonstrated the weak form of Hang Seng index. Abraham et al. 
+(2002) tested RWH for Kuwait, Saudi Arabia and Bahrain markets. Buguk and Brorsen 
+(2003) found some evidence of weak form of the Istanbul exchange. Asiri (2008) confirmed 
+RWH for Bahrain stock prices. Erdos and Ormos (2010) inferred weak-form of the US 
+market. Okpara  (2010) inferred random walk in the Nigerian market. Alexeev and Tapon 
+(2011) demonstrated the weak-form efficiency for the Toronto Stock Exchange (TSX).  
+ 
+Table 1: Summary of simulations applications to stock prices 
+Source 
+Year 
+Global 
+Purpose 
+Inferences & limitations 
+Malkiel  
+1973 
+TSX 
+Weak form efficiency for stocks. 
+Weak form efficiency for 
+stocks. 
+Tversky and 
+Kahneman  
+1974 
+Theory 
+Psychological bias and heuristic 
+judgments in numeric “decision 
+making”.  
+Heuristic Judgments could 
+lead to strong bias and 
+systemic errors. 
+Boyle 
+1977 
+USA 
+MC simulation for option pricing. 
+MC can be used for 
+numerical forecasting of 
+European stock call 
+options that pay 
+dividends. 
+Camerer  
+1990 
+USA 
+Asset price bubbles. 
+Rational response is 
+distinguished from 
+irrational bias observed in 
+the market. 
+Lo and 
+MacKinlay 
+1998 
+USA 
+RWH random walk using 
+variance ratio. 
+Do not follow random 
+walks, simple 
+specification test. 
+Chang and 
+Ting  
+2000 
+Taiwan 
+RWH on variance ratio tests of 
+the stock index. 
+Negated RWH on 
+variance ratio tests of the 
+stock index. 
+Cheung and 
+Coutts  
+2001 
+Cross 
+Country 
+Weak-form efficiency. 
+Confirmed weak form 
+Abeysekera  
+2001 
+India 
+RWH for the Calcutta Stock 
+Exchange (CSE). 
+Negated RWH 
+Abraham et 
+al.  
+2002 
+Cross 
+Country 
+Variance ratio test to explore the 
+weak-form. 
+Confirmed weak form 
+Buguka and 
+Brorsen 
+2003 
+Turkey 
+RWH for stock prices. 
+Confirmed RWH for 
+stock prices 
+Jabbour and 
+Liu  
+2005 
+Hang Seng 
+MC simulation by the number of 
+simulations. 
+MC simulation is 
+increased by a larger 
+number of attempts in 
+simulations. 
+Hoesli et al. 
+2005 
+Theory 
+Monte Carlo simulation finds its 
+application in much wider areas  
+MC simulation can be 
+adopted for stocks 
+Ariely et al. 
+2006 
+USA 
+The judgment leads to bias and 
+errors carried over previous 
+prices. 
+Judgments are unreliable 
+
+
+===== PAGE 4 =====
+Dinabandhu Bag & Saurabh Goel 
+62 
+ 
+Table 1 (continued) 
+Source 
+Year 
+Global 
+Purpose 
+Inferences & limitations 
+Asiri  
+2008 
+Bahrain 
+Unit root test for RWH for BSE  
+Prices follow a random 
+walk, confirmed RWH for 
+stock prices 
+Whiteside  
+2008 
+Theoretical 
+conditional distribution in input 
+functions. 
+MC could be used to 
+simulate conditional 
+distribution in input 
+functions. 
+Charles and 
+Darne  
+2009 
+Shanghai 
+& Shenzhen 
+RWH. 
+RWH was rejected. 
+Farid et al. 
+2010 
+Tehran 
+Generated (VaR) with MC for 
+automobile stocks.  
+Suggested generating VaR 
+(value at risk) forecast 
+with MC  
+  
+Erdos and 
+Ormos  
+2010 
+USA 
+Tested weak-form of the US 
+market.  
+Confirmed weak form  
+Okpara  
+2010 
+Nigerian 
+RWH 
+Confirmed random walk 
+Gupta and 
+Siddiqui  
+2010 
+Teheran 
+RWH and used the Kolmogorov–
+Smirnov test (K–S) test.  
+did not exhibit a weak 
+form of market efficiency. 
+Alexeev and 
+Tapon  
+2011 
+Toronto 
+Demonstrated the weak-form 
+efficiency. 
+Confirmed weak-form 
+efficiency for the TSE 
+Landauskas 
+and 
+Valakevičius 
+2011 
+Compared standard MC 
+simulation with Markov chain 
+MC simulation (MCMC). 
+After 300 executed 
+trajectories, the average 
+stock price after 50 trades 
+was exactly the same.  
+Khan et al.  
+2011 
+India 
+Used the unit root test and the 
+GARCH model to test RWH for 
+BSE and NSE 
+Negated the presence of 
+RWH. 
+Khan and 
+Vieito  
+2012 
+Portuguese 
+Efficient market hypothesis. 
+Did not Infer RWH, 
+market was inefficient. 
+Pant and 
+Bishnoi  
+2012 
+India 
+Used unit root test, 
+autocorrelation and variance ratio 
+to NSE. 
+RWH was rejected.  
+Abidin and 
+Jaffar 
+2014 
+Malaysian 
+Implemented MC to Malaysian 
+stocks to find its acceptance. 
+MC is applicable to stocks  
+Kyng  and 
+Otto 
+2014 
+Europe 
+Multivariate normal Log- normal 
+distribution to European stock 
+options 
+Suggested multi-asset, 
+multi-period simulation to 
+arrive at the option price.  
+Mishra et al. 
+2015 
+India 
+RWH 
+Rejected the presence of 
+RWH. 
+Sonono and 
+Mashele  
+2015 
+South 
+Africa 
+Compared MC with the VG 
+(parametric) model in stock price 
+behaviour in terms of the hit 
+ratios applied to the JSE top 40 
+index. 
+GBM worked better than 
+the VG (parametric) 
+model in terms of the hit 
+ratios.  
+Reddy and 
+Clinton  
+2016 
+Australia 
+Deployed MC for multi-period 
+price samples of large stocks. 
+Inferred MC as a 
+promising technique for 
+simulation of prices.  
+Zhang  
+2020 
+Asia 
+Adopted MC for Asian option 
+prices 
+Derived higher accuracy 
+in a forecast of Asian 
+option prices using Monte 
+Carlo 
+Notes: Authors’ compilation from literature. 
+ 
+
+
+===== PAGE 5 =====
+Weak Form of Call Auction Prices: Simulation Using Monte Carlo Variants 
+63 
+ 
+However, the tests of RWH by using MC methods specific to call auction price were few. 
+In separate studies, Timothy and Otto (2014), had implemented multivariate distribution 
+model to European stock options to confirm their usability. Abidin and Jaffar (2014) had 
+implemented MC to Malaysian stocks to find its acceptance. Reddy and Clinton (2016) 
+deployed MC to Australian stocks to compare its accuracy over other methods. Boyle (1977) 
+presented the application of the MC to option pricing, who modelled underlying stock returns 
+as continuous and sudden processes. Jabbour and Liu (2005) found that MC simulation 
+accuracy improved with larger number of simulations. Landauskas and Valakevičius (2011) 
+compared standard MC simulation with Markov chain MC simulation (MCMC) on similar 
+trades. After 300 executed trajectories, Landauskas and Valakevičius (2011) found that the 
+average stock price of a sample of 50 trades were identical in both methods. Landauskas and 
+Valakevičius (2011) stated that more number of intervals used in sampling led to higher 
+forecast accuracy. Similarly, the specific tests of accepting RWH were also conducted by few 
+other authors, namely, Charles and Darne (2009) rejected RWH for the Shanghai and 
+Shenzhen markets. Khan and Vieito (2012) inferred that the Portuguese market was 
+inefficient. Sonono and Mashele (2015) showed that the GBM worked better than the VG 
+(parametric) model in stock price behaviour in terms of the hit ratios applied to JSE (South 
+Africa). Zhang (2020) adopted MC for Asian option prices, and, derived higher accuracy in 
+forecast of option prices using MC. Farid et al. (2010) suggested generating VaR (value at 
+risk) forecast with MC simulation for automobile stocks in Tehran. Khan et al. (2011) used 
+the unit root test and the GARCH model to test RWH for BSE and NSE in India. Gupta and 
+Siddiqui (2010) examined the RWH for the NSE indices in India and used the Kolmogorov–
+Smirnov test (K–S) test. The results did not exhibit a weak form of market efficiency. Pant 
+and Bishnoi (2012) used unit root test, autocorrelation and variance ratio tests to reject the 
+RWH for NSE. Mishra et al. (2015) conduct unit root tests on NSE indices and failed to 
+support RWH. Siddiqui and Patil (2017) also demonstrated that the MC were suited for many 
+Indian stock prices. 
+ 
+3. Hypotheses 
+As mentioned above, previous findings on RWH tests using methods other than MC based 
+were mixed in nature. Mishra et al (2015) tested RWH on NSE indices and failed to support 
+it. Gupta and Siddiqui (2010) examined the RWH for the NSE indices in India and could not 
+confirm the weak form of market efficiency. We therefore, proceed to test the following 
+hypotheses to characterize the behaviour of pre-opening equilibrium prices. 
+If the random walk hypothesis is rejected for pre-opening prices, it would imply that 
+historical prices are related to current prices.  
+ 
+H1: Call auction equilibrium prices follow random walk. 
+ 
+Alternatively, if prices exhibit pure randomness, one cannot foresee prices to his/her 
+benefit.  
+ 
+H2: The correlation between equilibrium prices today and the previous day are insignificant. 
+ 
+Alternatively, if prices exhibit pure randomness, there is no possibility of correlations 
+among stocks either.  
+ 
+H3: The correlation between the auction prices of different stocks is insignificant. 
+ 
+
+
+===== PAGE 6 =====
+Dinabandhu Bag & Saurabh Goel 
+64 
+ 
+If the MC method is an appropriate candidate for simulation, an appropriate distribution 
+exists to achieve accurate forecast prices.  
+ 
+H4: Multivariate lognormal distribution could provide higher accuracy than simple univariate 
+MC.  
+ 
+4. Methodology 
+The MC (Geometric Brownian Motion) with normal distribution is a case of dimension 
+independence. It differs from numerical analysis whose accuracy could fall with more number 
+of dimensions. The basic notion is that the future prices are conditionally independent of past 
+prices. The common geometric Brownian motion GBM is a Markov process is given as:  
+ 
+∆Pi,t / Pi,t = μ∆t + σε√∆t) 
+(1) 
+ 
+where "P" is the stock price, "μ" is the expected return, "σ" (Greek sigma) is the standard 
+deviation of returns, "t" is Time Step, and "ε " (Greek epsilon) is the random variable. 
+ 
+or ∆Pi,t = Pi,t ( μ∆t + σε√∆t ) 
+(2) 
+ 
+where, μ∆t is the drift, and σε√∆t is the shock. Price drifts up by the expected return for each 
+period. But the drift will be shocked (added or subtracted) by a random term. The stock price 
+follows increments where each increment is a drift plus/minus a random shock of the standard 
+deviation (σ). The residual between the log of Prices (ΔPt) in two consecutive periods are 
+given as: 
+ 
+εt = Log(Pt) – Log (P t-1) 
+(3) 
+ 
+The residuals “εt” represent the prediction error observed to analyze the weak form 
+hypothesis. Subsequently, the Multivariate Monte Carlo Simulation (MVMC) is described by 
+relaxing independence assumption, which takes into consideration the correlation between 
+prices. Suppose that X = (X1,..., Xn) is a random vector (natural log of equilibrium prices of 
+N stocks), then Σ, the covariance matrix of X, is the (n×n) matrix that has (i, j)th element given 
+by: 
+ 
+Σi,j (C)= Cov(Xi,Xj) 
+(4) 
+ 
+The Cholesky Decomposition of Covariance Matrix could reduce the Covariance Matrix 
+to a lower triangular matrix. The Cholesky Matrix is written as: 
+ 
+Σ = LDLT 
+(5) 
+ 
+where, L is a lower triangular matrix and D is a diagonal matrix with positive diagonal 
+elements. Since the variance-covariance (VACOV) matrix (Σ) is symmetric positive-deﬁnite, 
+we can therefore write: 
+ 
+Σ = LDLT = (L√D)(√DLT) = (√DLT)T(√DL) 
+(6) 
+ 
+where, the matrix C =√DLT satisﬁes: 
+ 
+CTC= Σ 
+(7) 
+
+
+===== PAGE 7 =====
+Weak Form of Call Auction Prices: Simulation Using Monte Carlo Variants 
+65 
+ 
+where C is the Cholesky Decomposition of Σ. We generate random prices by using a 
+multivariate lognormal random vector with mean µ and variance-covariance (VACOV) 
+matrix Σ’, which are passed as input: 
+ 
+X = (eY1,...,eYn) 
+(8) 
+ 
+where Y:= (Y1,...,Yn) ∼ MN(µ,Σ). Since, X = exp(Y), the natural log of prices, Ys are 
+generated. We proceed to implement the above methods to our test sample dataset. 
+ 
+5. Data 
+The sample comprises NSE 50 Index constituent stocks, which have a long history of trading. 
+The reason for picking NIFTY stocks is the availability of adequate historical data, greater 
+volume of transactions, and consistency as the elements of a popular index. Due to their larger 
+volumes, NIFTY stocks also attract greater institutional interest during the pre-market period. 
+The period of sampling days pertained to the year 2019. The equilibrium prices were collected 
+for consecutive 30 trading days. Each day, the data were collected only after NSE displayed 
+the equilibrium prices after 9.15AM, which is the closing time of pre-opening call.  
+The descriptive statistics of 50 NSE stocks are given in Table 2, which includes the 
+average equilibrium prices, Std. dev. of prices, average volume of trading, average value of 
+trading, and market capitalization, respectively. The standard deviation of prices varies from 
+0.82% to 3.53% in the sample. The volume of auctions during pre-market is related to the 
+market capitalization of stocks. There is no observed relationship between standard deviation 
+of prices and market capitalization. 
+ 
+6. Results 
+The test results against each hypothesis are described here. We proceed with the first 500 
+simple MC simulation trials. Later, we conduct 500 independent trials for multi-variate log 
+normal distribution. We calculate the t-values and compare the probability of significance for 
+99.99% confidence limits (95% confidence limit, tTABULATED = 1.6, and, 99.99% confidence 
+limit tTABULATED = 3.46).  
+For the correlation tests, we follow Ratner (2009) who suggests that the Pearson 
+coefficient higher than (≥) 0.3 is numerically significant. For the first hypothesis, for example, 
+for the ticker ACC as in Table 2, Average (εt) = -0.001; Standard Error (εt) = 0.00; 
+tCALCULATED=| -0.001/0.003| = 0.21. Since, tCALCULATED < tTABULATED, the null hypothesis 
+cannot be rejected. Therefore, auction prices follow a random distribution. We continue to 
+compute the Standard Error (εt) to infer insignificant tCALCULATED for similar other tickers 
+named in Table 1. The results are similar to those reported by Asiri (2008) and Okpara (2010). 
+We compute the correlation between each stock's residual errors (εt,εt-1) in the second 
+hypothesis separately. As in Table 2, for the first ticker ACC, ρt = -0.31. Since ρt > 0.3, it is 
+significant. Therefore, the null hypothesis cannot be rejected. We continue to compute the 
+correlation tests to infer significant tCALCULATED for similar other tickers named in Table 1. 
+The reported tests are similar to the findings of Reddy and Clinton (2016), who have also 
+reported a negative correlation (ρ) during short periods of simulation.  
+Towards the third hypotheses of correlations between any two stocks, we compute the 
+correlations (ρi,j) between the residual errors in the sample. As in Table 2, for example, 
+between the tickers ACC and Ambuja Cements, we find the correlation (ρi,j) equals 0.67.  
+Since ρi,j > 0.3, it is significant. Therefore, the null hypothesis cannot be rejected.  
+We continue to compute the correlation tests to infer significant tCALCULATED for similar 
+other tickers named in Table 1. These results are in line with the findings of Schwartz and 
+Whitcomb (1977) and Pant and Bishnoi (2012).  
+ 
+
+
+===== PAGE 8 =====
+Dinabandhu Bag & Saurabh Goel 
+66 
+ 
+Table 2: Descriptive statistics 
+No. Ticker 
+Average  
+price 
+(INR) 
+Std. dev.  
+of price 
+(INR) 
+Average 
+volume 
+(No) 
+Average 
+value 
+(INR 0.1 
+mil.) 
+Average 
+market 
+capitalization 
+(INR 10 mil.) 
+1 
+ACC CEMENT LTD 
+1,462.79 
+20.43 
+235.13 
+3.43 
+13,677 
+2 
+AMBUJA CEMENT LTD 
+221.18 
+3.10 
+2,020.50 
+4.46 
+16,906 
+3 
+ASIAN PAINTS LTD 
+572.21 
+13.51 
+864.63 
+4.91 
+25,796 
+4 
+AXIS BANK 
+1,887.73 
+37.78 
+1,019.13 
+19.14 
+62,290 
+5 
+BAJAJ AUTO LTD 
+2,217.08 
+57.53 
+306.00 
+6.93 
+29,615 
+6 
+BANK OF BARODA 
+855.07 
+16.57 
+1,575.13 
+13.43 
+15,980 
+7 
+BHARTI AIRTEL 
+338.84 
+2.77 
+3,413.13 
+11.57 
+40,110 
+8 
+BHEL ELECTRICAL LTD 
+245.49 
+5.58 
+9,118.63 
+22.28 
+22,089 
+9 
+BPCL PETROLEUM LTD 
+572.02 
+15.81 
+3,434.75 
+19.64 
+14,805 
+10 
+CAIRN ENERGY 
+371.29 
+4.12 
+2,078.25 
+7.73 
+21,771 
+11 
+CIPLA LTD 
+425.60 
+4.51 
+2,075.88 
+8.85 
+21,531 
+12 
+COAL INDIA LTD 
+391.07 
+6.51 
+5,108.88 
+19.90 
+25,518 
+13 
+DLF ESTATES 
+212.71 
+6.53 
+10,258.50 21.73 
+9,410 
+14 
+DR.REDDY’S PHARMA 
+2,455.15 
+32.36 
+254.63 
+6.20 
+31,135 
+15 
+GAIL LTD 
+448.32 
+11.11 
+2,279.13 
+10.36 
+20,837 
+16 
+GRASIM LTD 
+3,508.21 
+53.58 
+70.50 
+2.48 
+22,281 
+17 
+HCLTECH 
+1,426.69 
+18.19 
+672.63 
+9.61 
+38,473 
+18 
+HDFC LTD 
+979.43 
+13.94 
+1,566.13 
+15.52 
+153,225 
+19 
+HDFC BANK 
+827.91 
+8.73 
+2,206.50 
+18.19 
+153,052 
+20 
+HEROMOTO CORP 
+2,606.00 
+70.36 
+6,516.38 
+176.97 
+31,026 
+21 
+HINDALCO 
+166.69 
+1.85 
+5,565.88 
+9.30 
+21,305 
+22 
+HINDUSTAN UNILEVER 
+622.26 
+5.50 
+717.25 
+4.48 
+44,130 
+23 
+ICICI BANK LTD 
+1,425.09 
+19.47 
+2,299.75 
+32.75 
+163,445 
+24 
+IDFC LTD 
+129.02 
+1.41 
+10,658.88 13.70 
+16,112 
+25 
+INDUSIND BANK 
+563.00 
+11.42 
+537.63 
+3.04 
+24,407 
+26 
+INFOSYS LTD 
+3,243.67 
+45.83 
+1,604.00 
+52.07 
+156,655 
+27 
+ITC LTD 
+326.16 
+10.40 
+20,984.13 67.04 
+180,026 
+28 
+JINDAL STEEL LTD 
+326.20 
+7.16 
+1,643.25 
+5.36 
+11,703 
+29 
+KOTAK BANK 
+911.73 
+30.28 
+1,059.75 
+9.60 
+34,695 
+30 
+L & T LTD 
+1,675.26 
+21.81 
+2,385.13 
+40.20 
+135,366 
+31 
+LUPIN PHARMA 
+1,011.56 
+13.26 
+326.63 
+3.30 
+24,070 
+32 
+M &M LTD 
+1,177.71 
+25.65 
+1,661.38 
+19.60 
+54,110 
+33 
+MARUTI LTD 
+2,431.41 
+48.38 
+776.63 
+19.01 
+32,047 
+34 
+MCDOWELLS BEVERAGES 
+2,650.45 
+93.69 
+626.88 
+16.19 
+20,607 
+35 
+NMDC MINERALS LTD 
+178.96 
+4.36 
+2,552.25 
+4.52 
+14,091 
+36 
+NTPC POWER LTD 
+154.34 
+3.33 
+6,742.13 
+10.42 
+31,598 
+37 
+ONGC GAS LTD 
+428.65 
+12.16 
+24,910.38 106.29 
+76,760 
+38 
+PNB BANK  
+967.57 
+10.85 
+518.75 
+5.02 
+14,352 
+39 
+POWERGRID CORP OF INDIA 133.28 
+1.78 
+5,026.38 
+6.69 
+29,209 
+40 
+RELIANCE INDUSTRIES 
+1,049.36 
+28.28 
+10,936.63 113.33 
+171,092 
+41 
+SBI BANK OF INDIA 
+2,645.71 
+45.73 
+1,502.38 
+39.73 
+81,454 
+42 
+SS SESA STERLITE LIMITED 295.37 
+2.93 
+6,065.00 
+17.93 
+36,431 
+43 
+SUNPHARMA LTD 
+634.98 
+7.83 
+3,859.50 
+24.94 
+47,671 
+44 
+TATAMOTORS LTD 
+440.10 
+4.94 
+6,225.00 
+420.28 
+78,855 
+45 
+TATAPOWER LTD 
+104.21 
+1.98 
+5,527.25 
+5.74 
+18,782 
+46 
+TATASTEEL LTD 
+529.34 
+9.19 
+4,938.38 
+26.15 
+35,010 
+47 
+TCS SOFTWARE LTD 
+2,279.74 
+31.85 
+655.00 
+14.94 
+117,556 
+48 
+TECH MAHNIDRA LTD 
+2,012.53 
+18.45 
+1,524.50 
+30.69 
+30,042 
+49 
+ULTRA CEMENT CO  
+2,738.54 
+36.64 
+95.88 
+2.64 
+27,990 
+50 
+WIPRO 
+533.87 
+4.38 
+917.00 
+4.90 
+34,884 
+Notes: National Stock Exchange of India (2019) 
+ 
+In continuation, using simple MC, Table 3 produces the summary statistics of simple 
+univariate MC simulation on the sample of 50 stocks. 
+
+
+===== PAGE 9 =====
+Weak Form of Call Auction Prices: Simulation Using Monte Carlo Variants 
+67 
+ 
+ 
+Table 3: Univariate log-normal MC simulation of 100 trials 
+No. 
+Stock Name 
+Mean 
+Median 
+Std 
+dev 
+Co-
+efficient 
+of 
+variation 
+Min 
+Max 
+1 
+ACC CEMENT LTD 
+1469.75 
+1467.32 
+6.75 
+0.46% 
+1459.53 
+1482.76 
+2 
+AMBUJA CEMENT LTD 
+226.91 
+227.08 
+0.63 
+0.28% 
+225.58 
+227.84 
+3 
+ASIAN PAINTS LTD 
+551.61 
+551.32 
+1.40 
+0.25% 
+549.40 
+555.35 
+4 
+AXIS BANK 
+1879.19 
+1882.85 
+13.94 
+0.74% 
+1853.48 
+1898.72 
+5 
+BAJAJ AUTO LTD 
+2133.31 
+2141.20 
+17.65 
+0.83% 
+1758.70 
+2608.91 
+6 
+BANK OF BARODA 
+869.60 
+869.35 
+3.99 
+0.46% 
+861.92 
+877.28 
+7 
+BHARTI AIRTEL 
+340.83 
+340.94 
+1.23 
+0.36% 
+337.94 
+342.92 
+8 
+BHEL ELECTRICAL LTD 
+245.98 
+246.44 
+1.39 
+0.57% 
+242.51 
+247.99 
+9 
+BPCL PETROLEUM LTD 
+596.68 
+595.38 
+3.65 
+0.61% 
+591.25 
+606.02 
+10 
+CAIRN ENERGY 
+377.08 
+376.78 
+1.07 
+0.28% 
+375.48 
+379.29 
+11 
+CIPLA LTD 
+418.36 
+418.37 
+1.15 
+0.27% 
+414.99 
+420.24 
+12 
+COAL INDIA LTD 
+394.31 
+393.60 
+2.33 
+0.59% 
+390.28 
+398.69 
+13 
+DLF ESTATES 
+229.33 
+229.33 
+1.64 
+0.72% 
+225.26 
+233.13 
+14 
+DR. REDDY’S PHARMA 
+2431.52 
+2432.36 
+3.59 
+0.15% 
+2422.99 
+2436.96 
+15 
+GAIL LTD 
+438.20 
+439.35 
+6.24 
+1.42% 
+426.62 
+447.57 
+16 
+GRASIM LTD 
+3600.88 
+3604.80 
+7.66 
+0.21% 
+3580.02 
+3611.85 
+17 
+HCLTECH 
+1401.14 
+1401.39 
+3.46 
+0.25% 
+1393.34 
+1408.12 
+18 
+HDFC LTD 
+979.38 
+978.82 
+3.36 
+0.34% 
+973.17 
+986.80 
+19 
+HDFC BANK 
+842.44 
+842.49 
+0.82 
+0.10% 
+840.82 
+844.79 
+20 
+HEROMOTO CORP 
+2728.85 
+2726.42 
+22.19 
+0.81% 
+2680.64 
+2766.53 
+21 
+HINDALCO 
+167.40 
+167.12 
+0.96 
+0.57% 
+165.80 
+169.57 
+22 
+HINDUSTAN UNILEVER 
+629.61 
+629.54 
+1.52 
+0.24% 
+626.79 
+632.80 
+23 
+ICICI BANK LTD 
+1456.50 
+1457.12 
+5.96 
+0.41% 
+1445.34 
+1466.71 
+24 
+IDFC LTD 
+131.77 
+131.76 
+0.25 
+0.19% 
+131.25 
+132.37 
+25 
+INDUSIND BANK 
+553.34 
+553.75 
+1.84 
+0.33% 
+549.20 
+556.79 
+26 
+INFOSYS LTD 
+3193.93 
+3193.28 
+9.51 
+0.30% 
+3174.75 
+3216.85 
+27 
+ITC LTD 
+337.70 
+337.54 
+0.92 
+0.27% 
+335.66 
+340.15 
+28 
+JINDAL STEEL LTD 
+342.07 
+342.95 
+3.12 
+0.91% 
+335.59 
+348.04 
+29 
+KOTAK BANK 
+929.35 
+929.24 
+4.96 
+0.53% 
+918.91 
+938.95 
+30 
+L & T LTD 
+1722.42 
+1722.49 
+8.11 
+0.47% 
+1700.97 
+1737.62 
+31 
+LUPIN PHARMA 
+987.87 
+987.90 
+2.26 
+0.23% 
+983.38 
+992.32 
+32 
+M &M LTD 
+1230.49 
+1230.30 
+3.11 
+0.25% 
+1223.93 
+1238.17 
+33 
+MARUTI LTD 
+2515.63 
+2511.06 
+17.68 
+0.70% 
+2482.82 
+2546.98 
+34 
+MCDOWELLS BEVERAGES 
+2779.87 
+2780.90 
+29.57 
+1.06% 
+2721.64 
+2844.93 
+35 
+NMDC MINERALS LTD 
+188.46 
+188.42 
+1.61 
+0.85% 
+185.59 
+191.60 
+36 
+NTPC POWER LTD 
+161.42 
+161.32 
+0.43 
+0.27% 
+160.61 
+162.45 
+37 
+ONGC GAS LTD 
+439.97 
+441.58 
+4.60 
+1.05% 
+428.53 
+445.70 
+38 
+PNB BANK  
+979.77 
+979.87 
+1.42 
+0.14% 
+976.65 
+982.04 
+39 
+POWERGRID CORP OF INDIA 
+137.93 
+138.03 
+0.49 
+0.36% 
+137.00 
+138.85 
+40 
+RELIANCE INDUSTRIES 
+1091.82 
+1091.48 
+6.42 
+0.59% 
+1081.65 
+1102.26 
+41 
+SBI BANK OF INDIA 
+2696.16 
+2697.89 
+11.29 
+0.42% 
+2674.44 
+2713.64 
+42 
+SS SESA STERLITE LIMITED 
+295.88 
+295.48 
+1.55 
+0.52% 
+293.25 
+299.22 
+43 
+SUNPHARMA LTD 
+630.34 
+630.18 
+1.35 
+0.21% 
+627.65 
+633.27 
+44 
+TATAMOTORS LTD 
+448.33 
+448.28 
+1.14 
+0.25% 
+445.83 
+450.65 
+45 
+TATAPOWER LTD 
+107.21 
+107.04 
+0.55 
+0.51% 
+106.45 
+108.35 
+46 
+TATASTEEL LTD 
+543.11 
+543.21 
+5.41 
+1.00% 
+532.36 
+550.62 
+47 
+TCS SOFTWARE LTD 
+2246.14 
+2244.44 
+6.14 
+0.27% 
+2235.29 
+2260.83 
+48 
+TECH MAHNIDRA LTD 
+1985.22 
+1985.87 
+5.14 
+0.26% 
+1974.18 
+1992.67 
+49 
+ULTRA CEMENT CO LTD 
+2775.71 
+2776.64 
+7.28 
+0.26% 
+2755.85 
+2787.22 
+50 
+WIPRO LTD 
+530.79 
+530.96 
+1.41 
+0.27% 
+527.64 
+533.33 
+Notes: National Stock Exchange of India (2019) 
+ 
+Table 3 shows the higher deviation between historical volatility and estimates, displaying 
+the nature of a karyolitic curve. As shown in Table 2, the standard deviation of prices varied 
+from 0.82% to 3.53%. However, in simulated output, the standard deviation estimates vary 
+
+
+===== PAGE 10 =====
+Dinabandhu Bag & Saurabh Goel 
+68 
+ 
+from 0.1% to 1.42%, which have fallen, by about 3/4th of the actual variance. This implies 
+univariate MC simulation cannot be accepted for field use and prediction. Therefore, simple 
+MC generates prices which are not close to the actual.  
+In continuation, towards the fourth hypothesis Table 4 shows the summary statistics of 
+multivariate MC simulation on the sample of 50 stocks. 
+The standard deviation varies between 0.68% to 3.33%, which is closer to the historical 
+variation between 0.82% to 3.53%, in descriptive statistics in Table 2. Therefore, we cannot 
+reject the null hypothesis which is the fourth hypothesis. This is in consonance with the 
+findings of Milevsky and Posner (1998). In contrast Clewlow and Strickland (1998), and Hull 
+and White (2012) had mentioned that MC generated higher sample variances and unsuitable, 
+we found multi-variate that reduces the variance. 
+Overall, the findings are consistent with the weak form of the EMH. The implications of 
+these findings are important to portfolio managers and investors. Since the simulated prices 
+vary within reasonable limit, they can be used as forecast prices. The prediction may result in 
+knowledge to benefit the investors. The novelty of this research stems from the lack of an 
+exact current method that either use semi-parametric or time series techniques to price 
+behaviour. The MC method can potentially become an effective tool to predict and model 
+stock prices. MC simulation has advantages over time series based ARIMA models (Abidin 
+and Jaffar, 2012). Although it is often highlighted that when the number of variables are 
+many in the dataset, PDE (Partial Differential Equations), numerical techniques (or finite 
+difference methods) are less practical. Hence, the Monte-Carlo method provides an effective 
+approach for complex situations such as multi-dimensionality. 
+ 
+7. Conclusions 
+This paper investigated the mechanism of price discovery in pre-opening call auctions. The 
+pre-opening auction is an extremely short duration auction where traders are interested in a 
+limited number of large-cap stocks. This study examined weak-form efficiency for companies 
+listed in NSE50. By generating a 50 X 50 covariance matrix of prices and solving for 
+Cholesky roots, the results were compared with lognormal multivariate MC simulation to 
+explore the estimates of volatility. We found that the stock prices were correlated among 
+themselves, which infers the weak form of efficiency for pre-market auction prices.  
+The difference in the results of this study lies in the unique approach of choosing multi-
+variate log normal distribution to produce a lower estimated variance. The weak-form 
+efficiency is observed using MC evaluation. Monte Carlo method (MC) was not used 
+abundantly in field applications. The prediction may result in knowledge to benefit the 
+investors. This method is more relevant today because of the uncertainty during the Covid 
+period. 
+There are few limitations in the use of Multivariate lognormal distribution. MC model rely 
+on the assumption of normality of returns. The other limitation is it does not provide 
+comparative analysis against other predictive methods like Martingale. Since the long-run 
+estimates of variances may not remain stable, MC is only suitable for short-run price forecasts. 
+Further works must conduct add more relevant economic factors to improve the performance 
+of MC simulations. Further research may explore innovative variants of Monte Carlo methods 
+to be applied to stock prices, or indices. Lastly, portfolio-level tests of pre-market auction 
+prices, and long-run historical simulation would be beneficial to develop robust trade 
+strategies. 
+ 
+ 
+ 
+ 
+
+
+===== PAGE 11 =====
+Weak Form of Call Auction Prices: Simulation Using Monte Carlo Variants 
+69 
+ 
+Table 4: Multivariate log-normal MC simulation 
+No. 
+Stock Name 
+Mean 
+Median 
+Std. 
+Dev. 
+Coefficient 
+of 
+variation 
+Min 
+Max 
+1 
+ACC CEMENT LTD 
+1468.76 
+1470.41 
+20.84 
+1.42% 
+1426.00 
+1515.35 
+2 
+AMBUJA CEMENT LTD 
+224.63 
+224.61 
+3.37 
+1.50% 
+216.22 
+231.92 
+3 
+ASIAN PAINTS LTD 
+553.97 
+553.16 
+13.64 
+2.46% 
+522.06 
+584.17 
+4 
+AXIS BANK 
+1903.28 
+1900.67 
+34.19 
+1.80% 
+1827.28 
+1984.57 
+5 
+BAJAJ AUTO LTD 
+2208.90 
+2206.94 
+51.96 
+2.35% 
+2059.39 
+2337.87 
+6 
+BANK OFBARODA 
+871.74 
+871.61 
+17.71 
+2.03% 
+832.16 
+914.83 
+7 
+BHARTI AIRTEL 
+342.23 
+341.90 
+3.03 
+0.89% 
+336.82 
+350.96 
+8 
+BHEL ELECTRICAL LTD 
+245.85 
+245.69 
+4.88 
+1.98% 
+235.72 
+257.47 
+9 
+BPCL PETROLEUM LTD 
+595.58 
+593.84 
+15.89 
+2.67% 
+562.97 
+630.90 
+10 
+CAIRN ENERGY 
+374.43 
+374.94 
+4.31 
+1.15% 
+364.30 
+383.93 
+11 
+CIPLA LTD 
+415.75 
+415.98 
+4.49 
+1.08% 
+401.73 
+423.01 
+12 
+COAL INDIA LTD 
+397.21 
+396.98 
+7.02 
+1.77% 
+381.21 
+414.95 
+13 
+DLF ESTATES 
+222.22 
+222.30 
+6.61 
+2.97% 
+205.61 
+238.33 
+14 
+DR.REDDY’S PHARMA 
+2441.69 
+2440.68 
+35.85 
+1.47% 
+2359.94 
+2520.39 
+15 
+GAIL LTD 
+435.56 
+436.33 
+10.34 
+2.37% 
+415.55 
+461.23 
+16 
+GRASIM LTD 
+3558.14 
+3554.09 
+53.48 
+1.50% 
+3430.47 
+3685.17 
+17 
+HCLTECH 
+1412.63 
+1415.42 
+16.68 
+1.18% 
+1368.06 
+1443.11 
+18 
+HDFC LTD 
+979.86 
+980.37 
+14.86 
+1.52% 
+928.37 
+1023.40 
+19 
+HDFC BANK 
+839.46 
+838.86 
+9.00 
+1.07% 
+819.48 
+861.26 
+20 
+HEROMOTO CORP 
+2707.60 
+2704.30 
+68.66 
+2.54% 
+2563.34 
+2874.28 
+21 
+HINDALCO 
+168.54 
+168.73 
+1.93 
+1.15% 
+163.61 
+173.08 
+22 
+HINDUSTAN UNILEVER 
+628.82 
+628.59 
+6.03 
+0.96% 
+614.78 
+644.07 
+23 
+ICICI BANK LTD 
+1452.15 
+1455.39 
+19.40 
+1.34% 
+1402.28 
+1498.70 
+24 
+IDFC LTD 
+130.81 
+130.82 
+1.40 
+1.07% 
+127.55 
+133.99 
+25 
+INDUSIND BANK 
+558.32 
+557.64 
+11.51 
+2.06% 
+534.11 
+593.52 
+26 
+INFOSYS LTD 
+3193.89 
+3196.99 
+41.74 
+1.31% 
+3097.05 
+3281.43 
+27 
+ITC LTD 
+334.08 
+334.43 
+10.67 
+3.19% 
+305.80 
+364.26 
+28 
+JINDAL STEEL LTD 
+334.95 
+334.91 
+6.87 
+2.05% 
+321.03 
+350.38 
+29 
+KOTAK BANK 
+926.97 
+930.32 
+30.90 
+3.33% 
+846.97 
+1019.43 
+30 
+L & T LTD 
+1719.53 
+1720.30 
+19.79 
+1.15% 
+1676.22 
+1766.13 
+31 
+LUPIN PHARMA 
+995.99 
+994.61 
+10.78 
+1.08% 
+973.10 
+1022.31 
+32 
+M &M LTD 
+1225.90 
+1224.77 
+27.78 
+2.27% 
+1149.53 
+1307.68 
+33 
+MARUTI LTD 
+2480.85 
+2483.25 
+46.07 
+1.86% 
+2379.03 
+2575.97 
+34 
+MCDOWELLS BEVERAGES 
+2732.75 
+2728.40 
+87.37 
+3.20% 
+2509.99 
+2953.02 
+35 
+NMDC MINERALS LTD 
+185.46 
+185.56 
+4.19 
+2.26% 
+174.86 
+195.43 
+36 
+NTPC POWER LTD 
+159.61 
+160.18 
+3.20 
+2.00% 
+151.78 
+166.50 
+37 
+ONGC GAS LTD 
+430.00 
+430.22 
+9.69 
+2.25% 
+408.06 
+455.38 
+38 
+PNB BANK  
+978.53 
+978.61 
+12.05 
+1.23% 
+950.15 
+1010.41 
+39 
+POWERGRID CORP OF INDIA 
+136.48 
+136.43 
+1.61 
+1.18% 
+132.66 
+140.03 
+40 
+RELIANCE INDUSTRIES 
+1088.85 
+1086.04 
+28.34 
+2.60% 
+1027.22 
+1178.81 
+41 
+SBI BANK OF INDIA 
+2699.76 
+2698.52 
+45.65 
+1.69% 
+2571.39 
+2843.33 
+42 
+SESA STERLITE LIMITED 
+293.04 
+292.82 
+2.53 
+0.86% 
+287.69 
+301.28 
+43 
+SUNPHARMA LTD 
+634.31 
+634.05 
+6.77 
+1.07% 
+612.28 
+648.44 
+44 
+TATAMOTORS LTD 
+447.83 
+448.35 
+4.64 
+1.04% 
+435.08 
+456.17 
+45 
+TATAPOWER LTD 
+107.53 
+107.59 
+2.14 
+1.99% 
+101.48 
+112.53 
+46 
+TATASTEEL LTD 
+545.38 
+545.88 
+8.95 
+1.64% 
+522.73 
+565.68 
+47 
+TCS SOFTWARE LTD 
+2246.90 
+2248.49 
+28.59 
+1.27% 
+2167.87 
+2316.08 
+48 
+TECH MAHNIDRA LTD 
+1999.87 
+1999.21 
+14.58 
+0.73% 
+1969.43 
+2046.53 
+49 
+ULTRA CEMENT CO LTD 
+2752.81 
+2756.75 
+36.35 
+1.32% 
+2654.09 
+2855.53 
+50 
+WIPRO LTD 
+532.82 
+532.85 
+3.63 
+0.68% 
+524.64 
+544.58 
+Notes: National Stock Exchange of India (2019) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGE 12 =====
+Dinabandhu Bag & Saurabh Goel 
+70 
+ 
+References 
+Abeysekera, S. P. (2001). Efficient markets hypothesis and the emerging capital market in Sri Lanka: 
+Evidence from the Colombo Stock Exchange–A note. Journal of Business Finance & Accounting, 
+28(1‐2), 249–261. 
+Abidin, S. N. Z., & Jaffar, M. M. (2012). A review on Geometric Brownian Motion in forecasting the 
+share prices in Bursa Malaysia. World Applied Sciences Journal, 17, 87–93. 
+Abraham, A., Seyyed, F. J., & Alsakran, S. A. (2002). Testing the random walk behavior and efficiency 
+of the Gulf stock markets. Financial Review, 37(3), 469–480. 
+Alexeev, V. & Tapon, F. (2011). Testing weak form efficiency on the Toronto Stock Exchange. Journal 
+of Empirical Finance, 18(4), 661-691. 
+Ariely, D., Loewenstein, G., & Prelec, D. (2006). Tom Sawyer and the construction of value. Journal 
+of Economic Behavior and Organization, 60(1), 1-10. 
+Asiri, B. (2008). Testing weak-form efficiency in the Bahrain stock market. International Journal of 
+Emerging Markets, 3(1), 38-53. 
+Boyle, P. P. (1977). Options: A Monte Carlo approach. Journal of Financial Economics, 4(3), 323–338. 
+Buguk, C. & Brorsen, B. W. (2003). Testing weak-form market efficiency: Evidence from the Istanbul 
+Stock Exchange. International Review of Financial Analysis, 12(5), 579–590.  
+Camerer, C. (1990). Do markets correct biases in probability judgment? Evidence from market 
+experiments. In L. Green & J. Kagel (Eds.), Advances in Behavioral Economics (Vol. 2, pp. 125–
+172). Ablex Publishing. 
+Chang, K. P., & Ting, K. S. (2000). A variance ratio test of the random walk hypothesis for Taiwan's 
+stock market. Applied Financial Economics, 10(5), 525–532. 
+Charles, A. & Darné, O. (2009). The random walk hypothesis for Chinese stock markets: Evidence from 
+variance ratio tests. Economic Systems, 33(2), 117–126. 
+Cheung, K. C., & Coutts, J. A. (2001). A note on weak form market efficiency in security prices: 
+Evidence from the Hong Kong stock exchange. Applied Economics Letters, 8(6), 407–410. 
+Clewlow, L., & Strickland, C. (1998). Implementing derivatives models. John Wiley & Son Ltd. 
+Erdos, P., & Ormos, M. (2010). Random walk theory and the weak-form efficiency of the US art auction 
+prices. Journal of Banking and Finance, 34(5), 1062–1076. 
+Fama, E. F. (1991). Efficient capital markets: II. The Journal of Finance, 46(5), 1575–1617. 
+Farid, D., Rajabipoor M. A., & Heydar M. S. (2010). Investment risk management in Tehran Stock 
+Exchange (TSE) using technique of Monte Carlo Simulation (MCS). Journal of Financial Crime, 
+17(2), 265-278. 
+Gupta, P. K., & Siddiqui S. (2010, October). Weak form of market efficiency: Evidences from selected 
+NSE indices (SSRN Working Paper No. 1355103).  http://ssrn.com/abstract=1355103 
+Hoesli, M., Jani, E., & Bender, A. (2005, June). Monte Carlo simulations for real estate valuation 
+(FAME Research Paper N148). https://core.ac.uk/download/pdf/7183128.pdf 
+Hull, J., & White, A. (2012). CVA and wrong way risk. Financial Analysts Journal, 68(5), 58–69. 
+Jabbour, G. M., & Liu Y. (2005). Option pricing and Monte Carlo simulations. Journal of Business and 
+Economics Research, 3(9), 1–6.  
+Khan, A. Q., Ikram, S., & Mehtab, M. (2011). Testing weak form market efficiency of Indian capital 
+market: A case of National Stock Exchange (NSE) and Bombay Stock Exchange (BSE). African 
+Journal of Marketing Management, 3(6), 115–127. 
+Khan, W., & Vieito, J. P. (2012). Stock exchange mergers and weak form of market efficiency: The 
+case of Euronext Lisbon. International Review of Economics and Finance, 22(1), 173-189. 
+Kyng, T. J., & Otto, K. (2014). Multivariate Monte-Carlo simulation and economic valuation of 
+complex financial contracts: An excel based implementation. Spreadsheets in Education, 7(2), 1-
+38. 
+Landauskas, M., & Valakevičius, E. (2011). Modelling of stock prices by the Markov Chain Montecarlo 
+method. Intellectual Economics, 5(20), 244–256. 
+Lo, A. W., & MacKinlay, A. C. (1998). Stock market prices do not follow random walks: Evidence 
+from a simple specification test. The Review of Financial Studies, 1(1), 41–66. 
+Malkiel, B. G. (2003). The efficient market hypothesis and its critics. Journal of Economic Perspectives, 
+17(1), 59–82. 
+Milevsky, M. A., & Posner, S. E. (1998). Asian options, the sum of lognormals, and the reciprocal 
+gamma distribution. Journal of Financial and Quantitative Analysis, 33(3), 409–422. 
+
+
+===== PAGE 13 =====
+Weak Form of Call Auction Prices: Simulation Using Monte Carlo Variants 
+71 
+ 
+Mishra, A., Mishra, V. & Smyth, R. (2015). The random-walk hypothesis on the Indian stock 
+market. Emerging Markets Finance and Trade, 51(5), 879–892. 
+National Stock Exchange of India (2019). NSE Data Archives. Retrieved December 31, 2019 from 
+https:www.nseindia.com 
+Okpara, G. C. (2010). Analysis of weak-form efficiency on the Nigerian stock market: Further evidence 
+from GARCH Model. The International Journal of Applied Economics and Finance, 4(2), 62–66. 
+Pant B., & Bishnoi T. R. (2012). Testing random walk hypothesis for Indian stock market indices. 
+http://utiicm.com/Cmc/PDFs/2002/bhanu_pant.pdf 
+Ratner, B. (2009). The correlation coefficient: Its values range between +1/−1, or do they? Journal of 
+Targeting, Measurement and Analysis for Marketing, 17, 139–142. 
+Reddy, K., & Clinton, V. (2016). Simulating stock prices using geometric brownian motion: Evidence 
+from Australian companies. Australasian Accounting, Business and Finance Journal, 10(3), 23–47. 
+Schwartz, R. A., & Whitcomb, D. K. (1977). Evidence on the presence and causes of serial correlation 
+in market model residuals. Journal of Financial and Quantitative Analysis, 12(2), 291–313. 
+Shiller, R. J. (1981). Do stock prices move too much to be justified by subsequent changes in dividends? 
+The American Economic Review, 71(3), 421–436. 
+Siddiqui, S. S., & Patil, V. A. (2017). Proposed system for estimating intrinsic value of stock using 
+Monte Carlo simulation. International Conference on Intelligent Computing and Control Systems, 
+723–729. 
+Sonono, M. E., & Mashele H. P. (2015). Prediction of stock price movement using continuous time 
+models. Journal of Mathematical Finance, 5(2), 178–191. 
+Tversky, A., & Kahneman, D. (1974). Judgment under uncertainty: Heuristics and biases, Science, 
+185(4157), 1124–1131. 
+Whiteside, J. D. (2008). A practical application of Monte Carlo simulation in forecasting. AACE 
+International Transactions, EST.04. 
+Zhang Y. (2020). The value of Monte Carlo model-based variance reduction technology in the pricing 
+of financial derivatives. PLoS ONE 15(2): e0229737. 
+ 
