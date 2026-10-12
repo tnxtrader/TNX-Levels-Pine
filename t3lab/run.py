@@ -33,7 +33,7 @@ def verify():
     reg = pd.read_csv(HERE / cfg0["registry"])
     planted = [dict(candidate_id=f"PLANTED_{s.upper()}", family="STRUCTURE_BREAKOUT", trigger="DONCHIAN_20", filter="NONE",
                     side=s, t3_length=None, t3_vf=None) for s in ("long", "short")]
-    sub = pd.concat([reg.sample(60, random_state=1), pd.DataFrame(planted)], ignore_index=True)
+    sub = pd.concat([reg.sample(min(60, len(reg)), random_state=1), pd.DataFrame(planted)], ignore_index=True)
     results = {}
     for name, plant in (("noise", 0.0), ("planted", 0.1)):
         base = HERE / "verify" / name

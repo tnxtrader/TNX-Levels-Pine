@@ -41,8 +41,8 @@ def market(ctx, sym, upto="val"):
         df = df[df["seg"] != "test"].reset_index(drop=True)
     cs = ctx.cfg["session"]
     sl, rl = core.last_index_arrays(df, core.tradable_mask(df, cs["start_hour"], cs["bar_minutes"], ctx.cfg.get("flat_by")))
-    b = core.Bars(df, ctx.cfg["atr_len"])
     i = ctx.ins(sym)
+    b = core.Bars(df, ctx.cfg["atr_len"], i.get("rth_open", "08:30"), i.get("rth_close", "15:00"), cs["bar_minutes"])
     m = Market(b, sl, rl, i["tick"], i["cost_ticks_rt"], i["stop_slip_ticks"], ctx.cfg["intrabar"] == "pessimistic")
     seg, sess = {}, df["sess"].to_numpy()
     for name in ("dev", "val", "test"):
@@ -60,6 +60,10 @@ def with_params(rec, L, V):
     if r["uses_t3"]:
         r["t3_length"], r["t3_vf"] = L, V
     return r
+
+def screen_bars(rec, default):
+    v = rec.get("screen_bars") if hasattr(rec, "get") else None
+    return int(v) if v is not None and v == v else int(default)
 
 def load_registry(ctx):
     return pd.read_csv(ctx.out / "P1" / "registry.csv")
@@ -228,31 +232,32 @@ def P2(ctx):
     r = Report(ctx.out, "P2", "Screen: edge before costs, then after costs (Dev)")
     reg = load_registry(ctx); recs = reg.to_dict("records")
     r.add("did", f"All {len(recs)} candidates x {len(ctx.syms)} instruments = {len(recs) * len(ctx.syms)} units on Dev with one "
-                 f"screen exit for every unit (pure time exit after {H} bars). Layer A, edge before costs: gross R per trade "
-                 "minus the drift baseline (the gross R of the same exit entered after every eligible bar of Dev, same side), its "
+                 f"screen exit for every unit (pure time exit after the row's screen_bars, default {H}; 48 = held until the flat-by time). Layer A, edge before costs: gross R per trade "
+                 "minus the drift baseline (the gross R of the same exit entered after every eligible Dev bar at the same time of day, "
+                 "same side), its "
                  "Newey-West t on the per-session series, Benjamini-Hochberg over all units, edge ratio (mean MFE / mean MAE in "
                  "ATR) and persistence across the Dev blocks. Layer B, after costs: net R per trade and its Newey-West t. Per "
                  "instrument, on the net per-session series: K_eff (effective number of independent units), the spread of SR across "
                  "units, Hansen SPA p, PBO.")
     r.add("tried", f"{len(recs) * len(ctx.syms)} units, one exit. Every unit counts as a trial.")
-    rows, uni, entries, base = [], {}, {}, {}
+    rows, uni, entries = [], {}, {}
     for sym in ctx.syms:
         df, b, m, seg, blk_s = market(ctx, sym)
         bs, be, ss, se = seg["dev"]; blk = blk_s[ss:se]
-        base[sym] = {s: m.baseline(s, H, bs, be) for s in (1, -1)}
+        bcache = {}
         M = np.zeros((se - ss, len(recs)), np.float32)
         for j, rec in enumerate(recs):
-            side = side_of(rec)
-            tr = m.trades(core.candidate_signal(b, rec), side, 0, 0, H, bs, be)
+            side = side_of(rec); Hr = screen_bars(rec, H)
+            tr = m.trades(core.candidate_signal(b, rec), side, 0, 0, Hr, bs, be)
             n = len(tr["r_atr"])
-            ex = tr["g_atr"] - base[sym][side]
+            ex = m.excess(tr, side, Hr, bs, be, bcache)
             ps_ex = m.per_session(tr, values=ex)[ss:se]
             ps_net = m.per_session(tr)[ss:se]
             M[:, j] = ps_net
             t_g, t_n = S.nw_tstat(ps_ex), S.nw_tstat(ps_net)
             mae = tr["mae_atr"].mean() if n else 0.0
             row = dict(candidate_id=rec["candidate_id"], symbol=sym, family=rec["family"], trigger=rec["trigger"],
-                       filter=rec["filter"], side=rec["side"], t3_length=rec["t3_length"], t3_vf=rec["t3_vf"], n=n,
+                       filter=rec["filter"], side=rec["side"], t3_length=rec["t3_length"], t3_vf=rec["t3_vf"], screen_bars=Hr, n=n,
                        gross_mean=float(tr["g_atr"].mean()) if n else 0.0, excess_mean=float(ex.mean()) if n else 0.0,
                        t_gross=t_g, p_gross=S.p_one_sided(t_g),
                        e_ratio=float(tr["mfe_atr"].mean() / mae) if n and mae > 0 else 0.0,
@@ -267,7 +272,7 @@ def P2(ctx):
         srs = M[:, live].mean(0) / M[:, live].std(0, ddof=1)
         uni[sym] = dict(N=len(recs), K_eff=S.k_eff(M, c["keff_cutoff"]), sr_cross_sd=float(np.std(srs)) if live.any() else 0.0,
                         spa_p=S.spa_pvalue(M, c["spa_reps"]), pbo=S.pbo_cscv(M, c["pbo_blocks"]), dev_sessions=int(se - ss),
-                        baseline_long=base[sym][1], baseline_short=base[sym][-1])
+                        drift_long=m.baseline(1, H, bs, be), drift_short=m.baseline(-1, H, bs, be))
         print(f"  P2 {sym}: {uni[sym]}")
     U = pd.DataFrame(rows)
     disc, q = S.bh(U["p_gross"].to_numpy(), c["bh_q"]); U["q_gross"] = q
@@ -326,7 +331,7 @@ def P2(ctx):
         for _, row in g.iterrows():
             rec = reg[reg.candidate_id == row.candidate_id].iloc[0].to_dict(); side = side_of(rec)
             sig = core.candidate_signal(b, rec)
-            prof = [m.trades(sig, side, 0, 0, h, bs, be)["g_atr"].mean() - m.baseline(side, h, bs, be) for h in c["horizons"]]
+            prof = [m.excess(m.trades(sig, side, 0, 0, h, bs, be), side, h, bs, be).mean() for h in c["horizons"]]
             a[1].plot(c["horizons"], prof, marker="o", ms=3, label=f"{row.candidate_id} {sym}")
     a[1].axhline(0, color="k", lw=0.5); a[1].set_xlabel("bars held"); a[1].set_ylabel("gross excess R")
     if len(SLt):
@@ -340,7 +345,7 @@ def P2(ctx):
 class Tuner:
     """Evaluates (L, V, sl_atr, tp_r, max_bars) on Dev and caches the per-session net series of every config."""
     def __init__(self, ctx, b, m, rec, seg, blk):
-        self.c = ctx.cfg["p3_refine"]; self.h = ctx.cfg["p2_screen"]["horizon"]; self.seed = ctx.cfg["seed"]
+        self.c = ctx.cfg["p3_refine"]; self.h = screen_bars(rec, ctx.cfg["p2_screen"]["horizon"]); self.seed = ctx.cfg["seed"]
         self.b, self.m, self.rec, self.side = b, m, rec, side_of(rec)
         self.bs, self.be, self.ss, self.se = seg["dev"]; self.blk = blk[self.ss:self.se]
         self.t3 = bool(rec["uses_t3"]); self.cache = {}
@@ -491,7 +496,8 @@ def P4(ctx):
     reg = load_registry(ctx).set_index("candidate_id"); nses = segment_sessions(ctx)
     r.add("did", "Timing edge before costs: circular-shift randomization null on GROSS R with the final parameters on Dev. "
                  "On the walk-forward out-of-sample net series from P3: stationary-bootstrap CI, Deflated Sharpe (N = effective "
-                 "number of independent trials = K_eff of the instrument's universe + K_eff of the unit's P3 configurations), PBO of the P3 search, Hansen SPA of the instrument's universe, fold "
+                 "number of independent trials = K_eff of the instrument's universe + K_eff of the unit's P3 configurations + the "
+                 "effective trials of earlier programs on the same Dev data), PBO of the P3 search, Hansen SPA of the instrument's universe, fold "
                  "dispersion, and the minimum track record length compared with the length of the Validation window. With the "
                  "final parameters on Dev: cost x1.5, +1 tick per side, one-bar delay, grid neighbours, best 5% of trades removed, "
                  "best year removed, positive-year share, and stability by year, volatility tercile and session bucket.")
@@ -507,7 +513,7 @@ def P4(ctx):
             z = np.load(ctx.out / "P3" / "units" / f"{unit_key(u.candidate_id, sym)}.npz")
             x = z["oos"][blk >= 1]; fs = z["fold_sums"]
             bt = S.boot_mean(x, c["boot_reps"], ctx.cfg["seed"])
-            N = int(uni[sym]["K_eff"]) + int(u.keff_configs)
+            N = int(uni[sym]["K_eff"]) + int(u.keff_configs) + int(ctx.cfg.get("prior_trials", {}).get(sym, 0))
             dsr = S.dsr(x, N)
             mtrl = S.min_trl(x, 0.0, c["mintrl_alpha"])
             sig = core.candidate_signal(b, with_params(rec, u.t3_length, u.t3_vf))

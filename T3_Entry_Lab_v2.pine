@@ -16,12 +16,13 @@ trigName = input.string("T3_CLOSE_CROSS", "Trigger", group = gE, options = ["T3_
      "T3_SLOPE_TURN", "T3_DISTANCE_RELEASE", "DONCHIAN_3", "DONCHIAN_5", "DONCHIAN_8", "DONCHIAN_12", "DONCHIAN_20",
      "PREVBAR_BREAK", "INSIDE_BAR_BREAK", "COMPRESSION_BREAK_3", "COMPRESSION_BREAK_5", "COMPRESSION_BREAK_8",
      "RANGE_EXPANSION_CLOSE", "MOMENTUM_3", "MOMENTUM_6", "THREE_BAR_CONTINUATION", "GAP_CONTINUATION", "TWO_BAR_REVERSAL",
-     "OUTSIDE_BAR_REVERSAL", "SWEEP_RECLAIM_5", "SWEEP_RECLAIM_10", "MEAN_REVERSION_2", "MEAN_REVERSION_3"])
+     "OUTSIDE_BAR_REVERSAL", "SWEEP_RECLAIM_5", "SWEEP_RECLAIM_10", "MEAN_REVERSION_2", "MEAN_REVERSION_3",
+     "ORB_OPEN_BAR", "ORB_BREAK", "IMOM_DAY", "IMOM_FIRST"])
 filtName = input.string("NONE", "Filter", group = gE, options = ["NONE", "BODY_35", "BODY_55", "BODY_70", "CLV_55", "CLV_65",
      "CLV_75", "DIRECTIONAL_BODY", "FAVOURABLE_WICK_30", "NO_ADVERSE_WICK_20", "GAP_ALIGNED_010", "MOMENTUM_2",
      "PREV_OPPOSITE_CANDLE", "RANGE_COMPRESS_060", "RANGE_EXPAND_125", "RANGE_EXPAND_150", "STRUCTURE_STEP", "T3_DIST_FAR_025",
      "T3_DIST_FAR_050", "T3_DIST_NEAR_025", "T3_DIST_NEAR_050", "T3_DIST_NEAR_100", "T3_NOT_EXTENDED_075", "T3_SLOPE_NONNEG",
-     "T3_SLOPE_STRONG_015", "T3_SLOPE_STRONG_030", "VOL_HIGH_120", "VOL_LOW_080"])
+     "T3_SLOPE_STRONG_015", "T3_SLOPE_STRONG_030", "VOL_HIGH_120", "VOL_LOW_080", "ABOVE_PREV_SETTLE", "RTH_OPEN_90"])
 sideIn = input.string("Long", "Side", options = ["Long", "Short"], group = gE)
 t3Len  = input.int(3, "T3 length", minval = 1, group = gE)
 t3VF   = input.float(0.7, "T3 volume factor", minval = 0.0, maxval = 1.0, step = 0.1, group = gE)
@@ -36,6 +37,12 @@ gS = "Session (TopstepX)"
 useFlat = input.bool(true, "Flat by time (CT)", group = gS)
 flatHH  = input.int(15, "Flat by hour (CT)", minval = 0, maxval = 23, group = gS)
 flatMM  = input.int(8, "Flat by minute (CT)", minval = 0, maxval = 59, group = gS)
+
+gR = "Day session (CT): CL 08:00-13:30, GC 07:20-12:30, SI 07:25-12:25, NQ/YM 08:30-15:00"
+rthOH = input.int(8, "Day-session open hour", minval = 0, maxval = 23, group = gR)
+rthOM = input.int(30, "Day-session open minute", minval = 0, maxval = 59, group = gR)
+rthCH = input.int(15, "Settlement hour", minval = 0, maxval = 23, group = gR)
+rthCM = input.int(0, "Settlement minute", minval = 0, maxval = 59, group = gR)
 
 gW = "Window"
 fromT = input.time(timestamp("2008-01-01T00:00:00"), "Trade from", group = gW)
@@ -88,6 +95,33 @@ mu20 = ta.sma(C, 20)[1]
 medRng = ta.median(rng, 20)[1]
 medATR = ta.median(a1, 50)
 
+// session clock and day-session anchors (FRAMEWORK.html B.7): opening bar, previous settlement close
+barOpenMin = hour(time, "America/Chicago") * 60 + minute(time, "America/Chicago")
+tfMin = timeframe.in_seconds() / 60
+orStart = math.ceil((rthOH * 60 + rthOM) / tfMin) * tfMin
+settleStart = math.floor((rthCH * 60 + rthCM - 1) / tfMin) * tfMin
+imomStart = settleStart - tfMin
+newSession = ta.change(time_tradingday) != 0
+var float orH = na
+var float orC = na
+var float settleToday = na
+var float settlePrev = na
+var int breaks = 0
+if newSession
+    settlePrev := settleToday
+    settleToday := na
+    orH := na
+    orC := na
+    breaks := 0
+isOR = barOpenMin == orStart
+if isOR
+    orH := H
+    orC := C
+orbRaw = barOpenMin > orStart and barOpenMin < settleStart and C > orH
+breaks += orbRaw ? 1 : 0
+if barOpenMin == settleStart
+    settleToday := C
+
 bool trig = switch trigName
     "T3_BODY_CROSS"          => O <= T and C > T
     "T3_CLOSE_CROSS"         => C[1] <= T[1] and C > T
@@ -121,6 +155,10 @@ bool trig = switch trigName
     "SWEEP_RECLAIM_10"       => L[1] < sw10 and C > sw10
     "MEAN_REVERSION_2"       => L <= mu20 - 2 * a1 and C > O
     "MEAN_REVERSION_3"       => L <= mu20 - 3 * a1 and C > O
+    "ORB_OPEN_BAR"           => isOR and C > O
+    "ORB_BREAK"              => orbRaw and breaks == 1
+    "IMOM_DAY"               => barOpenMin == imomStart and C > settlePrev
+    "IMOM_FIRST"             => barOpenMin == imomStart and orC > settlePrev
     => false
 
 bool filt = switch filtName
@@ -152,6 +190,8 @@ bool filt = switch filtName
     "T3_SLOPE_STRONG_030"  => T - T[3] >= 0.30 * a1
     "VOL_HIGH_120"         => a1 >= 1.20 * medATR
     "VOL_LOW_080"          => a1 <= 0.80 * medATR
+    "ABOVE_PREV_SETTLE"    => C > settlePrev
+    "RTH_OPEN_90"          => barOpenMin >= orStart and barOpenMin < orStart + 90
     => false
 
 // ───────────────────────────── per-trade statistics in ATR units (before new entries, so riskATR still belongs to the closed trade)

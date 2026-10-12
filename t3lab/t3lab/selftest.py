@@ -184,6 +184,26 @@ def ref_rules(o, h, l, c, T, a1, t):
     F["VOL_LOW_080"] = a <= 0.80 * med
     return R, F
 
+def ref_time_rules(o, h, l, c, tod, sess, t, or_start, settle_start, imom_start):
+    """Slow reference of the time-of-day rules at bar t (long form)."""
+    nan = float("nan")
+    j = t; idx = []
+    while j >= 0 and sess[j] == sess[t]:
+        idx.append(j); j -= 1
+    idx = idx[::-1]                                   # bars of the current session up to t
+    orb = [k for k in idx if tod[k] == or_start]
+    orc = c[orb[0]] if orb else nan
+    prev = [k for k in range(j, -1, -1) if sess[k] == sess[t] - 1 and tod[k] == settle_start]
+    ps = c[prev[0]] if prev else nan
+    def raw(k):
+        return tod[k] > or_start and tod[k] < settle_start and c[k] > (h[orb[0]] if orb and orb[0] <= k else nan)
+    R = {"ORB_OPEN_BAR": tod[t] == or_start and c[t] > o[t],
+         "ORB_BREAK": raw(t) and not any(raw(k) for k in idx[:-1]),
+         "IMOM_DAY": tod[t] == imom_start and c[t] > ps,
+         "IMOM_FIRST": tod[t] == imom_start and orc > ps}
+    F = {"ABOVE_PREV_SETTLE": c[t] > ps, "RTH_OPEN_90": or_start <= tod[t] < or_start + 90}
+    return R, F
+
 def ref_t3(close, L, v):
     a = 2 / (L + 1)
     def ema(x):
@@ -270,6 +290,20 @@ def run_all():
         m = Market(b, sl, rl, 0.01, 3, 1)
         bl.append(abs(m.baseline(side, 8, 100, b.n - 50) - ref_baseline(O, C, b.atr, sl, rl, 8, 100, b.n - 50)) < 1e-9)
     check("drift baseline == slow reference", all(bl))
+    gb = []
+    for side in (1, -1):
+        O, C = (b.o, b.c) if side == 1 else (-b.o, -b.c)
+        bt = m.baseline_by_tod(side, 8, 100, b.n - 50)
+        vals = {}
+        for t in range(100, b.n - 50):
+            e = t + 1
+            if e >= b.n - 50 or e > sl[t] or e > rl[t] or not b.atr[t] > 0:
+                continue
+            last = min(e + 7, sl[e], rl[e], b.n - 51); x = e + 8
+            px = O[x] if (last == e + 7 and x <= sl[e] and x <= rl[e] and x < b.n - 50) else C[last]
+            vals.setdefault(b.tod[t], []).append((px - O[e]) / b.atr[t])
+        gb.append(all(abs(bt[t] - np.mean(vals[b.tod[t]])) < 1e-9 for t in range(100, b.n - 50) if b.tod[t] in vals))
+    check("time-of-day drift baseline == slow reference", all(gb))
     m = Market(b, sl, rl, 0.01, 3, 1)
     tr = m.trades(core.trigger(b, "PREVBAR_BREAK", 1), 1, 1.0, 1.5, 40)
     ok = np.all(d["sess"].to_numpy()[tr["entry_bar"]] == d["sess"].to_numpy()[tr["exit_bar"]]) and np.all(tr["exit_bar"] <= rl[tr["entry_bar"]])
@@ -299,11 +333,16 @@ def run_all():
     refR = {k: [] for k in core.TRIGGER_NAMES}; refF = {k: [] for k in core.FILTER_NAMES}
     for t in range(n):
         Rr, Ff = ref_rules(*lists, t)
-        for k in refR: refR[k].append(bool(Rr[k]))
-        for k in refF: refF[k].append(bool(Ff[k]))
+        for k, v_ in Rr.items(): refR[k].append(bool(v_))
+        for k, v_ in Ff.items(): refF[k].append(bool(v_))
+    tl = [x[:n].tolist() for x in (b.o, b.h, b.l, b.c, b.tod, b.sess)]
+    for t in range(n):
+        Rr, Ff = ref_time_rules(*tl, t, b.or_start, b.settle_start, b.imom_start)
+        for k, v_ in Rr.items(): refR[k].append(bool(v_))
+        for k, v_ in Ff.items(): refF[k].append(bool(v_))
     bad = [k for k in core.TRIGGER_NAMES if not np.array_equal(core.trigger(b, k, 1, 5, 0.7)[:n], np.array(refR[k]))]
     bad += [k for k in core.FILTER_NAMES if not np.array_equal(core.filt(b, k, 1, 5, 0.7)[:n], np.array(refF[k]))]
-    check("all 32 triggers + 28 filters == slow reference (1500 bars)", not bad, bad)
+    check(f"all {len(core.TRIGGER_NAMES)} triggers + {len(core.FILTER_NAMES)} filters == slow reference (1500 bars)", not bad, bad)
     dn = d.copy()
     dn["open"], dn["high"], dn["low"], dn["close"] = -d["open"], -d["low"], -d["high"], -d["close"]
     bn = core.Bars(dn)

@@ -10,6 +10,7 @@ One position at a time; a signal on the exit bar is allowed.
 """
 from __future__ import annotations
 import numpy as np
+import pandas as pd
 from numba import njit
 
 EXIT_NAMES = ("SL", "TP", "TIME", "EOS")
@@ -103,6 +104,25 @@ def _baseline(o, c, atr, sess_last, roll_last, max_bars, start, end):
     return tot / n if n > 0 else 0.0
 
 
+@njit(cache=True)
+def _gross_all(o, c, atr, sess_last, roll_last, max_bars, start, end):
+    """Gross R (ATR units) of the screen exit entered after every eligible bar t in [start, end); NaN where no entry."""
+    out = np.full(len(o), np.nan)
+    for i in range(start, end):
+        e = i + 1
+        a = atr[i]
+        if e >= end or e > sess_last[i] or e > roll_last[i] or not (a > 0):
+            continue
+        last = min(e + max_bars - 1, sess_last[e], roll_last[e], end - 1)
+        nxt = e + max_bars
+        if last == e + max_bars - 1 and nxt <= sess_last[e] and nxt <= roll_last[e] and nxt < end:
+            px = o[nxt]
+        else:
+            px = c[last]
+        out[i] = (px - o[e]) / a
+    return out
+
+
 class Market:
     """One instrument's arrays (both sides) and session bookkeeping for the engine."""
     def __init__(self, bars, sess_last, roll_last, tick, cost_ticks, stop_slip, pessimistic=True):
@@ -127,6 +147,27 @@ class Market:
     def baseline(self, side, max_bars, start, end):
         o, h, l, c = self.side[side]
         return float(_baseline(o, c, self.b.atr, self.sess_last, self.roll_last, int(max_bars), int(start), int(end)))
+
+    def baseline_by_tod(self, side, max_bars, start, end):
+        """Drift baseline matched by time of day: mean gross R of the screen exit entered after every eligible bar
+        with the same bar time, in [start, end). Returns an array indexed by bar (value for that bar's time of day)."""
+        o, h, l, c = self.side[side]
+        g = _gross_all(o, c, self.b.atr, self.sess_last, self.roll_last, int(max_bars), int(start), int(end))
+        tod = self.b.tod
+        ok = ~np.isnan(g)
+        means = pd.Series(g[ok]).groupby(tod[ok]).mean()
+        return pd.Series(tod).map(means).fillna(0.0).to_numpy()
+
+    def excess(self, tr, side, max_bars, start, end, cache=None):
+        """Per-trade gross R minus the time-of-day drift baseline of its signal bar."""
+        key = (side, int(max_bars), int(start), int(end))
+        if cache is None or key not in cache:
+            base = self.baseline_by_tod(side, max_bars, start, end)
+            if cache is not None:
+                cache[key] = base
+        else:
+            base = cache[key]
+        return tr["g_atr"] - base[tr["sig_bar"]]
 
     def per_session(self, tr, key="r_atr", values=None):
         """Sum of a per-trade value by entry session; zeros on sessions without a trade."""

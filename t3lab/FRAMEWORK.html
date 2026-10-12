@@ -74,6 +74,8 @@
   <a href="#p6">P6 — Sealed Test (one look)</a>
   <div class="group-label">Live</div>
   <a href="#p7">P7 — Pine Parity, Incubation &amp; Kill Switch</a>
+  <div class="group-label">Programs</div>
+  <a href="#programs">Part D — Program 1 and Program 2</a>
   <div class="group-label">Sources</div>
   <a href="#refs">Part C — References</a>
 </nav>
@@ -81,7 +83,7 @@
 <main>
 <div class="hero">
   <h1>T3 ENTRY LAB — BUILD FRAMEWORK</h1>
-  <div class="sub">Every candidate in the 5000-row registry, on every instrument, through one fixed sequence of phases. A candidate must first show a real timing edge before costs, then prove it is not luck and not time in the market, then survive costs, stress and time, and only then face the Validation and the sealed Test windows, each opened once. A phase starts only when the previous phase closed with PASS; a phase that closes with STOP ends the program, and that is a valid result.</div>
+  <div class="sub">Every candidate of the program's registry, on every instrument, through one fixed sequence of phases. A candidate must first show a real timing edge before costs, then prove it is not luck and not time in the market, then survive costs, stress and time, and only then face the Validation and the sealed Test windows, each opened once. A phase starts only when the previous phase closed with PASS; a phase that closes with STOP ends the program, and that is a valid result.</div>
 </div>
 
 <!-- ============================================================ PILLARS -->
@@ -92,9 +94,9 @@
   <div class="pillar"><h3><span class="num">2</span>NEXT-OPEN EXECUTION, CONSERVATIVE FILLS, FLAT BY SESSION END</h3>
     <p>A signal is known at the close of bar t and filled at the open of bar t+1. When stop and target are both inside one bar, the stop wins. A gap through a level fills at the open. No position is held across a session end or a contract roll.</p></div>
   <div class="pillar"><h3><span class="num">3</span>INSTRUMENTS ARE INDEPENDENT</h3>
-    <p>The unit of research is <b>candidate × instrument</b>: 5000 × 5 = 25,000 units. Evidence is never pooled across instruments.</p></div>
+    <p>The unit of research is <b>candidate × instrument</b> (Program 1: 5000 × 5 = 25,000 units; Program 2: 46 × 5 = 230 units). Evidence is never pooled across instruments.</p></div>
   <div class="pillar"><h3><span class="num">4</span>EVERY TRIAL COUNTED, EVERY WINDOW OPENED ONCE, POWER CHECKED FIRST</h3>
-    <p>All 25,000 units and every parameter set tried enter the effective-trial count behind the deflation statistics. Validation is opened once (P5) and Test once (P6), each only after the minimum track record length shows the window is long enough to confirm the edge. Nothing seen in them changes any choice.</p></div>
+    <p>Every unit of every program and every parameter set tried enter the effective-trial count behind the deflation statistics. Validation is opened once (P5) and Test once (P6), each only after the minimum track record length shows the window is long enough to confirm the edge. Nothing seen in them changes any choice.</p></div>
   <div class="pillar"><h3><span class="num">5</span>ATR AND TICKS, NEVER PERCENT</h3>
     <p>Results are in ticks and in R<sub>ATR</sub> = result ÷ ATR(14) of the signal bar. The data is back-adjusted additively and can be negative, so percentage returns are never used.</p></div>
 </section>
@@ -105,7 +107,7 @@
 
   <h3 class="h">A.1 — The governing principle</h3>
   <div class="box">
-    <p>A unit earns trust only by surviving every gate in order. One failed hard gate removes it from every later phase. The program narrows: 25,000 units → shortlist (≤ 50) → refined → evidence survivors → validation survivors → test survivors → live. Parameters are chosen only in P3, on Dev training blocks; everywhere else they are frozen.</p>
+    <p>A unit earns trust only by surviving every gate in order. One failed hard gate removes it from every later phase. The program narrows: all units → shortlist (≤ 50) → refined → evidence survivors → validation survivors → test survivors → live. Parameters are chosen only in P3, on Dev training blocks; everywhere else they are frozen.</p>
   </div>
 
   <h3 class="h">A.2 — The gate law</h3>
@@ -144,7 +146,7 @@
     <p><b>Per-session series.</b> For a unit, x<sub>s</sub> = sum of R<sub>ATR</sub> of the trades entered in session s, and 0 for a session without a trade. Every mean, t-statistic, Sharpe ratio, bootstrap and deflation figure is computed on this series (B.14).</p>
     <div class="tw"><table>
       <tr><th>statistic</th><th>definition</th><th>basis</th></tr>
-      <tr><td>Drift baseline, excess</td><td>baseline = mean gross R<sub>ATR</sub> of the screen exit entered after every eligible Dev bar, same side; excess = gross R<sub>ATR</sub> − baseline</td><td>[R11]</td></tr>
+      <tr><td>Drift baseline, excess</td><td>baseline(time of day) = mean gross R<sub>ATR</sub> of the screen exit entered after every eligible Dev bar with the same bar time, same side; excess = gross R<sub>ATR</sub> − baseline of the signal bar's time</td><td>[R11, R31]</td></tr>
       <tr><td>Edge ratio</td><td>mean MFE<sub>ATR</sub> ÷ mean MAE<sub>ATR</sub> over the screen holding period; random entries ≈ 1</td><td>[R13, R14]</td></tr>
       <tr><td>Newey-West t</td><td>t = x̄ / √(Ω/T); Ω = γ<sub>0</sub> + 2 Σ<sub>k=1..L</sub> (1 − k/(L+1)) γ<sub>k</sub>; L = ⌊4 (T/100)<sup>2/9</sup>⌋; one-sided p = 1 − Φ(t)</td><td>[R7, R8]</td></tr>
       <tr><td>Benjamini-Hochberg</td><td>q<sub>(i)</sub> = min<sub>j ≥ i</sub> p<sub>(j)</sub> · m / j; discovery if q ≤ level</td><td>[R5, R6]</td></tr>
@@ -163,9 +165,9 @@
   <div class="box">
     <div class="tw"><table>
       <tr><th>search</th><th>size</th><th>correction</th></tr>
-      <tr><td>P2 — which of 25,000 units</td><td>25,000 units; K<sub>eff</sub> per instrument</td><td>BH over all 25,000 gross p-values; Hansen SPA of each instrument's universe; PBO of picking the Dev winner; K<sub>eff</sub> carried to the DSR</td></tr>
+      <tr><td>P2 — which units of the program</td><td>all units; K<sub>eff</sub> per instrument; earlier programs' K<sub>eff</sub></td><td>BH over all gross p-values of the program; Hansen SPA of each instrument's universe; PBO of picking the Dev winner; K<sub>eff</sub> carried to the DSR</td></tr>
       <tr><td>P3 — T3 setting and stop / target / hold</td><td>every config evaluated per unit</td><td>walk-forward out-of-sample scoring; PBO over all evaluated configs; K<sub>eff</sub> of the configs carried to the DSR</td></tr>
-      <tr><td>P4 — which refined units are real</td><td>N = K<sub>eff</sub>(universe) + K<sub>eff</sub>(configs)</td><td>DSR ≥ 0.95; random-timing null</td></tr>
+      <tr><td>P4 — which refined units are real</td><td>N = K<sub>eff</sub>(universe) + K<sub>eff</sub>(configs) + prior trials</td><td>DSR ≥ 0.95; random-timing null</td></tr>
       <tr><td>P5 — which evidence survivors hold</td><td>number of P5 units</td><td>BH q ≤ 0.05 across P5 units; random-timing null</td></tr>
       <tr><td>P6 — which validation survivors hold</td><td>number of P6 units</td><td>DSR ≥ 0.95 with N = number of P6 units</td></tr>
     </table></div>
@@ -305,8 +307,20 @@ Short side: the same rule on (−o, −l, −h, −c) and −T.</pre>
     <tr><td>OUTSIDE_BAR_REVERSAL</td><td>candle reversal</td><td><code>h &gt; h[1], l &lt; l[1], rng &gt; 0, CLV ≥ 0.75</code></td></tr>
     <tr><td>SWEEP_RECLAIM_5 / 10</td><td>structure reclaim</td><td><code>lvl = min(l[2] … l[N+1]); l[1] &lt; lvl and c &gt; lvl</code></td></tr>
     <tr><td>MEAN_REVERSION_2 / 3</td><td>volatility mean reversion</td><td><code>l ≤ SMA20(c)[1] − k·atr1 and c &gt; o</code></td></tr>
+    <tr><td>ORB_OPEN_BAR</td><td>opening range</td><td><code>bar = opening bar of the day session and c &gt; o</code></td></tr>
+    <tr><td>ORB_BREAK</td><td>opening range</td><td><code>opening bar &lt; bar &lt; settlement bar, c &gt; high of the opening bar, first such close of the session</code></td></tr>
+    <tr><td>IMOM_DAY</td><td>intraday momentum</td><td><code>bar = bar before the last half-hour and c &gt; previous settlement close</code></td></tr>
+    <tr><td>IMOM_FIRST</td><td>intraday momentum</td><td><code>bar = bar before the last half-hour and close of the opening bar &gt; previous settlement close</code></td></tr>
   </table></div>
-  <div class="basis"><b>Basis:</b> each rule is the literal reading of the registry definition; "close near the extreme" uses the registry's own CLV 0.75 level; compression = narrow-range bar NR-N [R19].</div></div>
+  <p><b>Session clock</b> (CT, per instrument): opening bar = first 30-minute bar starting at or after the day-session open; settlement bar = the 30-minute bar ending at or after the daily settlement; previous settlement close = close of the previous session's settlement bar.</p>
+  <div class="tw"><table>
+    <tr><th>instrument</th><th>day-session open</th><th>settlement</th><th>opening bar</th><th>bar before the last half-hour</th><th>settlement bar</th></tr>
+    <tr><td>CL</td><td>08:00</td><td>13:30</td><td>08:00</td><td>12:30</td><td>13:00</td></tr>
+    <tr><td>GC</td><td>07:20</td><td>12:30</td><td>07:30</td><td>11:30</td><td>12:00</td></tr>
+    <tr><td>SI</td><td>07:25</td><td>12:25</td><td>07:30</td><td>11:30</td><td>12:00</td></tr>
+    <tr><td>NQ, YM</td><td>08:30</td><td>15:00</td><td>08:30</td><td>14:00</td><td>14:30</td></tr>
+  </table></div>
+  <div class="basis"><b>Basis:</b> each rule is the literal reading of the registry definition; "close near the extreme" uses the registry's own CLV 0.75 level; compression = narrow-range bar NR-N [R19]; opening range [R19, R29, R30]; intraday momentum [R27, R28]; settlement times [R32].</div></div>
 
   <h3 class="h">B.8 — The filter roster (long form)</h3>
   <div class="box"><div class="tw"><table>
@@ -330,12 +344,14 @@ Short side: the same rule on (−o, −l, −h, −c) and −T.</pre>
     <tr><td>T3_SLOPE_STRONG_015 / 030</td><td><code>T − T[3] ≥ x·atr1</code></td></tr>
     <tr><td>VOL_HIGH_120</td><td><code>atr1 ≥ 1.20 × median(atr1 over the last 50 bars)</code></td></tr>
     <tr><td>VOL_LOW_080</td><td><code>atr1 ≤ 0.80 × median(atr1 over the last 50 bars)</code></td></tr>
+    <tr><td>ABOVE_PREV_SETTLE</td><td><code>c &gt; previous settlement close</code></td></tr>
+    <tr><td>RTH_OPEN_90</td><td><code>bar starts within 90 minutes after the start of the opening bar</code></td></tr>
   </table></div>
   <p>Candidate signal = trigger ∧ filter on the row's side.</p></div>
 
   <h3 class="h">B.9 — The registry law</h3>
   <div class="box"><ol>
-    <li><code>registry/candidates.csv</code>: <code>candidate_id, family, trigger, filter, side, t3_length, t3_vf</code>; T3 settings are present exactly when the trigger or the filter uses T3.</li>
+    <li>A program's candidate file: <code>candidate_id, family, trigger, filter, side, t3_length, t3_vf</code> and optionally <code>screen_bars</code> (the bars held by that row's P2 screen exit; 48 = until the flat-by time; default 8). T3 settings are present exactly when the trigger or the filter uses T3.</li>
     <li>P1 writes the executable registry: <code>uses_t3</code>, <code>cell_id</code> = trigger | filter | side, <code>trigger_def</code>, <code>filter_def</code> (B.7, B.8) and <code>spec_hash</code> = sha1 of (trigger, filter, side, T3 length, T3 vf, rules version).</li>
     <li>The registry is frozen in P1. A new idea is a new row and a new program from P2.</li>
   </ol></div>
@@ -354,17 +370,17 @@ Short side: the same rule on (−o, −l, −h, −c) and −T.</pre>
 
   <h3 class="h">B.11 — The ledger and the effective-trial law</h3>
   <div class="box"><ol>
-    <li>P2 records all 25,000 units in <code>P2/units.csv</code>, passed or not.</li>
+    <li>P2 records every unit in <code>P2/units.csv</code>, passed or not.</li>
     <li>P3 records per unit the number of configs evaluated, their effective number K<sub>eff</sub>(configs), and their Dev series for the PBO.</li>
-    <li>The DSR of a unit uses N = K<sub>eff</sub>(instrument universe) + K<sub>eff</sub>(the unit's configs): the effective number of independent trials behind its figure.</li>
+    <li>The DSR of a unit uses N = K<sub>eff</sub>(instrument universe) + K<sub>eff</sub>(the unit's configs) + <code>prior_trials</code>(instrument): the effective number of independent trials behind its figure, including every earlier program run on the same Dev data.</li>
   </ol>
   <div class="basis"><b>Basis:</b> effective number of trials by clustering [R4]; DSR [R2].</div></div>
 
   <h3 class="h">B.12 — The search law (T3, stop, target, hold)</h3>
   <div class="box"><ol>
     <li><b>Objective</b>: 25th percentile, over the training blocks, of the block's mean net R<sub>ATR</sub> per session; one training block → its mean; fewer than 30 training trades → −∞.</li>
-    <li><b>Stage A — T3</b> (T3 units only): L × v = 12 × 6 = 72, each with the screen exit.</li>
-    <li><b>Stage B — exits</b> on the Stage-A setting: SL_ATR {0.5, 0.75, 1.0, 1.25, 1.5, 2.0} × TP_R {0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0} × max bars {4, 8, 12, 16, 24, 32} = 252.</li>
+    <li><b>Stage A — T3</b> (T3 units only): L × v = 12 × 6 = 72, each with the row's screen exit.</li>
+    <li><b>Stage B — exits</b> on the Stage-A setting: SL_ATR {0.5, 0.75, 1.0, 1.25, 1.5, 2.0} × TP_R {0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0} × max bars {4, 8, 12, 16, 24, 32, 48} = 294 (48 = hold until the flat-by time).</li>
     <li><b>Plateau rule</b>: each grid score is replaced by the mean of the finite scores in its 3 × 3 (A) or 3 × 3 × 3 (B) neighbourhood; the highest smoothed score wins.</li>
     <li><b>Optuna</b> (<code>search: optuna</code>): TPE sampler, 200 trials on the joint space, same objective; all trials enter the PBO and K<sub>eff</sub>(configs).</li>
     <li>No machine-learning model is fitted in this program.</li>
@@ -373,7 +389,7 @@ Short side: the same rule on (−o, −l, −h, −c) and −T.</pre>
 
   <h3 class="h">B.13 — The edge-before-costs law</h3>
   <div class="box"><ol>
-    <li><b>Drift</b>: the gross result of a unit is compared with the gross result of the same exit entered after every eligible bar of the same window and side. Only the excess is edge; the rest is time in the market.</li>
+    <li><b>Drift</b>: each trade's gross result is compared with the mean gross result of the same exit entered after every eligible bar of the same window, same side and <b>same time of day</b>. Only the excess is edge; the rest is time in the market.</li>
     <li><b>Timing</b>: the unit's gross per-session mean must beat its random-timing null (same signals rolled by whole sessions, same parameters, same prices; keeps signal count, clustering and time of day).</li>
     <li><b>Entry quality</b>: edge ratio &gt; 1.</li>
     <li><b>Persistence</b>: positive excess in ≥ 4 of 6 Dev blocks.</li>
@@ -429,7 +445,7 @@ Short side: the same rule on (−o, −l, −h, −c) and −T.</pre>
 
   <h3 class="h">B.19 — The verification law</h3>
   <div class="box"><ol>
-    <li><b>Acceptance tests</b> (run in P1 and by <code>python -m pytest tests</code>): the engine and the drift baseline equal slow reference implementations written from B.2–B.3; all 60 rules equal a slow reference written from B.7–B.8; shorts mirror longs exactly; no rule reads future bars; T3 and ATR equal slow references; Newey-West t and Benjamini-Hochberg equal statsmodels; the expected-maximum-SR formula, the null SR variance and the DSR false-positive rate match Monte Carlo; MinTRL is exactly where PSR reaches 95%; PBO, the stationary bootstrap, SPA and K<sub>eff</sub> behave correctly on known inputs.</li>
+    <li><b>Acceptance tests</b> (run in P1 and by <code>python -m pytest tests</code>): the engine, the drift baseline and the time-of-day drift baseline equal slow reference implementations written from B.2–B.3 and B.13; all 66 rules equal slow references written from B.7–B.8; shorts mirror longs exactly; no rule reads future bars; T3 and ATR equal slow references; Newey-West t and Benjamini-Hochberg equal statsmodels; the expected-maximum-SR formula, the null SR variance and the DSR false-positive rate match Monte Carlo; MinTRL is exactly where PSR reaches 95%; PBO, the stationary bootstrap, SPA and K<sub>eff</sub> behave correctly on known inputs.</li>
     <li><b>End-to-end check</b> (<code>python run.py verify</code>): on a pure random walk the program must stop without a survivor; on a random walk with a planted breakout edge, the planted units must pass P6 and nothing else may pass.</li>
     <li>Both must pass before P0 is run on the real data.</li>
   </ol></div>
@@ -446,7 +462,8 @@ pip install -r requirements.txt
 python -m pytest tests          # all acceptance tests pass
 python run.py verify            # random walk rejected, planted edge found
 # copy the 5 CSV files into t3lab/data/
-python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time, reading each report</pre></div>
+python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time, reading each report
+# every program writes to its own out_dir (config.yaml); a new program starts again at P0</pre></div>
 </section>
 
 <!-- ============================================================ P0 -->
@@ -488,7 +505,7 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
     <p>Prove the code obeys the laws exactly, and make every candidate executable. No return is computed.</p>
     <h4 class="job">Steps</h4>
     <ol>
-      <li><b>Acceptance tests</b> (B.19, 32 tests): hand-made engine cases (target fill, stop-first tie, TradingView path, gap through stop, time exit, session-end exit, one position, costs, delay); engine and drift baseline vs slow references in 12 random configurations on both sides; sessions and rolls; T3 and ATR vs slow references; all 60 rules vs a slow reference; mirror; no look-ahead; every rule reachable; statistics vs statsmodels and Monte Carlo.</li>
+      <li><b>Acceptance tests</b> (B.19, 34 tests): hand-made engine cases (target fill, stop-first tie, TradingView path, gap through stop, time exit, session-end exit, one position, costs, delay); engine, drift baseline and time-of-day baseline vs slow references (12 random configurations, both sides); sessions, rolls and the flat-by cutoff; T3 and ATR vs slow references; all 66 rules vs slow references; mirror; no look-ahead; every rule reachable; statistics vs statsmodels and Monte Carlo.</li>
       <li><b>Registry checks</b>: missing columns, duplicate ids, unknown triggers, unknown filters, invalid sides, T3 rows without T3 settings, T3 settings out of range, duplicate specifications.</li>
       <li><b>Executable registry</b> (B.9): <code>registry.csv</code> with <code>uses_t3</code>, <code>cell_id</code>, <code>trigger_def</code>, <code>filter_def</code>, <code>spec_hash</code>.</li>
       <li><b>Trigger overlap</b>: Jaccard overlap of the 32 triggers' entry sets on Dev, long side, at the registry's median T3 setting; pairs ≥ 0.5 listed.</li>
@@ -508,12 +525,12 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
   <h2 class="section-title">P2 — SCREEN: EDGE BEFORE COSTS, THEN AFTER COSTS</h2>
   <div class="box">
     <h4 class="job">Job</h4>
-    <p>Run every candidate on every instrument on Dev with one identical screen exit, keep only units with a real edge before costs that also stays significant after costs, and measure the size and difficulty of the search.</p>
+    <p>Run every candidate on every instrument on Dev with its screen exit, keep only units with a real edge before costs that also stays significant after costs, and measure the size and difficulty of the search.</p>
     <h4 class="job">Steps</h4>
     <ol>
       <li><b>Signals</b>: trigger ∧ filter with the row's own T3 setting, on the row's side.</li>
-      <li><b>Screen exit</b>: no stop, no target, TIME at the open of bar entry + 8 (EOS earlier at a session end).</li>
-      <li><b>Drift baseline</b> per instrument and side: mean gross R<sub>ATR</sub> of the screen exit entered after every eligible Dev bar (B.13).</li>
+      <li><b>Screen exit</b>: no stop, no target, TIME at the open of bar entry + the row's <code>screen_bars</code> (default 8; 48 = until the flat-by time), EOS earlier at a session end.</li>
+      <li><b>Drift baseline</b> per instrument, side, screen exit and time of day: mean gross R<sub>ATR</sub> of the screen exit entered after every eligible Dev bar at that time (B.13).</li>
       <li><b>Layer A — edge before costs</b>, per unit:
         <ul>
           <li>trades n; gross mean; excess = gross − baseline per trade;</li>
@@ -521,7 +538,7 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
           <li>edge ratio = mean MFE<sub>ATR</sub> ÷ mean MAE<sub>ATR</sub>;</li>
           <li>number of Dev blocks with positive excess.</li>
         </ul></li>
-      <li><b>Benjamini-Hochberg</b> over all 25,000 gross p-values.</li>
+      <li><b>Benjamini-Hochberg</b> over all gross p-values of the program.</li>
       <li><b>Layer B — after costs</b>, per unit: net mean R<sub>ATR</sub> per trade; per-session net series → Newey-West t; win rate; SR.</li>
       <li><b>Universe</b> per instrument, on the net per-session series of all its units: K<sub>eff</sub>; spread of SR; Hansen SPA p (500 draws); PBO of picking the Dev winner (16 blocks).</li>
       <li><b>De-duplication</b> within each instrument: sort passing units by net t; keep a unit only if the Jaccard overlap of its entry bars with every kept unit is ≤ 0.30.</li>
@@ -532,13 +549,13 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
       <li><code>g_trades</code>: n ≥ 100.</li>
       <li><code>g_edge</code>: mean excess per trade &gt; 0.</li>
       <li><code>g_t_gross</code>: Newey-West t of the excess series ≥ 2.0.</li>
-      <li><code>g_bh_gross</code>: BH q ≤ 0.10 over all 25,000 units.</li>
+      <li><code>g_bh_gross</code>: BH q ≤ 0.10 over all units of the program.</li>
       <li><code>g_e_ratio</code>: edge ratio &gt; 1.0.</li>
       <li><code>g_blocks</code>: excess positive in ≥ 4 of 6 Dev blocks.</li>
       <li><code>g_net</code>: net mean per trade &gt; 0.</li>
       <li><code>g_t_net</code>: Newey-West t of the net series ≥ 2.0.</li>
     </ol><b>Gate — phase</b>: shortlist ≥ 1 unit.</div>
-    <div class="out"><b>Outputs</b> — <code>units.csv</code> (all 25,000 with every figure and gate), <code>universe.csv</code>, <code>gate_funnel.csv</code>, <code>shortlist.csv</code>; <code>screen_distribution.png</code> (gross and net t against N(0,1); gross excess vs net), <code>family_heatmap.png</code> (share with an edge before costs by family × instrument), <code>entry_quality.png</code> (edge ratio vs excess; horizon profile).</div>
+    <div class="out"><b>Outputs</b> — <code>units.csv</code> (every unit with every figure and gate), <code>universe.csv</code>, <code>gate_funnel.csv</code>, <code>shortlist.csv</code>; <code>screen_distribution.png</code> (gross and net t against N(0,1); gross excess vs net), <code>family_heatmap.png</code> (share with an edge before costs by family × instrument), <code>entry_quality.png</code> (edge ratio vs excess; horizon profile).</div>
     <div class="closeout"><b>Closeout</b> — Forwards the shortlist and the universe figures (K<sub>eff</sub>, SPA p). <code>python run.py P2</code></div>
   </div>
 </section>
@@ -578,7 +595,7 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
     <ol>
       <li><b>Random-timing null on gross R</b> (B.13): final parameters on Dev, 1,000 draws.</li>
       <li><b>Bootstrap</b> the WF-OOS series (2,000 draws): 95% CI and one-sided p.</li>
-      <li><b>Deflated Sharpe</b> of the WF-OOS series with N = K<sub>eff</sub>(universe) + K<sub>eff</sub>(configs) (B.11).</li>
+      <li><b>Deflated Sharpe</b> of the WF-OOS series with N = K<sub>eff</sub>(universe) + K<sub>eff</sub>(configs) + prior trials (B.11).</li>
       <li><b>PBO</b> of the P3 search; <b>SPA p</b> of the instrument's universe.</li>
       <li><b>Fold dispersion</b>: share of positive folds; largest fold ÷ sum of positive folds.</li>
       <li><b>Stress</b> on Dev with the final parameters: cost × 1.5; +1 tick per side; one-bar delay.</li>
@@ -690,6 +707,34 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
   </div>
 </section>
 
+<!-- ============================================================ PROGRAMS -->
+<section id="programs">
+  <h2 class="section-title">PART D — PROGRAM 1 AND PROGRAM 2</h2>
+
+  <h3 class="h">D.1 — Program 1 (closed)</h3>
+  <div class="box"><p><code>registry/program1_candidates.csv</code>: 5000 rows = 1516 trigger × filter × side cells with T3 settings, screen exit 8 bars. Result on Dev: STOP at P2. No unit had an edge before costs after the multiple-testing correction (gross t ≥ 2: 272 units against about 569 expected by chance; Benjamini-Hochberg discoveries: 0; Hansen SPA p = 1.0 on all five instruments), and the median unit lost about 0.2 ATR per trade to costs. Its effective trials per instrument (K<sub>eff</sub>: CL 498, GC 458, NQ 460, SI 490, YM 485) stay in <code>prior_trials</code>. Validation and Test were not opened.</p></div>
+
+  <h3 class="h">D.2 — What Program 1 showed about costs</h3>
+  <div class="box"><ol>
+    <li>Cost is fixed per trade, so a trade must move far enough to pay it: holding 4 hours from any bar of the day did not.</li>
+    <li>Intraday volatility is highest around the day-session open and close and lowest overnight [R31]: the same fixed cost is a much smaller share of the move in active hours.</li>
+    <li>Thousands of trades per unit at random times multiply the cost; one well-timed trade per session pays it once.</li>
+    <li>Testing thousands of near-identical variants makes every individual edge harder to prove; a short list of hypotheses with an economic reason keeps the statistical bar reachable.</li>
+  </ol></div>
+
+  <h3 class="h">D.3 — Program 2 (current)</h3>
+  <div class="box">
+    <p><code>registry/program2_candidates.csv</code>: 46 candidates written before any Program 2 result exists, each with a published reason and a cost design. T3 rows use T3 length 5, volume factor 0.7 (Tillson's published setting [R17]); P3 re-tunes them inside walk-forward.</p>
+    <div class="tw"><table>
+      <tr><th>family</th><th>rows</th><th>triggers × filters × sides</th><th>screen exit</th><th>why</th></tr>
+      <tr><td>OPENING_RANGE</td><td>16</td><td>ORB_OPEN_BAR, ORB_BREAK × NONE, T3_SLOPE_NONNEG, T3_DIST_NEAR_100, ABOVE_PREV_SETTLE × long, short</td><td>until flat-by</td><td>opening-range breakout [R19, R29, R30]: one trade per session at the most active time, held for the day's move</td></tr>
+      <tr><td>INTRADAY_MOMENTUM</td><td>8</td><td>IMOM_DAY, IMOM_FIRST × NONE, T3_SLOPE_NONNEG × long, short</td><td>1 bar (the last half-hour before settlement)</td><td>the return since the previous settlement predicts the last half-hour, documented across more than 60 futures [R27, R28]</td></tr>
+      <tr><td>T3_ACTIVE_SESSION</td><td>22</td><td>the 11 T3 triggers × RTH_OPEN_90 × long, short</td><td>until flat-by</td><td>the T3 engine traded only in the first 90 minutes of the day session and held for the session: bigger moves per trade than costs [R31]</td></tr>
+    </table></div>
+    <p>Output folder: <code>out_program2</code>. N of every DSR includes Program 1's effective trials. Validation and Test are still sealed.</p>
+  </div>
+</section>
+
 <!-- ============================================================ REFERENCES -->
 <section id="refs">
   <h2 class="section-title">PART C — REFERENCES</h2>
@@ -721,6 +766,12 @@ python run.py P0                # then P1, P2, P3, P4, P5, P6 — one at a time,
     <li>[R23] Owner's specification: <i>T3 Entry Lab — Complete Backtesting Framework</i> (windows 60/20/20, 5 walk-forward folds, 8-bar endpoint, 100-event floor, 25th-percentile objective, exit grid, BH levels, PBO and DSR levels, bootstrap draws, walk-forward and CI gates, cost / slippage / delay stresses, neighbours, concentration).</li>
     <li>[R24] Owner's specification: earlier build framework (K<sub>eff</sub> cutoff 0.70, Jaccard 0.30, 30-trade buckets with a 97.5% bound and at most one negative bucket, per-session Sharpe with zeros, 30-trade incubation, kill switch).</li>
     <li>[R26] Topstep. Help Center: "TopstepX — Commissions and Fees" (fees per round turn, CME fee changes of 1 Oct 2026) and "When and What Products Can I Trade?" (flat by 15:10 CT, flattening from 15:08 CT, permitted products).</li>
+    <li>[R27] Gao, L., Han, Y., Li, S. Z. &amp; Zhou, G. (2018). Market Intraday Momentum. <i>Journal of Financial Economics</i> 129(2), 394–414.</li>
+    <li>[R28] Baltussen, G., Da, Z., Lammers, S. &amp; Martens, M. (2021). Hedging Demand and Market Intraday Momentum. <i>Journal of Financial Economics</i> 142(1), 377–403.</li>
+    <li>[R29] Holmberg, U., Lönnbark, C. &amp; Lundström, C. (2013). Assessing the Profitability of Intraday Opening Range Breakout Strategies. <i>Finance Research Letters</i> 10(1), 27–33.</li>
+    <li>[R30] Zarattini, C. &amp; Aziz, A. (2023). Can Day Trading Really Be Profitable? SSRN 4416622.</li>
+    <li>[R31] Andersen, T. G. &amp; Bollerslev, T. (1997). Intraday Periodicity and Volatility Persistence in Financial Markets. <i>Journal of Empirical Finance</i> 4, 115–158.</li>
+    <li>[R32] CME Group. Daily settlement time details: energy 14:28–14:30 ET, gold 13:29–13:30 ET, silver 13:24–13:25 ET, equity index 14:59:30–15:00 CT.</li>
     <li>[R25] Akiba, T., Sano, S., Yanase, T., Ohta, T. &amp; Koyama, M. (2019). Optuna: A Next-generation Hyperparameter Optimization Framework. <i>KDD 2019</i>.</li>
   </ol></div>
 </section>

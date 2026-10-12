@@ -119,15 +119,38 @@ def roll_mean(x, n):
 def roll_median(x, n):
     return pd.Series(x).rolling(n, min_periods=n).median().to_numpy()
 
+def hhmm(x: str) -> int:
+    h, m = (int(v) for v in str(x).split(":"))
+    return h * 60 + m
+
 class Bars:
-    """Arrays of one instrument. T3 lines are cached per (length, vf); non-T3 rule arrays are cached by name."""
-    def __init__(self, df: pd.DataFrame, atr_len: int = 14):
+    """Arrays of one instrument. T3 lines are cached per (length, vf); non-T3 rule arrays are cached by name.
+    Session clock (CT minutes): rth_open = day-session open, rth_close = daily settlement time of the instrument."""
+    def __init__(self, df: pd.DataFrame, atr_len: int = 14, rth_open: str = "08:30", rth_close: str = "15:00",
+                 bar_minutes: int = 30):
         self.df = df
         self.o, self.h, self.l, self.c = (df[k].to_numpy(float) for k in ("open", "high", "low", "close"))
         self.n = len(df)
         self.atr = atr_wilder(self.h, self.l, self.c, atr_len)
         self.atr1 = lag(self.atr, 1)
         self._t3, self._cache = {}, {}
+        self.tod = (df["ts"].dt.hour * 60 + df["ts"].dt.minute).to_numpy()
+        self.sess = df["sess"].to_numpy() if "sess" in df else np.zeros(self.n, np.int64)
+        self.bar = bar_minutes
+        self.or_start = int(np.ceil(hhmm(rth_open) / bar_minutes) * bar_minutes)          # first full bar of the day session
+        self.settle_start = int(np.floor((hhmm(rth_close) - 1) / bar_minutes) * bar_minutes)  # bar that ends at settlement
+        self.imom_start = self.settle_start - bar_minutes                                 # bar before the last half-hour
+
+    def by_session(self, x, at):
+        """x at the bar of each session where `at` is true, carried forward inside that session (NaN before it)."""
+        v = pd.Series(np.where(at, x, np.nan))
+        return v.groupby(self.sess).ffill().to_numpy()
+
+    def prev_settle(self, c):
+        """Close of the previous session's settlement bar (NaN if that session has none)."""
+        st = pd.Series(np.where(self.tod == self.settle_start, c, np.nan)).groupby(self.sess).max()
+        prev = st.reindex(np.arange(self.sess.max() + 1)).shift(1)
+        return prev.to_numpy()[self.sess]
 
     def t3(self, length, vf):
         k = (int(length), round(float(vf), 3))
@@ -174,6 +197,10 @@ TRIGGERS = {
     "SWEEP_RECLAIM_10":       "lvl = min(l[2..11]); l[1] < lvl and c > lvl",
     "MEAN_REVERSION_2":       "l <= SMA20(c)[1] - 2*atr1 and c > o",
     "MEAN_REVERSION_3":       "l <= SMA20(c)[1] - 3*atr1 and c > o",
+    "ORB_OPEN_BAR":           "bar = opening bar of the day session and c > o",
+    "ORB_BREAK":              "opening bar < bar < settlement bar, c > high of the opening bar, first such close of the session",
+    "IMOM_DAY":               "bar = the bar before the last half-hour and c > previous settlement close",
+    "IMOM_FIRST":             "bar = the bar before the last half-hour and close of the opening bar > previous settlement close",
 }
 FILTERS = {
     "NONE":                 "true",
@@ -204,6 +231,8 @@ FILTERS = {
     "T3_SLOPE_STRONG_030":  "T - T[3] >= 0.30*atr1",
     "VOL_HIGH_120":         "atr1 >= 1.20*median(atr1[0..49])",
     "VOL_LOW_080":          "atr1 <= 0.80*median(atr1[0..49])",
+    "ABOVE_PREV_SETTLE":    "c > previous settlement close",
+    "RTH_OPEN_90":          "bar starts within 90 minutes after the opening bar",
 }
 TRIGGER_NAMES = list(TRIGGERS)
 FILTER_NAMES = list(FILTERS)
@@ -261,6 +290,17 @@ def trigger(b: Bars, name: str, side: int, L=None, V=None) -> np.ndarray:
         elif name.startswith("MEAN_REVERSION_"):
             k = float(name.rsplit("_", 1)[1]); mu = S(roll_mean(c, 20), 1)
             r = (l <= mu - k * a1) & (c > o)
+        elif name == "ORB_OPEN_BAR":
+            r = (b.tod == b.or_start) & (c > o)
+        elif name == "ORB_BREAK":
+            orh = b.by_session(h, b.tod == b.or_start)
+            raw = (b.tod > b.or_start) & (b.tod < b.settle_start) & (c > orh)
+            r = raw & (pd.Series(raw.astype(int)).groupby(b.sess).cumsum().to_numpy() == 1)
+        elif name == "IMOM_DAY":
+            r = (b.tod == b.imom_start) & (c > b.prev_settle(c))
+        elif name == "IMOM_FIRST":
+            orc = b.by_session(c, b.tod == b.or_start)
+            r = (b.tod == b.imom_start) & (orc > b.prev_settle(c))
         else:
             raise KeyError(name)
     return _done(b, key, r, not is_t3)
@@ -295,6 +335,8 @@ def filt(b: Bars, name: str, side: int, L=None, V=None) -> np.ndarray:
         elif name.startswith("T3_SLOPE_STRONG_"): r = (T - S(T, 3)) >= int(name[-3:]) / 100 * a1
         elif name == "VOL_HIGH_120":          r = a1 >= 1.20 * roll_median(a1, 50)
         elif name == "VOL_LOW_080":           r = a1 <= 0.80 * roll_median(a1, 50)
+        elif name == "ABOVE_PREV_SETTLE":     r = c > b.prev_settle(c)
+        elif name == "RTH_OPEN_90":           r = (b.tod >= b.or_start) & (b.tod < b.or_start + 90)
         else:
             raise KeyError(name)
     return _done(b, key, r, not is_t3)
@@ -316,8 +358,9 @@ def spec_hash(trigger_name, filter_name, side, L, V) -> str:
     return hashlib.sha1(json.dumps(spec, sort_keys=True).encode()).hexdigest()[:16]
 
 def build_registry(reg: pd.DataFrame) -> pd.DataFrame:
-    """Executable registry: adds uses_t3, cell_id (trigger|filter|side), the exact rule text and the spec hash."""
-    r = reg[REGISTRY_COLUMNS].copy()
+    """Executable registry: adds uses_t3, cell_id (trigger|filter|side), the exact rule text and the spec hash.
+    Optional column screen_bars: the bars held by the P2 screen exit for that row (48 = until the session flat-by)."""
+    r = reg[REGISTRY_COLUMNS + [c for c in ("screen_bars",) if c in reg.columns]].copy()
     r["uses_t3"] = [uses_t3(t, f) for t, f in zip(r["trigger"], r["filter"])]
     r["cell_id"] = r["trigger"] + "|" + r["filter"] + "|" + r["side"]
     r["trigger_def"] = r["trigger"].map(TRIGGERS)
