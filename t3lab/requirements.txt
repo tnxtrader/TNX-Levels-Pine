@@ -1,0 +1,11 @@
+numpy>=1.26
+pandas>=2.1
+numba>=0.59
+scipy>=1.11
+arch>=7.0
+statsmodels>=0.14
+optuna>=3.6
+matplotlib>=3.8
+pyyaml>=6.0
+tabulate>=0.9
+pytest>=8.0

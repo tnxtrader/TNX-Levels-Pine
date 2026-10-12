@@ -1,0 +1,79 @@
+# T3 Entry Lab — research configuration. Every number used by a gate lives here.
+# Change settings BEFORE Phase 2. Changing anything after you have seen Phase 5/6 results contaminates them.
+
+data_dir: data                # put the 5 raw CSVs here (timestamp,open,high,low,close,volume,contract)
+out_dir: out                  # reports, plots, tables, caches
+registry: registry/candidate_registry_5000.csv
+seed: 42
+
+# tick size, $ per point, round-trip cost in ticks (commission + 1 tick slippage each side), extra ticks on stop fills
+instruments:
+  CL: {file: CL_30min_continuous_backadjusted.csv, tick: 0.01,  point_value: 1000, cost_ticks_rt: 3, stop_slip_ticks: 1}
+  GC: {file: GC_30min_continuous_backadjusted.csv, tick: 0.10,  point_value: 100,  cost_ticks_rt: 3, stop_slip_ticks: 1}
+  NQ: {file: NQ_30min_continuous_backadjusted.csv, tick: 0.25,  point_value: 20,   cost_ticks_rt: 3, stop_slip_ticks: 1}
+  SI: {file: SI_30min_continuous_backadjusted.csv, tick: 0.005, point_value: 5000, cost_ticks_rt: 3, stop_slip_ticks: 1}
+  YM: {file: YM_30min_continuous_backadjusted.csv, tick: 1.0,   point_value: 5,    cost_ticks_rt: 3, stop_slip_ticks: 1}
+
+session:
+  start_hour: 17              # CME Globex day starts 17:00 CT (timestamps assumed exchange time; P0 shows the hour histogram)
+  gap_minutes: 120            # any larger time gap also starts a new session (halts, holidays)
+  buckets: {ASIA: [17, 2], EUROPE: [2, 8.5], US: [8.5, 17]}   # CT hours, used only for stability checks
+intrabar: pessimistic         # pessimistic = stop wins when SL and TP are both inside one bar; tv = TradingView O-H-L-C path
+atr_len: 14
+
+split:                        # chronological, by session, per instrument
+  dev: 0.60                   # discovery + walk-forward (P2-P4)
+  val: 0.20                   # opened once in P5
+  test: 0.20                  # sealed, opened once in P6
+  embargo_sessions: 1
+  dev_blocks: 6               # walk-forward: 5 expanding folds (train blocks < k, test block k)
+
+p2_screen:                    # every registry row x every instrument, fixed exit, Dev only
+  horizon: 8                  # primary endpoint: net R (ATR units) of a pure time exit after 8 bars (4 h)
+  horizons: [1, 2, 4, 8, 16]  # profile for the shortlist plots
+  min_trades: 100
+  t_min: 2.0                  # Newey-West t of the per-session mean
+  bh_q: 0.10                  # Benjamini-Hochberg over ALL units (exploratory)
+  min_pos_blocks: 4           # of 6 Dev blocks with positive sum
+  jaccard_max: 0.30           # drop a unit whose entry set overlaps a better kept unit by more than this
+  shortlist_max: 50
+  spa_reps: 500
+  pbo_blocks: 16
+
+p3_refine:                    # shortlist only, Dev only, walk-forward
+  search: grid                # grid (staged, plateau-smoothed) | optuna (TPE, joint space)
+  optuna_trials: 200
+  t3_length: [2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 30]
+  t3_vf: [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+  sl_atr: [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
+  tp_r: [0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0]
+  max_bars: [4, 8, 12, 16, 24, 32]
+  min_trades_train: 30
+  min_oos_trades: 50
+
+p4_evidence:                  # walk-forward OOS of Dev; selection-bias and robustness gates
+  boot_reps: 2000
+  null_reps: 1000
+  dsr_min: 0.95
+  null_p_max: 0.05
+  pbo_max: 0.40
+  spa_p_max: 0.10             # the instrument's whole universe must beat data snooping (Hansen SPA)
+  wf_pos_frac: 0.70
+  fold_share_max: 0.50
+  cost_mult: 1.5
+  extra_slip_ticks: 1
+  delay_bars: 1
+  top_trim: 0.05
+  min_bucket_trades: 30
+  pos_years_frac: 0.60
+
+p5_validation:
+  boot_reps: 10000
+  bh_q: 0.05
+  min_trades: 30
+  null_reps: 1000
+
+p6_test:
+  boot_reps: 10000
+  min_trades: 30
+  dsr_min: 0.95
