@@ -1,0 +1,416 @@
+//@version=6
+// DISC ENGINE v3 — the DISC engine and its ten families, as one strategy (disc/DISC_FRAMEWORK.html Part B, disc/DISC_FAMILIES.html).
+// Every value at bar t uses bars <= t only. Long rules are written once; the short side runs the same rules on mirrored
+// prices (open, high, low, close) -> (-open, -low, -high, -close), so long and short are exact mirrors.
+// Chart: the instrument's continuous contract, 30-minute bars, full electronic session, exchange time zone CT.
+// Properties: commission = cash per contract per side = the contract's fees round trip / 2; slippage = 1 tick.
+// For the P10 parity replay set slippage = 0 and commission = 0 and compare the trade list with the research engine.
+strategy("DISC ENGINE v3", shorttitle = "DISC v3", overlay = true, pyramiding = 0, calc_on_every_tick = false,
+     process_orders_on_close = false, default_qty_type = strategy.fixed, default_qty_value = 1,
+     initial_capital = 1000000, margin_long = 0, margin_short = 0,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 0.61, slippage = 1,
+     use_bar_magnifier = false, max_bars_back = 5000)
+
+// ───────────────────────────── inputs: one cell of the universe (family x Q x level x side)
+gC = "Cell"
+famIn  = input.string("BAND_RECOVERY", "Family", group = gC, options = ["BAND_RECOVERY", "QUIET_RECOVERY", "SHOCK_RECOVERY",
+     "TREND_DIP", "BAND_RIDE", "STOP_CASCADE", "SHOCK_IMPULSE", "OPEN_BREAK", "CLOSE_DRIFT", "EURO_OPEN_REVERSAL"])
+sideIn = input.string("Long", "Side", options = ["Long", "Short"], group = gC)
+Q      = input.int(20, "Q — lookback (bars; sessions for OPEN_BREAK and CLOSE_DRIFT)", minval = 3, maxval = 500, group = gC)
+LEVEL  = input.int(90, "Band level", options = [80, 90, 95], group = gC)
+
+gS = "Session clock (CT)"
+cashH  = input.int(8, "Cash open hour", minval = 0, maxval = 23, group = gS)
+cashM  = input.int(30, "Cash open minute", minval = 0, maxval = 59, group = gS)
+setH   = input.int(15, "Settlement hour", minval = 0, maxval = 23, group = gS)
+setM   = input.int(0, "Settlement minute", minval = 0, maxval = 59, group = gS)
+euH    = input.int(1, "European open hour", minval = 0, maxval = 23, group = gS)
+euM    = input.int(0, "European open minute", minval = 0, maxval = 59, group = gS)
+useFlat = input.bool(true, "Flat by time (TopstepX)", group = gS)
+flatH  = input.int(15, "Flat by hour", minval = 0, maxval = 23, group = gS)
+flatMn = input.int(8, "Flat by minute", minval = 0, maxval = 59, group = gS)
+
+gW = "Window"
+fromT = input.time(timestamp("2008-01-01T00:00:00"), "Trade from", group = gW)
+toT   = input.time(timestamp("2099-01-01T00:00:00"), "Trade until", group = gW)
+showT = input.bool(true, "Show table", group = gW)
+
+// ───────────────────────────── constants (fixed by the framework, never tuned)
+float TS_CHOP  = 0.85      // random-walk median of ER x sqrt(q): below it the market is choppier than a random walk
+float TS_TREND = 2.0       // random-walk 90th percentile of ER x sqrt(q): above it the market trends
+float SHOCK_X  = 2.0       // a liquidity shock: range AND volume at least 2 x their slot median
+int   SLOT_N   = 20        // sessions in the slot medians
+int   ATR_LEN  = 14
+
+// ───────────────────────────── helpers
+f_tanh(float x) =>
+    float e = math.exp(2.0 * x)
+    (e - 1.0) / (e + 1.0)
+
+// history of one time slot, oldest first
+type Hist
+    array<float> v
+
+f_push(array<float> a, float x, int cap) =>
+    a.push(x)
+    if a.size() > cap
+        a.shift()
+    a.size()
+
+// first index whose value is >= x in an ascending array (insertion point)
+f_lowerBound(array<float> a, float x) =>
+    int lo = 0
+    int hi = a.size()
+    while lo < hi
+        int md = int(math.floor((lo + hi) / 2.0))
+        if a.get(md) < x
+            lo := md + 1
+        else
+            hi := md
+    lo
+
+// quantile, linear interpolation between order statistics (Hyndman-Fan type 7, numpy "linear"), ascending array
+f_q7(array<float> a, float p) =>
+    int n = a.size()
+    float h = (n - 1) * p
+    int lo = int(math.floor(h))
+    int hi = math.min(lo + 1, n - 1)
+    a.get(lo) + (h - lo) * (a.get(hi) - a.get(lo))
+
+// median of the whole array (the mean of the two middle values when the size is even)
+f_median(array<float> a) =>
+    s = a.copy()
+    s.sort(order.ascending)
+    int n = s.size()
+    int k = int(math.floor(n / 2.0))
+    n % 2 == 1 ? s.get(k) : (s.get(k - 1) + s.get(k)) / 2.0
+
+f_rms(array<float> a) =>
+    float s2 = 0.0
+    for x in a
+        s2 += x * x
+    math.sqrt(s2 / a.size())
+
+// ───────────────────────────── mirrored prices
+isLong = sideIn == "Long"
+float sgn = isLong ? 1.0 : -1.0
+float O = isLong ? open : -open
+float H = isLong ? high : -low
+float L = isLong ? low : -high
+float C = isLong ? close : -close
+float V = volume
+float tk = syminfo.mintick
+
+// ───────────────────────────── E1-E2: the bar and DISC
+bool  flatBar = H == L
+float R     = math.max(H - L, 1e-10)
+float MIDp  = (H + L) / 2.0
+float clv   = flatBar ? 0.0 : (2.0 * C - H - L) / R
+float bodyR = flatBar ? 0.0 : math.abs(C - O) / R
+float dr    = C > O ? 1.0 : C < O ? -1.0 : 0.0
+float zs    = 1.05 * clv + 0.62 * bodyR * clv - 0.18 * dr * bodyR - 0.04 * dr
+float disc  = MIDp + 0.5 * R * f_tanh(zs)
+
+// ───────────────────────────── E3: mean and sd of DISC over the Q bars BEFORE t (two-pass, population)
+float mu = na
+float sd = na
+if bar_index >= Q
+    float s1 = 0.0
+    for i = 1 to Q
+        s1 += disc[i]
+    mu := s1 / Q
+    float s2 = 0.0
+    for i = 1 to Q
+        float dv = disc[i] - mu
+        s2 += dv * dv
+    sd := math.sqrt(s2 / Q)
+bool  ready = not na(sd) and sd > 0
+float z = ready ? (disc - mu) / sd : na
+
+// ───────────────────────────── E4: K census — the last NK valid z values before t, kept sorted
+float tail = (100 - LEVEL) / 200.0
+int   NK   = math.max(int(math.ceil(100.0 / tail)), 20 * Q)
+var array<float> fifo = array.new<float>()
+var array<float> srt  = array.new<float>()
+float KU = na
+float KL = na
+if fifo.size() == NK
+    KU := f_q7(srt, 1.0 - tail)
+    KL := -f_q7(srt, tail)
+if ready
+    fifo.push(z)
+    srt.insert(f_lowerBound(srt, z), z)
+    if fifo.size() > NK
+        float old = fifo.shift()
+        srt.remove(f_lowerBound(srt, old))
+bool  bandsOK = ready and not na(KU) and KU > 0 and KL > 0
+float U  = bandsOK ? mu + KU * sd : na
+float Lo = bandsOK ? mu - KL * sd : na
+
+// ───────────────────────────── E5: Wilder ATR(14) — TR is na on bar 0, ATR(14) = mean(TR 1..14), then (13 ATR + TR) / 14
+float trRaw = bar_index == 0 ? na : math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+var float atrV = na
+var float trSum = 0.0
+if bar_index >= 1 and bar_index <= ATR_LEN
+    trSum += trRaw
+if bar_index == ATR_LEN
+    atrV := trSum / ATR_LEN
+else if bar_index > ATR_LEN
+    atrV := (atrV * (ATR_LEN - 1) + trRaw) / ATR_LEN
+
+// ───────────────────────────── session clock
+int barOpenMin = hour(time, "America/Chicago") * 60 + minute(time, "America/Chicago")
+int tf  = int(timeframe.in_seconds() / 60)
+int OB  = int(math.ceil((cashH * 60 + cashM) / float(tf)) * tf)
+int SB  = int(math.floor((setH * 60 + setM - 1) / float(tf)) * tf)
+int IB  = SB - tf
+int EUB = int(math.ceil((euH * 60 + euM) / float(tf)) * tf)
+bool newSession = ta.change(time_tradingday) != 0
+
+// ───────────────────────────── E6: slot-relative range and volume (the previous SLOT_N sessions of the same slot)
+var map<int, Hist> mapR = map.new<int, Hist>()
+var map<int, Hist> mapV = map.new<int, Hist>()
+Hist hr = mapR.get(barOpenMin)
+if na(hr)
+    hr := Hist.new(array.new<float>())
+    mapR.put(barOpenMin, hr)
+Hist hv = mapV.get(barOpenMin)
+if na(hv)
+    hv := Hist.new(array.new<float>())
+    mapV.put(barOpenMin, hv)
+float rr = na
+float rv = na
+if hr.v.size() == SLOT_N
+    float mr = f_median(hr.v)
+    float mv = f_median(hv.v)
+    rr := mr > 0 ? R / mr : na
+    rv := mv > 0 ? V / mv : na
+f_push(hr.v, R, SLOT_N)
+f_push(hv.v, V, SLOT_N)
+bool shock = rr >= SHOCK_X and rv >= SHOCK_X
+
+// ───────────────────────────── E7: trend strength TS = ER x sqrt(q) on the close, over Q and over 4Q
+float pathQ  = math.sum(math.abs(C - C[1]), Q)
+float pathQ4 = math.sum(math.abs(C - C[1]), 4 * Q)
+float TS   = bar_index >= Q and pathQ > 0 ? math.abs(C - C[Q]) / pathQ * math.sqrt(Q) : na
+float NET  = bar_index >= Q ? C - C[Q] : na
+float TS4  = bar_index >= 4 * Q and pathQ4 > 0 ? math.abs(C - C[4 * Q]) / pathQ4 * math.sqrt(4 * Q) : na
+float NET4 = bar_index >= 4 * Q ? C - C[4 * Q] : na
+
+// ───────────────────────────── E8: session anchors
+var float oDay = na
+var float settleToday = na
+var float settlePrev = na
+var float sessLow = na
+var bool  fToday = false
+var bool  fPrev = false
+if newSession
+    settlePrev := settleToday
+    settleToday := na
+    oDay := na
+    sessLow := na
+    fPrev := fToday
+    fToday := false
+if barOpenMin == OB
+    oDay := O
+if barOpenMin == SB
+    settleToday := C
+    fToday := bandsOK and C < Lo
+sessLow := na(sessLow) ? L : math.min(sessLow, L)
+
+// slot RMS of the move from the open (every slot) and of the move since the previous settlement (at IB), previous Q sessions
+var map<int, Hist> mapO = map.new<int, Hist>()
+var array<float> histC = array.new<float>()
+float devO = disc - oDay
+float devC = disc - settlePrev
+Hist ho = mapO.get(barOpenMin)
+if na(ho)
+    ho := Hist.new(array.new<float>())
+    mapO.put(barOpenMin, ho)
+float rmsO = ho.v.size() == Q ? f_rms(ho.v) : na
+if not na(devO)
+    f_push(ho.v, devO, Q)
+float rmsC = na
+if barOpenMin == IB
+    if histC.size() == Q
+        rmsC := f_rms(histC)
+    if not na(devC)
+        f_push(histC, devC, Q)
+
+// ───────────────────────────── E9: the excursion machines (W(Q) = max(5, ceil(sqrt Q)))
+int W = math.max(5, int(math.ceil(math.sqrt(Q))))
+// lower band: the long-side recovery
+var int   stL = 0
+var int   toL = -1
+var float exL = na
+var bool  shL = false
+bool  evL = false
+float evExtL = na
+bool  evLatchL = false
+if not bandsOK
+    stL := 0
+    toL := -1
+else
+    if stL == 0
+        if C < Lo
+            stL := 1
+            toL := bar_index
+            exL := L
+            shL := shock
+    else if stL == 1
+        exL := math.min(exL, L)
+        shL := shL or shock
+        if C > Lo
+            evL := true
+            evExtL := exL
+            evLatchL := shL
+            stL := 0
+            toL := -1
+        else if bar_index - toL >= W
+            stL := 2
+    else
+        if C > Lo
+            stL := 0
+            toL := -1
+// upper band: the recovery back below Upper (read by STOP_CASCADE)
+var int   stU = 0
+var int   toU = -1
+var float exU = na
+bool  evU = false
+float evExtU = na
+if not bandsOK
+    stU := 0
+    toU := -1
+else
+    if stU == 0
+        if C > U
+            stU := 1
+            toU := bar_index
+            exU := H
+    else if stU == 1
+        exU := math.max(exU, H)
+        if C < U
+            evU := true
+            evExtU := exU
+            stU := 0
+            toU := -1
+        else if bar_index - toU >= W
+            stU := 2
+    else
+        if C < U
+            stU := 0
+            toU := -1
+
+// ───────────────────────────── the ten families (long form)
+var int run = 0
+run := bandsOK and C > U ? run + 1 : 0
+var int   pendU = -1
+var float pendLvl = na
+bool cascade = false
+if pendU >= 0
+    if bar_index - pendU > W
+        pendU := -1
+    else if C > pendLvl
+        cascade := true
+        pendU := -1
+if evU
+    pendU := bar_index
+    pendLvl := evExtU
+
+float zL = LEVEL == 80 ? 1.2815515655446004 : LEVEL == 90 ? 1.6448536269514722 : 1.959963984540054
+bool inDay = barOpenMin >= OB and barOpenMin < SB
+float dO = rmsO > 0 ? devO / rmsO : na
+float dC = rmsC > 0 ? devC / rmsC : na
+var int nOB = 0
+if newSession
+    nOB := 0
+bool obRaw = inDay and dO >= zL
+nOB += obRaw ? 1 : 0
+
+bool sig = switch famIn
+    "BAND_RECOVERY"      => evL
+    "QUIET_RECOVERY"     => evL and TS <= TS_CHOP
+    "SHOCK_RECOVERY"     => evL and evLatchL
+    "TREND_DIP"          => evL and TS4 >= TS_TREND and NET4 > 0
+    "BAND_RIDE"          => run == 2 and TS >= TS_TREND and NET > 0
+    "STOP_CASCADE"       => cascade
+    "SHOCK_IMPULSE"      => shock and bandsOK and C > U and clv >= 0.5
+    "OPEN_BREAK"         => obRaw and nOB == 1
+    "CLOSE_DRIFT"        => barOpenMin == IB and dC >= zL
+    "EURO_OPEN_REVERSAL" => barOpenMin == EUB - tf and fPrev
+    => false
+
+// the exit of each family, fixed at the signal: a stop level (mirrored prices), a close-based exit and a time cap in bars
+float stopLvl = switch famIn
+    "BAND_RECOVERY"      => evExtL
+    "QUIET_RECOVERY"     => evExtL
+    "SHOCK_RECOVERY"     => evExtL
+    "TREND_DIP"          => evExtL
+    "BAND_RIDE"          => mu
+    "STOP_CASCADE"       => L
+    "SHOCK_IMPULSE"      => MIDp
+    "OPEN_BREAK"         => oDay
+    "EURO_OPEN_REVERSAL" => sessLow
+    => na
+int cxType = famIn == "TREND_DIP" ? 2 : famIn == "BAND_RIDE" ? 3 :
+     (famIn == "BAND_RECOVERY" or famIn == "QUIET_RECOVERY" or famIn == "SHOCK_RECOVERY") ? 1 : 0
+int capBars = switch famIn
+    "BAND_RECOVERY"      => 2 * W
+    "QUIET_RECOVERY"     => 2 * W
+    "SHOCK_RECOVERY"     => 2 * W
+    "TREND_DIP"          => 4 * W
+    "STOP_CASCADE"       => W
+    "SHOCK_IMPULSE"      => 2
+    "CLOSE_DRIFT"        => 1
+    "EURO_OPEN_REVERSAL" => 4
+    => 1000000
+
+// ───────────────────────────── execution (FRAMEWORK B.3): decide at the close, fill at the next open; flat by 15:08 CT
+inWindow = time >= fromT and time <= toT
+int flatMin = flatH * 60 + flatMn
+bool afterFlat = useFlat and barOpenMin < 17 * 60 and barOpenMin + tf > flatMin
+bool lastTradable = useFlat and not afterFlat and barOpenMin < 17 * 60 and barOpenMin + 2 * tf > flatMin
+bool lastOfSession = session.islastbar or time_close >= time_close("D") or lastTradable or afterFlat
+bool canEnter = sig and inWindow and strategy.position_size == 0 and not lastOfSession
+
+var int   posCx = 0
+var int   posCap = 0
+var float posStopM = na
+if canEnter
+    posCx := cxType
+    posCap := capBars
+    posStopM := na(stopLvl) ? na : stopLvl - tk
+    strategy.entry("E", isLong ? strategy.long : strategy.short)
+    if not na(posStopM)
+        strategy.exit("S", "E", stop = sgn * posStopM, comment_loss = "SL")
+
+if strategy.position_size != 0
+    int eb = strategy.opentrades.entry_bar_index(0)
+    bool cxHit = posCx == 1 ? C >= mu : posCx == 2 ? C >= U : posCx == 3 ? C < mu : false
+    if lastOfSession
+        strategy.close("E", comment = "EOS", immediately = true)
+    else if cxHit
+        strategy.close("E", comment = "X")
+    else if bar_index >= eb + posCap - 1
+        strategy.close("E", comment = "TIME")
+
+// ───────────────────────────── visuals (real prices)
+plot(sgn * mu, "Mean of DISC (prior Q bars)", color = color.gray, linewidth = 2)
+plot(isLong ? U : -Lo, "Upper band", color = color.green, linewidth = 2)
+plot(isLong ? Lo : -U, "Lower band", color = color.red, linewidth = 2)
+plotshape(sig and inWindow, "Signal", style = isLong ? shape.triangleup : shape.triangledown,
+     location = isLong ? location.belowbar : location.abovebar, color = isLong ? color.teal : color.orange, size = size.tiny)
+
+var table tb = table.new(position.top_right, 2, 8, bgcolor = color.new(color.black, 15), border_width = 1)
+f_row(row, k, val) =>
+    table.cell(tb, 0, row, k, text_color = color.white, text_size = size.small)
+    table.cell(tb, 1, row, val, text_color = color.white, text_size = size.small)
+if showT and barstate.islast
+    f_row(0, "Cell", famIn + " · Q " + str.tostring(Q) + " · L " + str.tostring(LEVEL) + " · " + sideIn)
+    f_row(1, "K_U / K_L", str.tostring(KU, "0.000") + " / " + str.tostring(KL, "0.000"))
+    f_row(2, "K census size / needed", str.tostring(fifo.size()) + " / " + str.tostring(NK))
+    f_row(3, "W(Q)", str.tostring(W))
+    f_row(4, "TS / TS4", str.tostring(TS, "0.00") + " / " + str.tostring(TS4, "0.00"))
+    f_row(5, "slot range / volume", str.tostring(rr, "0.00") + " / " + str.tostring(rv, "0.00"))
+    f_row(6, "ATR(14)", str.tostring(atrV, format.mintick))
+    f_row(7, "Closed trades", str.tostring(strategy.closedtrades))

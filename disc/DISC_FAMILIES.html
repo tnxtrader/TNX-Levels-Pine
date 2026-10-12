@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DISC Families v3</title>
+<style>
+  :root{ --bg:#0f1115; --panel:#161a22; --panel2:#1b2029; --border:#2a3040; --text:#e7ebf3; --muted:#9aa5b8; --accent:#4fb3ff; --accent2:#ffb454; --rev:#7fd1b8; --tr:#9fb4f0; --ses:#f0b27d; --code-bg:#0b0d12; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  main{max-width:1050px;margin:0 auto;padding:36px 20px 72px}
+  h1{font-size:30px;margin:0 0 6px} h2{font-size:21px;margin:40px 0 12px;border-bottom:1px solid var(--border);padding-bottom:8px}
+  h3{font-size:16px;margin:0;font-family:Consolas,Menlo,monospace}
+  p{font-size:14px;line-height:1.65;max-width:85ch} .lead{color:var(--muted)}
+  code{font-family:Consolas,Menlo,monospace;background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:12.8px;color:#c9f5d8}
+  .tw{overflow-x:auto} table{border-collapse:collapse;width:100%;font-size:13.5px;margin:10px 0}
+  th,td{border:1px solid var(--border);padding:7px 10px;text-align:left;vertical-align:top} th{background:var(--panel2);color:var(--accent2)}
+  .box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin:14px 0}
+  .fam{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin:14px 0}
+  .head{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline;margin-bottom:8px}
+  .n{color:var(--muted);font-weight:600}
+  .pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600}
+  .rev{background:#16322b;color:var(--rev)} .tr{background:#1c2540;color:var(--tr)} .ses{background:#3a2716;color:var(--ses)}
+  .rows{display:grid;grid-template-columns:8.5em 1fr;gap:6px 14px;font-size:14px;line-height:1.55}
+  .k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+  .basis{font-size:12.5px;color:var(--muted)}
+  ul{font-size:14px;line-height:1.65}
+  @media (max-width:600px){.rows{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<h1>DISC FAMILIES v3</h1>
+<p class="lead">Ten entry families on the DISC v3 engine, in three groups. BAND_RECOVERY is kept and fixed. The other nine are rebuilt or new, each on a published market effect. Every family has one fixed exit and no tuned constant. Each one is searched only over Q (3 to 500), the band level (80, 90, 95) and the side. The engine is defined in DISC_FRAMEWORK.html, Part B.</p>
+
+<h2>The ten families</h2>
+<div class="tw"><table>
+<tr><th>#</th><th>family</th><th>group</th><th>entry in one line</th><th>exit</th></tr>
+<tr><td>1</td><td><code>BAND_RECOVERY</code></td><td><span class="pill rev">Reversion</span></td><td>a close back above Lower within W(Q) bars of a close below it</td><td>close ≥ mean · stop at the excursion low · 2W bars</td></tr>
+<tr><td>2</td><td><code>QUIET_RECOVERY</code></td><td><span class="pill rev">Reversion</span></td><td>BAND_RECOVERY in a market choppier than a random walk (TS ≤ 0.85)</td><td>as 1</td></tr>
+<tr><td>3</td><td><code>SHOCK_RECOVERY</code></td><td><span class="pill rev">Reversion</span></td><td>BAND_RECOVERY of an excursion that held a liquidity shock</td><td>as 1</td></tr>
+<tr><td>4</td><td><code>TREND_DIP</code></td><td><span class="pill tr">Trend</span></td><td>BAND_RECOVERY of a dip against a strong 4Q up-trend</td><td>close ≥ Upper · stop at the excursion low · 4W bars</td></tr>
+<tr><td>5</td><td><code>BAND_RIDE</code></td><td><span class="pill tr">Trend</span></td><td>the second consecutive close above Upper inside a strong Q up-trend</td><td>close &lt; mean · stop at the mean of the signal bar</td></tr>
+<tr><td>6</td><td><code>STOP_CASCADE</code></td><td><span class="pill tr">Trend</span></td><td>after a failed upper excursion, a close above that excursion's high within W(Q)</td><td>stop at the signal bar's low · W bars</td></tr>
+<tr><td>7</td><td><code>SHOCK_IMPULSE</code></td><td><span class="pill tr">Trend</span></td><td>a liquidity-shock bar that closes above Upper, near its high</td><td>stop at the bar's middle · 2 bars</td></tr>
+<tr><td>8</td><td><code>OPEN_BREAK</code></td><td><span class="pill ses">Session</span></td><td>the first day-session bar whose DISC is far above the open, against that slot's normal move</td><td>stop at the open of the day · flat-by</td></tr>
+<tr><td>9</td><td><code>CLOSE_DRIFT</code></td><td><span class="pill ses">Session</span></td><td>at the bar before settlement, DISC far above the previous settlement against its normal size</td><td>the settlement bar only (1 bar)</td></tr>
+<tr><td>10</td><td><code>EURO_OPEN_REVERSAL</code></td><td><span class="pill ses">Session</span></td><td>the previous session's settlement bar closed below Lower: buy the European open</td><td>stop at the session's low up to the signal · 4 bars</td></tr>
+</table></div>
+
+<h2>Rules every family follows</h2>
+<ul>
+<li><b>Long form.</b> Every rule below is the long rule. The short rule is the same rule on mirrored prices <code>(open, high, low, close) → (−open, −low, −high, −close)</code>: Upper becomes Lower, a high becomes a low, a sign flips. The engine is exactly mirror-symmetric, so nothing else changes.</li>
+<li><b>Timing.</b> A family is decided at the close of its signal bar and filled at the open of the next bar of the same session. There is no entry from a session's last tradable bar (flat by 15:08 CT). One position at a time.</li>
+<li><b>Exits, checked on every bar from the entry bar, in this order:</b>
+<ol>
+<li>the open through the stop: exit at the open;</li>
+<li>the low through the stop: exit at the stop;</li>
+<li>the session's last tradable bar: exit at its close;</li>
+<li>the family's close-based exit: exit at the next open;</li>
+<li>the time cap reached: exit at the next open.</li>
+</ol>
+Every stop sits 1 tick beyond its level.</li>
+<li><b>Axes.</b>
+<ul>
+<li>Q on the grid 3, 4, 5, 6, 8, 10, 12, 15, 19, 24, 31, 39, 49, 62, 78, 98, 124, 156, 197, 249, 314, 396, 500.</li>
+<li>Q counts bars for families 1–7 and 10, and sessions for OPEN_BREAK and CLOSE_DRIFT.</li>
+<li>Level 80, 90 or 95 is the band level for families 1–7 and 10. For 8 and 9 it maps to the normal quantile 1.2816, 1.6449 or 1.9600.</li>
+<li>Both sides.</li>
+</ul></li>
+<li><b>Gate.</b> A family that reads a band fires only where the band is ready (census full, K_U and K_L &gt; 0). A family that reads a slot history fires only once that history is full.</li>
+<li><b>Constants.</b> The only constants are TS 0.85 / 2.0 (random-walk quantiles), SHOCK ×2 (twice the slot median), SLOT_N 20 sessions, the shock close CLV ≥ 0.5, and the published horizons of families 7 and 10 (2 and 4 bars). None is ever tuned.</li>
+</ul>
+
+<h2>Building blocks (from the engine)</h2>
+<div class="box"><div class="tw"><table>
+<tr><th>name</th><th>definition</th></tr>
+<tr><td>DISC</td><td><code>MID + ½·R·tanh(1.05·CLV + 0.62·body·CLV − 0.18·dir·body − 0.04·dir)</code>, with <code>CLV = (2C − H − L)/R</code> and <code>body = |C − O|/R</code></td></tr>
+<tr><td>mean μ, sd σ</td><td>the mean and population sd of DISC over the Q bars <b>before</b> t</td></tr>
+<tr><td>z</td><td><code>(DISC − μ) / σ</code></td></tr>
+<tr><td>Upper, Lower</td><td><code>μ + K_U·σ</code>, <code>μ − K_L·σ</code>; K is the empirical quantile of the last N_K valid z values: (100 − L)/2 % beyond each band</td></tr>
+<tr><td>excursion, recovery, W(Q)</td><td>a close below Lower starts an excursion; a close back above Lower within <code>W(Q) = max(5, ⌈√Q⌉)</code> bars is a recovery; otherwise the excursion expires (no trade) and re-arms on the next close inside</td></tr>
+<tr><td>excursion low</td><td>the lowest low from the excursion's first bar to the recovery bar, inclusive</td></tr>
+<tr><td>TS</td><td><code>|C − C[q]| / Σ|ΔC| · √q</code>; a random walk has median 0.85 and 90th percentile 2.0</td></tr>
+<tr><td>liquidity shock</td><td>range ≥ 2 × the median range of the same time slot over the previous 20 sessions, AND volume ≥ 2 × the slot's median volume</td></tr>
+<tr><td>session anchors</td><td>OB = the cash-open bar; SB = the bar ending at the settlement; IB = the bar before SB; O_day = the open of OB; S_prev = the close of the previous session's SB</td></tr>
+</table></div></div>
+
+<h2>Reversion</h2>
+<p class="lead">Market makers who absorb a burst of one-sided orders are paid when the price comes back. The trade waits for the return inside the band: the bounce literature shows the first break is not yet the reversal.</p>
+
+<div class="fam"><div class="head"><span class="n">1</span><h3>BAND_RECOVERY</h3><span class="pill rev">Reversion</span><span class="basis">kept from v2, fixed</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>A close beyond the band that returns inside quickly was a temporary imbalance, and price reverts toward the mean. This is the yardstick for families 2–4.</div>
+<div class="k">Entry</div><div>The recovery bar of a Lower-band excursion: a close below Lower, then a close above Lower within W(Q) bars.</div>
+<div class="k">Exit</div><div>The first close ≥ μ, at the next open. Stop 1 tick below the excursion low. Time cap 2·W(Q) bars. Flat-by.</div>
+<div class="k">Fixed vs v2</div><div>The band uses the prior-window z, so there is no Samuelson ceiling and Q 3–500 all work. The census is exact. The DISC is symmetric. The exit is defined.</div>
+<div class="k">Basis</div><div class="basis">Campbell, Grossman &amp; Wang 1993; Nagel 2012; Heston, Korajczyk &amp; Sadka 2010; contrarian Bollinger results (Lento et al. 2007)</div>
+</div></div>
+
+<div class="fam"><div class="head"><span class="n">2</span><h3>QUIET_RECOVERY</h3><span class="pill rev">Reversion</span><span class="basis">new</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>Reversion pays where the market itself is mean-reverting. A market choppier than a random walk has a low efficiency ratio for its horizon.</div>
+<div class="k">Entry</div><div>The BAND_RECOVERY event with <code>TS_Q ≤ 0.85</code> on the recovery bar.</div>
+<div class="k">Exit</div><div>As BAND_RECOVERY.</div>
+<div class="k">Basis</div><div class="basis">Lo &amp; MacKinlay 1988 (variance ratio &lt; 1 means mean reversion); Kaufman efficiency ratio; Bianco &amp; Renò 2006 (reversal outside high unexpected-volatility regimes). The threshold is the random-walk median, simulated.</div>
+</div></div>
+
+<div class="fam"><div class="head"><span class="n">3</span><h3>SHOCK_RECOVERY</h3><span class="pill rev">Reversion</span><span class="basis">rebuilt from climax_exhaustion</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>A price move made on unusual volume AND an unusual range for that time of day is liquidity demand. When it comes back inside the band, the reversal pays the most.</div>
+<div class="k">Entry</div><div>The BAND_RECOVERY event whose excursion held at least one shock bar (from the first bar beyond the band to the recovery bar, inclusive).</div>
+<div class="k">Exit</div><div>As BAND_RECOVERY.</div>
+<div class="k">Fixed vs v2</div><div>The CLIMAX label compared a bar with the previous 4 hours and fired on 98.6% of cash-open bars. The shock is now measured against the same slot of previous sessions, so it fires on about a third at every hour.</div>
+<div class="k">Basis</div><div class="basis">Campbell, Grossman &amp; Wang 1993 (high-volume moves reverse); Llorente et al. 2002 (reversal where trading is hedging, as in index futures); Nagel 2012; Andersen &amp; Bollerslev 1997 (slot normalization)</div>
+</div></div>
+
+<h2>Trend</h2>
+<p class="lead">Futures trend at weekly-to-monthly horizons. A strong trend at the family's own scale is required before a continuation is taken, and that strength is measured against a random walk.</p>
+
+<div class="fam"><div class="head"><span class="n">4</span><h3>TREND_DIP</h3><span class="pill tr">Trend</span><span class="basis">rebuilt from mean_pullback</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>A short-term overreaction against a longer trend reverses back into the trend: buy the dip of an up-trend once it has recovered.</div>
+<div class="k">Entry</div><div>The BAND_RECOVERY event with <code>TS_4Q ≥ 2.0</code> and <code>C − C[4Q] &gt; 0</code> on the recovery bar.</div>
+<div class="k">Exit</div><div>The first close ≥ Upper, at the next open (the trend resumed). Stop 1 tick below the excursion low. Time cap 4·W(Q) bars. Flat-by.</div>
+<div class="k">Basis</div><div class="basis">Moskowitz, Ooi &amp; Pedersen 2012; Hurst, Ooi &amp; Pedersen 2017; Kwon et al. 2020 (weekly commodity momentum); short-term liquidity reversal (above)</div>
+</div></div>
+
+<div class="fam"><div class="head"><span class="n">5</span><h3>BAND_RIDE</h3><span class="pill tr">Trend</span><span class="basis">rebuilt</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>Closes that stay beyond the band while the market trends far more than a random walk are a trend being accepted.</div>
+<div class="k">Entry</div><div>The bar on which the run of consecutive closes above Upper reaches 2, with <code>TS_Q ≥ 2.0</code> and <code>C − C[Q] &gt; 0</code>. Needs Q ≥ 5 (TS ≤ √Q).</div>
+<div class="k">Exit</div><div>The first close &lt; μ, at the next open. Stop 1 tick below the signal bar's μ. Flat-by.</div>
+<div class="k">Fixed vs v2</div><div>band_move and mean_dir (the 20th-percentile direction rules, about 80% UP/DOWN by construction) are replaced by one trend test with a random-walk null.</div>
+<div class="k">Basis</div><div class="basis">Moskowitz, Ooi &amp; Pedersen 2012; Lo &amp; MacKinlay 1988 (variance ratio &gt; 1); Kaufman</div>
+</div></div>
+
+<div class="fam"><div class="head"><span class="n">6</span><h3>STOP_CASCADE</h3><span class="pill tr">Trend</span><span class="basis">rebuilt from failed_reclaim</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>Stops cluster just beyond the extreme of a recent excursion. When a failed upper excursion's high is broken soon after, the triggered stops push price further.</div>
+<div class="k">Entry</div><div>After an Upper-band recovery (a close back below Upper) at bar r with excursion high X: the first close &gt; X within W(Q) bars after r.</div>
+<div class="k">Exit</div><div>Stop 1 tick below the signal bar's low. Time cap W(Q) bars. Flat-by.</div>
+<div class="k">Basis</div><div class="basis">Osler 2005 (trends accelerate at stop-loss clusters; take-profit clusters reverse)</div>
+</div></div>
+
+<div class="fam"><div class="head"><span class="n">7</span><h3>SHOCK_IMPULSE</h3><span class="pill tr">Trend</span><span class="basis">rebuilt from vol_burst_break</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>Unexpected volatility makes short-horizon index-futures returns positively autocorrelated. A shock bar that closes beyond the band near its high carries on briefly.</div>
+<div class="k">Entry</div><div>A shock bar with <code>C &gt; Upper</code> and <code>CLV ≥ 0.5</code>.</div>
+<div class="k">Exit</div><div>Stop 1 tick below the shock bar's middle. Time cap 2 bars. Flat-by.</div>
+<div class="k">Basis</div><div class="basis">Bianco &amp; Renò 2006, 2009 (unexpected volatility drives positive intraday serial correlation). Short hold, because the effect is short-lived.</div>
+</div></div>
+
+<h2>Session</h2>
+<p class="lead">Effects tied to the trading clock, measured with the engine's DISC and Q.</p>
+
+<div class="fam"><div class="head"><span class="n">8</span><h3>OPEN_BREAK</h3><span class="pill ses">Session</span><span class="basis">new</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>A move away from the open that is large <i>for that time of day</i> marks an imbalance that carries through the day. This is the noise-area breakout on DISC.</div>
+<div class="k">Entry</div><div>On day-session bars (OB ≤ bar &lt; SB): <code>d = (DISC − O_day) / rms_slot</code>, where rms_slot is the root mean square of <code>DISC − O_day</code> at the same slot over the previous Q sessions. Enter on the first bar of the session with <code>d ≥ z_L</code>.</div>
+<div class="k">Exit</div><div>Stop 1 tick below O_day. Flat-by.</div>
+<div class="k">Basis</div><div class="basis">Zarattini, Aziz &amp; Barbon 2024 (noise area, 2007–2024); Holmberg et al. 2013; Lundström 2017 (volatility states). Q here counts sessions; ZAB's 14 days is on the grid.</div>
+</div></div>
+
+<div class="fam"><div class="head"><span class="n">9</span><h3>CLOSE_DRIFT</h3><span class="pill ses">Session</span><span class="basis">new</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>The day's move since the previous settlement predicts the last half-hour (hedging demand). Thresholds survive out of sample better than signs.</div>
+<div class="k">Entry</div><div>At IB: <code>s = (DISC − S_prev) / rms_IB</code>, where rms_IB is the root mean square of <code>DISC − S_prev</code> at IB over the previous Q sessions. Enter if <code>s ≥ z_L</code>.</div>
+<div class="k">Exit</div><div>One bar: in at the open of SB, out at the next open, or at SB's close when SB is the last tradable bar.</div>
+<div class="k">Basis</div><div class="basis">Gao et al. 2018; Baltussen et al. 2021; Rosa 2022 (out-of-sample decay; thresholds help)</div>
+</div></div>
+
+<div class="fam"><div class="head"><span class="n">10</span><h3>EURO_OPEN_REVERSAL</h3><span class="pill ses">Session</span><span class="basis">new</span></div>
+<div class="rows">
+<div class="k">Idea</div><div>After a US sell-off into the close, dealers carry inventory. Prices rebound strongly when Europe opens; after rallies the effect is much weaker.</div>
+<div class="k">Entry</div><div>Signal at the bar before the European-open bar (default 01:00 CT) if the previous session's SB closed below its Lower band. Fill at the European-open bar.</div>
+<div class="k">Exit</div><div>Stop 1 tick below the session's lowest low up to and including the signal bar. Time cap 4 bars. Flat-by.</div>
+<div class="k">Basis</div><div class="basis">Boyarchenko, Larsen &amp; Whelan 2023, RFS (the overnight drift; asymmetric after sell-offs). The paper studies US equities, so CL, GC and SI are tested as an extension.</div>
+</div></div>
+
+<h2>Families of v2 not carried</h2>
+<div class="box"><p>The following v2 families were not carried, each for the reason given:</p>
+<ul>
+<li><code>cusum_event</code>: fired on 39% of bars.</li>
+<li><code>surprise_break</code>: meaningless once z is prior-window.</li>
+<li><code>vwap_reversion</code>: a second band on the same idea.</li>
+<li><code>shape_rejection</code>: candlestick evidence is negative.</li>
+<li><code>ad_divergence_*</code>: AD offset and volume-source problems.</li>
+<li><code>range_fade</code>: merged into QUIET_RECOVERY.</li>
+<li>the early-entry forms: these enter before the reversal is confirmed.</li>
+</ul>
+<p>The measurements and sources are in DISC_RESEARCH.md.</p></div>
+</main>
+</body>
+</html>

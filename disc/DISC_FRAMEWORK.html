@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DISC Engine Framework</title>
+<style>
+  :root{ --bg:#0f1115; --panel:#161a22; --panel2:#1b2029; --border:#2a3040; --text:#e7ebf3; --muted:#9aa5b8; --accent:#4fb3ff; --accent2:#ffb454; --red:#ff6b6b; --green:#5fd18c; --violet:#b48cff; --code-bg:#0b0d12; }
+  *{box-sizing:border-box;} html{scroll-behavior:smooth;}
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:-apple-system, Segoe UI, Roboto, Arial, sans-serif; display:flex; min-height:100vh; }
+  nav{ width:270px; flex:0 0 270px; background:var(--panel); border-right:1px solid var(--border); padding:20px 14px; position:sticky; top:0; height:100vh; overflow-y:auto; }
+  nav h1{font-size:14px; letter-spacing:.06em; color:var(--accent); margin:0 0 4px;}
+  nav .sub{font-size:11px; color:var(--muted); margin-bottom:18px; line-height:1.5;}
+  nav a{ display:block; padding:6px 10px; border-radius:6px; color:var(--text); text-decoration:none; font-size:13px; margin-bottom:2px; }
+  nav a:hover{background:var(--panel2);}
+  nav .group-label{font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:16px 0 6px 10px;}
+  main{flex:1; padding:40px 56px; max-width:1100px; min-width:0;}
+  section{margin-bottom:52px;}
+  h2.section-title{font-size:25px; margin:0 0 18px; border-bottom:1px solid var(--border); padding-bottom:10px;}
+  h3.h{font-size:17px; color:var(--accent2); margin:26px 0 8px;}
+  h4.job{font-size:14px; color:var(--accent); margin:18px 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+  .hero h1{font-size:32px; margin:0 0 6px;}
+  .hero .sub{color:var(--muted); font-size:14px; margin-bottom:26px; line-height:1.6;}
+  .pillar{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:18px 22px; margin-bottom:16px;}
+  .pillar h3{margin:0 0 8px; font-size:16px; color:var(--accent2); display:flex; align-items:center; gap:10px;}
+  .pillar h3 .num{display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:var(--panel2); border:1px solid var(--border); color:var(--text); font-size:13px;}
+  .pillar p{margin:6px 0; font-size:14px; line-height:1.6;}
+  .box{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:18px;}
+  p{font-size:14px; line-height:1.65;} ol,ul{font-size:14px; line-height:1.65; padding-left:22px;} li{margin-bottom:7px;}
+  pre.f{ background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-family:Consolas, Menlo, monospace; font-size:12.8px; line-height:1.55; color:#c9f5d8; overflow-x:auto; margin:10px 0; white-space:pre-wrap; }
+  code{font-family:Consolas, Menlo, monospace; background:var(--code-bg); padding:1px 5px; border-radius:4px; font-size:12.8px; color:#c9f5d8;}
+  .tw{overflow-x:auto;} table{border-collapse:collapse; width:100%; margin:12px 0; font-size:13.5px;}
+  th,td{border:1px solid var(--border); padding:7px 10px; text-align:left; vertical-align:top;} th{background:var(--panel2); color:var(--accent2);}
+  .plain{font-size:13.5px; background:var(--panel2); border-left:3px solid var(--accent); padding:10px 14px; border-radius:6px; margin:10px 0;}
+  .plain b{color:var(--accent);}
+  .basis{font-size:12.5px; color:var(--muted); margin-top:10px;} .basis b{color:var(--accent2); font-weight:600;}
+  .gate{margin-top:14px; padding:12px 16px; border-radius:8px; background:rgba(255,107,107,.08); border:1px solid rgba(255,107,107,.3); font-size:13.5px;} .gate b{color:var(--red);}
+  .out{margin-top:14px; padding:12px 16px; border-radius:8px; background:rgba(95,209,140,.06); border:1px solid rgba(95,209,140,.3); font-size:13.5px;} .out b{color:var(--green);}
+  .closeout{margin-top:14px; padding:12px 16px; border-radius:8px; background:rgba(79,179,255,.06); border:1px solid rgba(79,179,255,.3); font-size:13.5px;} .closeout b{color:var(--accent);}
+  .stage{margin:34px 0 14px; padding:10px 16px; border-left:4px solid var(--violet); background:rgba(180,140,255,.06); border-radius:6px; font-size:15px; color:var(--violet); font-weight:600;}
+  @media (max-width: 860px){ body{display:block;} nav{position:static; width:auto; height:auto; border-right:none; border-bottom:1px solid var(--border);} main{padding:24px 16px;} }
+</style>
+</head>
+<body>
+<nav>
+  <h1>DISC ENGINE v3</h1>
+  <div class="sub">Build framework · CL · GC · NQ · SI · YM · 30-minute bars · TopstepX · micro and mini</div>
+  <a href="#pillars">Locked Pillars</a>
+  <a href="#arch">Part A — Architecture</a>
+  <a href="#laws">Part B — Standing Laws</a>
+  <a href="#engine">B.4 — The DISC Engine</a>
+  <a href="#universe">Part C — The Universe</a>
+  <div class="group-label">Foundation</div>
+  <a href="#f0">F0 — Data &amp; Clock</a>
+  <a href="#f1">F1 — Engine Acceptance &amp; Calibration</a>
+  <a href="#f2">F2 — Pre-registration &amp; Ledger</a>
+  <div class="group-label">Stage I — Edge before costs</div>
+  <a href="#p1">P1 — Event Study</a>
+  <a href="#p2">P2 — Family Test</a>
+  <a href="#p3">P3 — Cell Selection (Q bands)</a>
+  <a href="#p4">P4 — Luck Elimination &amp; Edge Certificate</a>
+  <div class="group-label">Stage II — Costs</div>
+  <a href="#p5">P5 — Cost Hurdle (micro and mini)</a>
+  <div class="group-label">Stage III — Construction</div>
+  <a href="#p6">P6 — Walk-forward Q Choice</a>
+  <a href="#p7">P7 — Net Evidence &amp; Account Fit</a>
+  <div class="group-label">Stage IV — Exams</div>
+  <a href="#p8">P8 — Validation (one look)</a>
+  <a href="#p9">P9 — Sealed Test (one look)</a>
+  <div class="group-label">Stage V — Live</div>
+  <a href="#p10">P10 — Pine Parity, Incubation &amp; Kill Switch</a>
+  <div class="group-label">Sources</div>
+  <a href="#refs">Part D — References</a>
+</nav>
+
+<main>
+<div class="hero">
+  <h1>DISC ENGINE v3 — BUILD FRAMEWORK</h1>
+  <div class="sub">Ten DISC families, each searched only over its lookback Q (3 to 500, 23 geometric steps), its band level (80, 90, 95) and its side. That is 1,380 cells per market, five markets, and no entry conditions to tune. Every family carries one fixed exit.<br><br>The program runs in five stages. Stage I proves an edge before any cost: it must beat the drift of the same holding time at the same time of day, survive the family test and the Q-band test, and beat its own luck in every randomization test (999 draws each, with the whole selection repeated inside). Only then does Stage II apply TopstepX costs for the micro and the mini contract. Stage III fixes Q by walk-forward and proves the net result. Stage IV opens Validation and the sealed Test once each. Stage V runs the Pine script live under a kill switch. A stage without a survivor ends the program, and that is a valid result.<br><br>The engine itself is defined in B.4, the families in DISC_FAMILIES.html, the reasons for every choice in DISC_RESEARCH.md, and the chart implementation in DISC_ENGINE_v3.pine.</div>
+</div>
+
+<!-- ============================================================ PILLARS -->
+<section id="pillars">
+  <h2 class="section-title">THE LOCKED PILLARS</h2>
+  <div class="pillar"><h3><span class="num">1</span>LUCK IS THE DEFAULT HYPOTHESIS</h3><p>A result counts only after it beats its own luck in every randomization test (B.11), with the search over families, Q and levels repeated inside each randomization.</p></div>
+  <div class="pillar"><h3><span class="num">2</span>EDGE BEFORE COSTS</h3><p>Stage I uses gross results only. No cell sees its costs before it holds an Edge Certificate.</p></div>
+  <div class="pillar"><h3><span class="num">3</span>NO LEAKAGE</h3><p>Every engine value reads bars before or at t. The band at bar t is fixed before bar t prints. The universe, the engine and every threshold are hashed before any result exists. Validation and Test are opened once each.</p></div>
+  <div class="pillar"><h3><span class="num">4</span>NOTHING TUNED BUT Q AND THE LEVEL</h3><p>Every constant of the engine and the families is fixed in advance from a published value or a random-walk simulation, never from data. The only search is over Q, the level and the side, and every searched cell is counted.</p></div>
+  <div class="pillar"><h3><span class="num">5</span>CONSERVATIVE EXECUTION, TOPSTEP RULES</h3><p>Decide at the close, fill at the next open. The stop wins a tie and a gap fills at the open. Stop fills are stressed (B.14). Every position is flat by 15:08 CT, and none is held across a session or a roll.</p></div>
+  <div class="pillar"><h3><span class="num">6</span>BOTH CONTRACTS, BOTH SIDES</h3><p>Every certified edge is costed for micro and mini. Every family runs long and short, as exact mirrors.</p></div>
+</section>
+
+<!-- ============================================================ PART A -->
+<section id="arch">
+  <h2 class="section-title">PART A — THE ARCHITECTURE</h2>
+
+  <h3 class="h">A.1 — The funnel</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>stage</th><th>phases</th><th>question</th><th>money</th><th>output</th></tr>
+    <tr><td>Foundation</td><td>F0–F2</td><td>Are the data clean, is the engine exact, are the tests calibrated, is the universe frozen?</td><td>—</td><td>sealed data, verified engine, hashed universe</td></tr>
+    <tr><td><b>I — Edge before costs</b></td><td>P1–P4</td><td>Is there a timing edge that is not luck, not drift, not one Q, not one period?</td><td>gross</td><td>Edge Certificates</td></tr>
+    <tr><td><b>II — Costs</b></td><td>P5</td><td>Does it pay micro or mini costs with a margin?</td><td>net</td><td>cell × contract pairs</td></tr>
+    <tr><td><b>III — Construction</b></td><td>P6–P7</td><td>Which Q inside the band, chosen walk-forward? Does the net result survive and fit the account?</td><td>net</td><td>frozen strategies</td></tr>
+    <tr><td><b>IV — Exams</b></td><td>P8–P9</td><td>Does it hold on unseen years, looked at once?</td><td>gross + net</td><td>deployment cards</td></tr>
+    <tr><td><b>V — Live</b></td><td>P10</td><td>Does the Pine script reproduce it, and does real time confirm it?</td><td>net</td><td>live or killed</td></tr>
+  </table></div></div>
+
+  <h3 class="h">A.2 — The program in plain words</h3>
+  <div class="box"><ol>
+    <li><b>F0–F2.</b> Clean the data and lock away the last 40% of history. Prove the engine is exact. Prove the tests rarely find an edge on fake markets without one, and do find a planted one. Freeze the 1,380 cells per market.</li>
+    <li><b>P1.</b> For every cell, measure what its trades earned before costs, against simply holding for the same time at the same hour.</li>
+    <li><b>P2.</b> Ask each family on each market and side as a whole whether it beats chance.</li>
+    <li><b>P3.</b> Inside the families that pass, keep only cells that work across several neighbouring Q values, not at one lucky Q.</li>
+    <li><b>P4.</b> Try to destroy each survivor with 999 shuffled markets (the whole search repeated on each), random entry times, shifted signals, worse stop fills, other years and regimes, and many out-of-sample paths. Then deflate by every trial.</li>
+    <li><b>P5.</b> Apply the micro and mini costs, and keep only edges that pay them at least twice over.</li>
+    <li><b>P6–P7.</b> Choose Q inside its band using only older years. Prove the net result again, and check that the risk fits the Topstep account.</li>
+    <li><b>P8–P9.</b> Run on the locked Validation years once, then the locked Test years once.</li>
+    <li><b>P10.</b> Load the card into the Pine script, check it matches, run 30 simulated trades, and stop it the moment it breaks.</li>
+  </ol></div>
+
+  <h3 class="h">A.3 — The gate law</h3>
+  <div class="box"><ol>
+    <li>Every gate has a fixed threshold written in the configuration before F2.</li>
+    <li>Unit gates are columns <code>g_*</code>, and a unit continues only if all its hard gates pass. Report figures decide nothing.</li>
+    <li>A phase is <b>PASS</b> with at least one survivor, else <b>STOP</b>. The next phase refuses to start after a STOP.</li>
+    <li>Selection and testing never reuse one statistic on the same data. P1 measures, P2 selects families, P3 selects cells, and P4 attacks them with tests P2–P3 did not use.</li>
+  </ol></div>
+
+  <h3 class="h">A.4 — The windows</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>window</th><th>share of sessions</th><th>used by</th></tr>
+    <tr><td><b>Dev</b>: 6 blocks (walk-forward), 10 groups (CPCV), 16 blocks (CSCV)</td><td>first 60%</td><td>F1, P1–P7</td></tr>
+    <tr><td>embargo</td><td>1 session</td><td>nothing</td></tr>
+    <tr><td><b>Validation</b></td><td>next 20%</td><td>P8, once</td></tr>
+    <tr><td>embargo</td><td>1 session</td><td>nothing</td></tr>
+    <tr><td><b>Test</b> (sealed, rows not loaded before P9)</td><td>last 20%</td><td>P9, once</td></tr>
+  </table></div>
+  <p>Every engine history (μ, σ, the K census, slot medians, slot RMS) is warmed up on the bars before a window and carried into it, so the first bars of a window are judged like every other bar. No trade crosses a session end, so none crosses a window boundary.</p>
+  <div class="basis"><b>Basis:</b> [R10, R3].</div></div>
+
+  <h3 class="h">A.5 — The statistic catalogue</h3>
+  <div class="box">
+    <p><b>Trade value.</b> Gross R = (exit − entry) / ATR(14) of the signal bar, on the side's mirrored prices. <b>Per-session series:</b> the sum of the trade values entered in each session, 0 for a session without a trade. Every mean, t, Sharpe ratio, bootstrap and deflation uses this series.</p>
+    <div class="tw"><table>
+      <tr><th>statistic</th><th>definition</th><th>basis</th></tr>
+      <tr><td>Excess</td><td>gross R minus the matched drift: the mean over every eligible Dev bar with the same bar time and side of <code>(open[t+1+h] − open[t+1]) / ATR[t]</code>, where h is that trade's own holding length in bars</td><td>[R11, R31]</td></tr>
+      <tr><td>Newey-West t</td><td>x̄ / √(Ω/T); Ω = γ<sub>0</sub> + 2 Σ<sub>k≤L</sub>(1 − k/(L+1))γ<sub>k</sub>; L = ⌊4(T/100)<sup>2/9</sup>⌋; one-sided p = 1 − Φ(t)</td><td>[R7, R8]</td></tr>
+      <tr><td>Family p</td><td><code>min(1, 2·min(p_Simes, p_pooled))</code>. Simes: min<sub>i</sub> m·p<sub>(i)</sub>/i over the family's cells. Pooled: the Newey-West p of the cells' average per-session excess.</td><td>[R33]</td></tr>
+      <tr><td>BH / Benjamini–Bogomolov</td><td>q<sub>(i)</sub> = min<sub>j≥i</sub> p<sub>(j)</sub>·m/j; within each of the R selected families out of M, BH at level q·R/M</td><td>[R5, R34]</td></tr>
+      <tr><td>Stationary bootstrap</td><td>Politis–Romano resampling, Politis–White block length, percentile CI</td><td>[R9]</td></tr>
+      <tr><td>Randomization p</td><td>(1 + #{null ≥ observed}) / (B + 1), B = 999</td><td>[R12]</td></tr>
+      <tr><td>K<sub>eff</sub></td><td>average-linkage clusters of per-session series on 1 − |ρ|, cut at 0.70</td><td>[R4]</td></tr>
+      <tr><td>PSR, DSR</td><td>PSR = Φ[(SR − SR*)√(T−1)/√(1 − γ<sub>3</sub>SR + (γ<sub>4</sub>−1)/4·SR²)]. For DSR, SR* = √V·[(1−γ)Φ<sup>−1</sup>(1−1/N) + γΦ<sup>−1</sup>(1−1/(Ne))], V = 1/(T−1), N = ledger N.</td><td>[R1, R2]</td></tr>
+      <tr><td>MinTRL</td><td>1 + (1 − γ<sub>3</sub>SR + (γ<sub>4</sub>−1)/4·SR²)·(Φ<sup>−1</sup>(0.95)/SR)² sessions</td><td>[R1]</td></tr>
+      <tr><td>PBO (CSCV)</td><td>16 blocks, all C(16,8) halves, over the family's 69 Q × level cells</td><td>[R3]</td></tr>
+      <tr><td>CPCV</td><td>10 groups, all C(10,2) splits, 9 out-of-sample paths</td><td>[R10]</td></tr>
+      <tr><td>BCM</td><td>gross excess per trade ÷ cost per trade (both in ATR)</td><td>[R37]</td></tr>
+    </table></div>
+    <p>Sharpe ratio = mean ÷ standard deviation (divided by n − 1) of the per-session series, per session, not annualised.</p>
+  </div>
+
+  <h3 class="h">A.6 — Where the search is corrected</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>search</th><th>size</th><th>correction</th></tr>
+    <tr><td>P2 — which family on which market and side</td><td>10 × 2 × 5 = 100 family tests, each over 69 cells (23 Q × 3 levels)</td><td>family p (Simes + pooled); BH q ≤ 0.05 across the 100</td></tr>
+    <tr><td>P3 — which cells</td><td>the cells of the R selected family tests</td><td>Benjamini–Bogomolov at 0.10·R/100, plus the Q-band rule (B.9)</td></tr>
+    <tr><td>P4 — is the best cell luck</td><td>the whole family, Q and level search</td><td>selection-aware permutation test (999), DSR at the ledger N, PBO, CPCV</td></tr>
+    <tr><td>P6 — Q inside the band</td><td>the band's Q values</td><td>walk-forward; K<sub>eff</sub> of the choices added to N</td></tr>
+    <tr><td>P8 / P9</td><td>strategies entering</td><td>BH / DSR with N = strategies tested</td></tr>
+  </table></div></div>
+</section>
+
+<!-- ============================================================ PART B -->
+<section id="laws">
+  <h2 class="section-title">PART B — STANDING LAWS</h2>
+
+  <h3 class="h">B.1 — Never changes</h3>
+  <div class="box"><ol>
+    <li>Raw files are never modified.</li>
+    <li>The engine, the families, the universe, the configuration and every threshold are frozen at F2. Any change starts a new program, and the old trials stay in the ledger.</li>
+    <li>No gate is loosened after a result, and nothing is added because of a result.</li>
+    <li>Validation and Test never change a choice.</li>
+    <li>Nothing is ranked on win rate, profit factor or in-sample equity.</li>
+  </ol></div>
+
+  <h3 class="h">B.2 — The data law</h3>
+  <div class="box"><ol>
+    <li>One 30-minute file per market: <code>timestamp, open, high, low, close, volume, contract</code>, in CT, continuous and back-adjusted by addition.</li>
+    <li>Every rule and result uses price differences in ATR or ticks. Ratios of price are never used, because back-adjustment by addition destroys them.</li>
+    <li>A roll is a change of the contract column. No position is held across it. Volume is the continuous series' volume; the slot medians (B.4 E6) compare it only with itself at the same time of day.</li>
+  </ol></div>
+
+  <h3 class="h">B.3 — The execution law</h3>
+  <div class="box"><ol>
+    <li>Decide at the close of bar t. Fill at the open of bar t + 1 of the same session.</li>
+    <li>Sessions: the CME day starts at 17:00 CT, and a gap of 120 minutes or more also starts one.</li>
+    <li><b>Flat by 15:08 CT.</b> The last tradable bar is the last bar closing at or before 15:08. There is no entry from it, and open trades close at its close.</li>
+    <li>One position at a time.</li>
+    <li>Exits are checked on every bar from the entry bar, in this order:
+      <ol>
+        <li>the open through the stop: exit at the open;</li>
+        <li>the low (the high for shorts) through the stop: exit at the stop;</li>
+        <li>the last tradable bar: exit at its close;</li>
+        <li>the family's close-based exit: exit at the next open;</li>
+        <li>the time cap: exit at the next open.</li>
+      </ol>
+      After a stop exit, a new signal on the same bar may enter. After a close-based or time exit, the next eligible signal bar is the exit-fill bar.</li>
+    <li>Shorts run on mirrored prices <code>(o, h, l, c) → (−o, −l, −h, −c)</code>.</li>
+  </ol>
+  <div class="basis"><b>Basis:</b> [R10]; Topstep flattening [R26].</div></div>
+
+  <h3 class="h" id="engine">B.4 — The DISC engine (v3)</h3>
+  <div class="box">
+    <p>Every element is computed on the side's mirrored prices, for one (Q, level). Every value at bar t uses bars before or at t. Constants are fixed and never tuned.</p>
+    <pre class="f">E1  the bar
+    R = max(H − L, 1e−10)      MID = (H + L)/2
+    CLV  = (2C − H − L)/R      body = |C − O|/R      (both 0 when H = L)
+    dir  = +1 if C &gt; O, −1 if C &lt; O, 0 otherwise
+
+E2  DISC (a bounded fair price inside the bar; tanh = the inverse Fisher transform)
+    zs   = 1.05·CLV + 0.62·body·CLV − 0.18·dir·body − 0.04·dir          (|zs| ≤ 1.89)
+    DISC = MID + 0.5·R·tanh(zs)          tanh(x) = (e^{2x} − 1)/(e^{2x} + 1)
+
+E3  the prior window (the current bar is NOT in its own window: no √(Q−1) ceiling)
+    μ_t = mean(DISC_{t−Q} … DISC_{t−1})
+    σ_t = sqrt(mean((DISC_i − μ_t)²)), i = t−Q … t−1        (two-pass)
+    ready_t = t ≥ Q and σ_t &gt; 0          z_t = (DISC_t − μ_t)/σ_t
+
+E4  the K census and the bands (fixed before bar t prints)
+    tail = (100 − L)/200            N_K = max(⌈100/tail⌉, 20·Q)
+    𝒵_t  = the last N_K values of z_j with j &lt; t and ready_j (kept sorted)
+    K_U  = Q7(𝒵_t, 1 − tail)        K_L = −Q7(𝒵_t, tail)
+    Q7   = linear interpolation between order statistics: h = (n − 1)p,
+           Q7 = s[⌊h⌋] + (h − ⌊h⌋)(s[⌊h⌋+1] − s[⌊h⌋])       (numpy "linear", Hyndman–Fan type 7)
+    bands ready: |𝒵_t| = N_K, K_U &gt; 0, K_L &gt; 0, ready_t
+    Upper_t = μ_t + K_U·σ_t          Lower_t = μ_t − K_L·σ_t
+
+E5  ATR(14), Wilder: TR_0 undefined; TR_t = max(H−L, |H−C_{t−1}|, |L−C_{t−1}|);
+    ATR_14 = mean(TR_1 … TR_14); ATR_t = (13·ATR_{t−1} + TR_t)/14
+
+E6  slot-relative range and volume (slot = the bar's open time)
+    rr_t = R_t / median(R of the same slot, previous 20 sessions)     (needs 20)
+    rv_t = V_t / median(V of the same slot, previous 20 sessions)
+    shock_t = rr_t ≥ 2 and rv_t ≥ 2
+
+E7  trend strength, against a random walk
+    TS_q = |C_t − C_{t−q}| / Σ_{i=t−q+1..t}|C_i − C_{i−1}| · √q        (needs t ≥ q)
+    random walk: median 0.85, 90th percentile 2.04 for every q ≥ 10
+    choppy: TS_Q ≤ 0.85          up-trend at scale q: TS_q ≥ 2.0 and C_t − C_{t−q} &gt; 0
+
+E8  session clock: OB = the cash-open bar; SB = the bar ending at the settlement; IB = SB − 1 bar;
+    EUB = the European-open bar (01:00 CT by default); O_day = open of OB; S_prev = close of the previous session's SB
+    rms_slot = RMS of (DISC − O_day) at the same slot over the previous Q sessions (OPEN_BREAK)
+    rms_IB   = RMS of (DISC − S_prev) at IB over the previous Q sessions (CLOSE_DRIFT)
+
+E9  the excursion machine (Lower band; Upper is the mirror), W(Q) = max(5, ⌈√Q⌉)
+    bands not ready → ARMED
+    ARMED:   C &lt; Lower → OUT (excursion low = L, shock latch = shock)
+    OUT:     excursion low = min(·, L); latch |= shock;
+             C &gt; Lower → RECOVERY event (with the excursion low and the latch) → ARMED
+             else if t − t_out ≥ W(Q) → EXPIRED (never traded)
+    EXPIRED: C &gt; Lower → ARMED (silently)</pre>
+    <div class="basis"><b>Basis and measured reasons</b> (DISC_RESEARCH.md): the 11-term score of v2 collapses exactly to these symmetric terms (max change 1.17% of the bar range, mirror error 0); the in-window z of v2 is capped at √(Q−1) (Samuelson) and saturated every Q ≤ 6; the v2 burst label was CLIMAX on 98.6% of cash-open bars, while the slot-relative shock is about 32% at every hour; the K census equals numpy's quantile exactly; the beyond-band share ÷ tail is 0.94–1.07 at every Q from 3 to 100 [R50–R54].</div>
+  </div>
+
+  <h3 class="h">B.5 — The family law</h3>
+  <div class="box"><ol>
+    <li>The ten families, their exact entries and their fixed exits are in DISC_FAMILIES.html:
+      <ul>
+        <li>Reversion: BAND_RECOVERY, QUIET_RECOVERY, SHOCK_RECOVERY.</li>
+        <li>Trend: TREND_DIP, BAND_RIDE, STOP_CASCADE, SHOCK_IMPULSE.</li>
+        <li>Session: OPEN_BREAK, CLOSE_DRIFT, EURO_OPEN_REVERSAL.</li>
+      </ul></li>
+    <li>A family's exit is part of the family. Exits are not searched.</li>
+    <li>Every family runs on the same engine build of its (market, Q, level, side). No family has its own K.</li>
+    <li>Families may share bars. Each family is judged on its own trades. The P3 dedupe (Jaccard &gt; 0.30 within a market) removes duplicate bets before P4.</li>
+  </ol></div>
+
+  <h3 class="h">B.6 — The cost law (TopstepX)</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>market</th><th>tick</th><th>mini · tick value · fees RT · cost RT</th><th>micro · tick value · fees RT · cost RT</th></tr>
+    <tr><td>CL</td><td>0.01</td><td>CL · $10.00 · $4.04 · 2.404 ticks</td><td>MCL · $1.00 · $1.72 · 3.720 ticks</td></tr>
+    <tr><td>GC</td><td>0.10</td><td>GC · $10.00 · $4.32 · 2.432 ticks</td><td>MGC · $1.00 · $1.92 · 3.920 ticks</td></tr>
+    <tr><td>NQ</td><td>0.25</td><td>NQ · $5.00 · $3.78 · 2.756 ticks</td><td>MNQ · $0.50 · $1.22 · 4.440 ticks</td></tr>
+    <tr><td>SI</td><td>0.005</td><td>SI · $25.00 · $4.32 · 2.173 ticks (not in standard Combines)</td><td>SIL · $5.00 · $2.72 · 2.544 ticks</td></tr>
+    <tr><td>YM</td><td>1.0</td><td>YM · $5.00 · $3.78 · 2.756 ticks</td><td>MYM · $0.50 · $1.22 · 4.440 ticks</td></tr>
+  </table></div>
+  <pre class="f">cost_ticks_rt = fees RT / tick value + 2 × 1 tick slippage          stop fills: +1 tick
+cost_ATR      = cost_ticks_rt × tick / ATR[t]                        stresses: × 1.5, × 2, +1 tick per side</pre>
+  <div class="basis"><b>Basis:</b> TopstepX fee schedule and CME specifications [R22, R26].</div></div>
+
+  <h3 class="h">B.7 — The account law</h3>
+  <div class="box"><p>The account size, its maximum loss limit, the daily loss limit, the micro counting rule, the permitted contracts, the maximum loss per trade and the drawdown budget are read from the trader's Topstep dashboard and written into the configuration before F2. Published Combine parameters: 50K → $2,000 MLL, 5 minis; 100K → $3,000, 10 minis; 150K → $4,500, 15 minis [R48]. One contract per strategy.</p></div>
+
+  <h3 class="h">B.8 — The leakage law</h3>
+  <div class="box"><ol>
+    <li>Causality is tested (F1): changing every bar after t changes no element and no signal at or before t.</li>
+    <li>The bands at t use z values before t only. The slot medians and slot RMS use previous sessions only.</li>
+    <li>Test rows are hashed in F0 and not loaded before P9. Validation is untouched before P8.</li>
+    <li>The engine, the families and every threshold are hashed in F2.</li>
+    <li>Earlier DISC campaigns on these Dev data enter the ledger with their K<sub>eff</sub>, and any v2 family they studied carries the Dev-informed flag ★: stricter exams at P8.</li>
+  </ol></div>
+
+  <h3 class="h">B.9 — The overfitting law and the Q-band rule</h3>
+  <div class="box"><ol>
+    <li>No constant is fitted. The only searched parameters are Q (23 grid values), the level (3) and the side (2).</li>
+    <li><b>Q-band rule.</b> A cell is selectable only inside a <b>Q band</b>: at least 3 consecutive grid Q values at the same level and side whose cells all have excess &gt; 0 and Newey-West t ≥ 2, at least one of them a P3 discovery. The cell carried forward is the middle Q of the longest band. A scale that exists at one Q only is noise.</li>
+    <li>Every selection is followed by a test on data the selection did not use (CPCV, walk-forward, Validation, Test).</li>
+    <li>Every search is measured with PBO over the family's 69 cells, and every deciding Sharpe ratio is deflated by the ledger N.</li>
+  </ol></div>
+
+  <h3 class="h">B.10 — The trial ledger</h3>
+  <div class="box"><pre class="f">N(cell, market) = K_eff(all cells of this program on the market) + K_eff(P6 Q choices) + K_eff(earlier DISC campaigns on the same Dev)</pre></div>
+
+  <h3 class="h">B.11 — The null models (999 draws each)</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>null</th><th>randomized</th><th>kept</th><th>rules out</th></tr>
+    <tr><td><b>N1-S</b> selection-aware MCPT</td><td>whole bars shuffled within the same time slot and Dev block (changes in points: open − previous close, high − open, low − open, close − open, with volume); prices rebuilt by addition; the engine recomputed; <b>the P2–P3 search over all Q, levels and the Q-band rule rerun</b>, keeping the best cell's t</td><td>the volatility and volume profile of every time slot, regime level per block</td><td>"the best of 69 cells looks good by luck"</td></tr>
+    <tr><td><b>N2</b> random entry</td><td>each real trade moved to a random eligible Dev session</td><td>bar time, side, holding length, stop distance in ATR</td><td>edges from the clock or drift, not the signal</td></tr>
+    <tr><td><b>N3</b> circular shift</td><td>the signal series rolled by a random number of sessions (≥ 5)</td><td>signal count, clustering, bar times</td><td>edges from signal clustering</td></tr>
+    <tr><td><b>N4</b> stationary bootstrap</td><td>the per-session excess series resampled in blocks</td><td>serial dependence</td><td>a mean inside sampling noise</td></tr>
+    <tr><td><b>N5</b> detrended data</td><td>each bar's change minus its slot's Dev mean change; prices rebuilt</td><td>everything but drift</td><td>edges that only ride drift</td></tr>
+  </table></div>
+  <div class="basis"><b>Basis:</b> [R12, R36, R11, R9, R6a, R6b].</div></div>
+
+  <h3 class="h">B.12 — Stability</h3>
+  <div class="box"><p>Buckets: Dev block, year, volatility regime (R_prev ÷ its 250-session median, terciles), session bucket (ASIA 17:00–02:00, EUROPE 02:00–08:30, US 08:30–15:08) and weekday. Every bucket with at least 30 trades is judged, and none may be significantly negative (its 97.5% bootstrap upper bound below 0).</p></div>
+
+  <h3 class="h">B.13 — Sample floors</h3>
+  <div class="box"><p>A cell needs ≥ 100 Dev trades in P1. A bucket is judged at ≥ 30 trades. P6 out-of-sample needs ≥ 50. P8 and P9 need ≥ 30 per strategy. Incubation needs ≥ 30.</p></div>
+
+  <h3 class="h">B.14 — Robustness</h3>
+  <div class="box"><div class="tw"><table>
+    <tr><th>test</th><th>change</th><th>stage</th></tr>
+    <tr><td>Q neighbours</td><td>the grid Q one step below and above, same level and side</td><td>P3 (Q band), P4, P7</td></tr>
+    <tr><td>level neighbours</td><td>the next level down and up</td><td>P4 (report)</td></tr>
+    <tr><td><b>stop-fill stress</b></td><td>every stop fill 2 ticks worse than the stop. A stop filled exactly at its price is optimistic when price jumps through it: on synthetic bars with coarse intrabar paths this alone produced a false +0.1 ATR on pure noise.</td><td>P4 (gross), P7 (net)</td></tr>
+    <tr><td>delay</td><td>entry one bar later</td><td>P4 report, P7</td></tr>
+    <tr><td>concentration</td><td>best 5% of trades removed; best year removed</td><td>P4, P7</td></tr>
+    <tr><td>price noise</td><td>100 copies of Dev with every O, H, L, C moved by a random −1, 0 or +1 tick</td><td>P4</td></tr>
+    <tr><td>costs</td><td>× 1.5, × 2, +1 tick per side</td><td>P5, P7, P8, P9</td></tr>
+  </table></div></div>
+
+  <h3 class="h">B.15 — Calibration and power</h3>
+  <div class="box"><ol>
+    <li><b>False certificates.</b> Stage I runs on 100 N1 null markets per instrument. At most 5 of 100 may produce a certificate.</li>
+    <li><b>Power.</b> Stage I runs on null markets with a planted edge: closes beyond a 40-bar 2-σ band are pulled back at sizes of 0.05, 0.10 and 0.20 ATR per bar, 20 runs each. The minimum detectable edge is the smallest size certified in at least 80% of runs, and it is compared with each contract's cost in P5.</li>
+    <li>Inside these runs the randomization tests use B = 199.</li>
+  </ol></div>
+
+  <h3 class="h">B.16 — The verification law</h3>
+  <div class="box"><ol>
+    <li>A slow, bar-by-bar reference written from B.3, B.4 and the family page must equal the fast engine on synthetic markets, on every element, signal and trade, both sides.</li>
+    <li>Mirror: the short side on a market equals the long side on the mirrored market.</li>
+    <li>Causality: future bars never change past elements or signals.</li>
+    <li>The K census equals numpy's linear quantile. The band calibration (beyond-band share ÷ tail) is within 0.8–1.25 at Q 3, 5, 20 and 100.</li>
+    <li>Statistics equal independent references (statsmodels HAC and BH; Monte Carlo for the DSR null; known inputs for PBO, CPCV, the bootstrap and Simes).</li>
+    <li>On pure noise the families show no edge, and a planted edge is found (B.15).</li>
+  </ol></div>
+
+  <h3 class="h">B.17 — Closeout, amendment and seal</h3>
+  <div class="box"><p>Each phase writes a report (what it did, tried, changed and found, and its gates) with tables, plots and a PASS or STOP file. The report is read before the next phase. A change after F2 opens a new program. P9 writes a lock with the hash of what it opened Test for; a different set later is refused or marked contaminated.</p></div>
+</section>
+
+<!-- ============================================================ PART C -->
+<section id="universe">
+  <h2 class="section-title">PART C — THE UNIVERSE</h2>
+  <div class="box">
+    <pre class="f">cell = family (10) × Q (23) × level (3) × side (2) = 1,380 cells per market; × 5 markets = 6,900 units
+Q grid = 3, 4, 5, 6, 8, 10, 12, 15, 19, 24, 31, 39, 49, 62, 78, 98, 124, 156, 197, 249, 314, 396, 500
+         (geometric, 3·(500/3)^(i/22), rounded; Q counts bars, and sessions for OPEN_BREAK and CLOSE_DRIFT)
+level  = 80, 90, 95   (tail 10%, 5%, 2.5% beyond each band; for OPEN_BREAK and CLOSE_DRIFT the normal quantile 1.2816, 1.6449, 1.9600)</pre>
+    <div class="tw"><table>
+      <tr><th>group</th><th>families</th><th>mechanism</th></tr>
+      <tr><td>Reversion</td><td>BAND_RECOVERY, QUIET_RECOVERY, SHOCK_RECOVERY</td><td>liquidity provision after a confirmed return inside the band</td></tr>
+      <tr><td>Trend</td><td>TREND_DIP, BAND_RIDE, STOP_CASCADE, SHOCK_IMPULSE</td><td>trend acceptance, stop cascades, unexpected-volatility continuation</td></tr>
+      <tr><td>Session</td><td>OPEN_BREAK, CLOSE_DRIFT, EURO_OPEN_REVERSAL</td><td>noise-area breakout, intraday momentum, the overnight drift at the European open</td></tr>
+    </table></div>
+    <p>Structural limits, measured, not bugs: BAND_RIDE needs Q ≥ 5 (TS ≤ √Q); OPEN_BREAK and CLOSE_DRIFT need Q sessions of history before their first signal; every family needs its band census or slot history full before its first signal.</p>
+  </div>
+</section>
+
+<!-- ============================================================ FOUNDATION -->
+<div class="stage">FOUNDATION</div>
+
+<section id="f0">
+  <h2 class="section-title">F0 — DATA &amp; CLOCK</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Certify the five files, build sessions, rolls, the session clock and the windows, and seal Test.</p>
+    <h4 class="job">Steps</h4><ol>
+      <li>Load and sort each file. Remove duplicate timestamps and enforce OHLC containment, counting both.</li>
+      <li>Check the 30-minute grid, the tick grid, and that volume is non-negative and non-zero on most bars.</li>
+      <li>Build sessions, rolls, the flat-by mask and the clock (OB, IB, SB, EUB) per market from the exchange schedule.</li>
+      <li>Cut the windows (A.4), and split Dev into 6 blocks, 10 groups and 16 blocks.</li>
+      <li>Hash the Test rows.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b>:
+      <ul>
+        <li>repairs ≤ 0.1% of bars;</li>
+        <li>≥ 99% of timestamps and prices on their grids;</li>
+        <li>≥ 250 sessions per window;</li>
+        <li>OB and SB present in ≥ 95% of Dev sessions;</li>
+        <li>volume &gt; 0 on ≥ 99% of bars.</li>
+      </ul></div>
+    <div class="out"><b>Outputs</b>: data QA, repairs, splits, costs (micro and mini), clock coverage. Plots: split timeline, bars per slot, volume by slot.</div>
+  </div>
+</section>
+
+<section id="f1">
+  <h2 class="section-title">F1 — ENGINE ACCEPTANCE &amp; CALIBRATION</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Prove the engine, the families and the statistics do exactly what B.3, B.4, A.5 and the family page say, and measure false certificates and power.</p>
+    <div class="plain"><b>Plain words:</b> test the tester. No edge on fake markets without one, and a found edge on fake markets with one planted.</div>
+    <h4 class="job">Steps</h4><ol>
+      <li>Hand cases for every exit rule of B.3: stop, gap, tie, flat-by, close exit, time cap, one position.</li>
+      <li>The verification law B.16, items 1–5.</li>
+      <li>Null uniformity: the p-values of N1–N5 on 200 null markets (Kolmogorov–Smirnov).</li>
+      <li>Calibration and power (B.15).</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b>:
+      <ul>
+        <li>every hand case and B.16 test passes;</li>
+        <li>no null rejects uniformity at 1%;</li>
+        <li>≤ 5 of 100 null markets certify per instrument.</li>
+      </ul>
+      <b>Report</b>: power curves and the MDE.</div>
+    <div class="out"><b>Outputs</b>: acceptance table, calibration table, power curves, MDE table.</div>
+  </div>
+</section>
+
+<section id="f2">
+  <h2 class="section-title">F2 — PRE-REGISTRATION &amp; LEDGER</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Freeze everything before any result exists.</p>
+    <h4 class="job">Steps</h4><ol>
+      <li>Write the 1,380 cells per market (family, Q, level, side, ★ flag).</li>
+      <li>Hash the engine code, the family code, the configuration, the cell list and this framework together.</li>
+      <li>Open the ledger with the earlier DISC campaigns' K<sub>eff</sub>.</li>
+      <li>Run a signal census on Dev (counts only, no returns): signals per cell, and Jaccard overlap within each family.</li>
+    </ol>
+    <div class="gate"><b>Gate (hard)</b>: the hash is stored before P1 runs.</div>
+    <div class="out"><b>Outputs</b>: cell list, hash, ledger, signal census.</div>
+  </div>
+</section>
+
+<!-- ============================================================ STAGE I -->
+<div class="stage">STAGE I — EDGE BEFORE COSTS (gross, Dev only)</div>
+
+<section id="p1">
+  <h2 class="section-title">P1 — EVENT STUDY</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Measure every cell's gross trades with its family's own exit, against the matched drift. Nothing is selected.</p>
+    <h4 class="job">Steps</h4><ol>
+      <li>Run every cell on Dev: signals, trades with the fixed exit, gross R in ATR.</li>
+      <li>Per trade, compute the excess over the matched drift (A.5).</li>
+      <li>Per cell, compute: trades, mean gross, mean excess, the per-session series, Newey-West t and p, excess per Dev block, MFE/MAE, and the exit mix (stop / close / time / flat-by).</li>
+      <li>Per market and family, compute K<sub>eff</sub>, PBO and Hansen SPA (report).</li>
+    </ol>
+    <div class="gate"><b>Gate (hard)</b>: ≥ 100 Dev trades per cell.</div>
+    <div class="out"><b>Outputs</b>: cell table. Plots: t against Q for every family, level and side (the Q map); the t distribution against N(0,1).</div>
+  </div>
+</section>
+
+<section id="p2">
+  <h2 class="section-title">P2 — FAMILY TEST</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Ask whether a family has any edge on a market and side, across its 69 cells, before judging single cells.</p>
+    <h4 class="job">Steps</h4><ol>
+      <li>Compute the family p (Simes and pooled) for each of the 100 family tests.</li>
+      <li>Apply BH at q = 0.05 across the 100; R are selected.</li>
+    </ol>
+    <div class="gate"><b>Gate (hard)</b>: R ≥ 1.</div>
+    <div class="out"><b>Outputs</b>: family table; family × market × side map.</div>
+  </div>
+</section>
+
+<section id="p3">
+  <h2 class="section-title">P3 — CELL SELECTION (Q BANDS)</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Inside the selected families, keep only cells that live inside a Q band.</p>
+    <h4 class="job">Steps</h4><ol>
+      <li>Apply Benjamini–Bogomolov BH at 0.10·R/100 over each selected family's cells.</li>
+      <li>Find the Q bands (B.9). Each band contributes its middle cell.</li>
+      <li>Also require: excess &gt; 0 in ≥ 4 of 6 Dev blocks.</li>
+      <li>Dedupe within each market: drop a cell whose entries overlap a kept cell by Jaccard &gt; 0.30.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard, per cell)</b>: <code>g_bb</code>, <code>g_qband</code>, <code>g_blocks</code>. <b>Phase</b>: ≥ 1 cell.</div>
+    <div class="out"><b>Outputs</b>: cell table with Q-band length and position; dedupe log; Q-map plots with the bands marked.</div>
+  </div>
+</section>
+
+<section id="p4">
+  <h2 class="section-title">P4 — LUCK ELIMINATION &amp; EDGE CERTIFICATE</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Try to destroy every surviving cell with tests P2–P3 did not use.</p>
+    <div class="plain"><b>Plain words:</b> make luck compete 999 times, with luck also allowed to pick its best Q and level. Then make the fills worse, shake the prices, split the years, and deflate by every trial.</div>
+    <h4 class="job">Steps</h4><ol>
+      <li>N1-S (999): rerun the whole family search, Q bands included, on each shuffled market.</li>
+      <li>N2 and N3 (999 each); N4 (2,000); N5.</li>
+      <li>Stop-fill stress, delay, price noise, Q and level neighbours, concentration, stability.</li>
+      <li>CPCV paths of the family's selection; PBO over its 69 cells.</li>
+      <li>Gross DSR at the ledger N; MinTRL against the Validation sessions.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard, all required) — the Edge Certificate</b><ol>
+      <li><code>g_mcpt_sel</code> N1-S p ≤ 0.01 · <code>g_random</code> N2 p ≤ 0.01 · <code>g_shift</code> N3 p ≤ 0.01</li>
+      <li><code>g_ci</code> 95% bootstrap lower bound of the excess &gt; 0 · <code>g_detrend</code> detrended excess t ≥ 2</li>
+      <li><code>g_stopfill</code> excess &gt; 0 with every stop fill 2 ticks worse</li>
+      <li><code>g_noise</code> t ≥ 2 in ≥ 90 of 100 price-noise copies · <code>g_qnb</code> both Q neighbours with excess &gt; 0</li>
+      <li><code>g_blocks5</code> ≥ 5 of 6 blocks positive · <code>g_years</code> ≥ 70% of years positive and positive without the best year · <code>g_stable</code> no judged bucket significantly negative · <code>g_trim</code> positive without the top 5%</li>
+      <li><code>g_cpcv</code> ≥ 7 of 9 paths positive · <code>g_pbo</code> PBO ≤ 0.20 · <code>g_dsr</code> gross DSR ≥ 0.95 · <code>g_power</code> MinTRL ≤ Validation sessions</li>
+    </ol><b>Phase</b>: ≥ 1 certificate.</div>
+    <div class="out"><b>Outputs</b>: certificate table. Plots: null histograms with the real value, CPCV paths, Q map with neighbours, stop-fill stress, stability bars.</div>
+    <div class="closeout"><b>Closeout</b>: Only certified cells meet costs. A STOP means DISC has no timing edge on these markets at this bar size that survives luck.</div>
+  </div>
+</section>
+
+<!-- ============================================================ STAGE II -->
+<div class="stage">STAGE II — COSTS (micro and mini)</div>
+
+<section id="p5">
+  <h2 class="section-title">P5 — COST HURDLE</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Price every certified cell with both contracts.</p>
+    <h4 class="job">Steps</h4><ol>
+      <li>For each cell × contract (permitted contracts only): cost per trade in ATR (B.6), net per trade, net per-session series, Newey-West t.</li>
+      <li>BCM; stresses (× 1.5, × 2, +1 tick per side); cost against the MDE.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard, per cell × contract)</b>: net mean &gt; 0 · net t ≥ 2 · BCM ≥ 2 · net &gt; 0 at cost × 1.5 · net &gt; 0 at +1 tick per side. <b>Phase</b>: ≥ 1 pair.</div>
+    <div class="out"><b>Outputs</b>: cost table; gross excess against cost per trade, micro and mini.</div>
+  </div>
+</section>
+
+<!-- ============================================================ STAGE III -->
+<div class="stage">STAGE III — CONSTRUCTION</div>
+
+<section id="p6">
+  <h2 class="section-title">P6 — WALK-FORWARD Q CHOICE</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Choose Q inside the cell's band without scoring a choice on the data it was chosen on. Exits stay as the family defines them.</p>
+    <h4 class="job">Steps</h4><ol>
+      <li>Folds k = 1…5 train on blocks B0…B(k−1). Choose the band Q with the highest 25th percentile of block means, after smoothing over its grid neighbours. Apply it unchanged to Bk.</li>
+      <li>Stitch B1…B5 into the walk-forward out-of-sample (WF-OOS) net series.</li>
+      <li>Final Q: the same rule on B0…B5.</li>
+      <li>Ledger: K<sub>eff</sub> of the choices.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b>: WF-OOS trades ≥ 50; WF-OOS net mean &gt; 0.</div>
+  </div>
+</section>
+
+<section id="p7">
+  <h2 class="section-title">P7 — NET EVIDENCE &amp; ACCOUNT FIT</h2>
+  <div class="box">
+    <h4 class="job">Job</h4><p>Prove the net result survives the Q choice, stress and time, and fits the account.</p>
+    <h4 class="job">Steps</h4><ol>
+      <li>WF-OOS net: bootstrap CI (2,000), PSR, net DSR at the ledger N, MinTRL.</li>
+      <li>N2 and N3 on net R (999 each).</li>
+      <li>Stop-fill stress, cost × 1.5, +1 tick, delay, Q neighbours, concentration, stability.</li>
+      <li>Account fit for one contract: stop risk in dollars and the worst WF-OOS drawdown. Report a Combine simulation (bootstrap paths of daily net dollars under the trailing MLL).</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b>:
+      <ul>
+        <li>CI lower bound &gt; 0;</li>
+        <li>net DSR ≥ 0.95;</li>
+        <li>N2 and N3 p ≤ 0.05;</li>
+        <li>all stresses &gt; 0;</li>
+        <li>MinTRL ≤ Validation sessions;</li>
+        <li>stop risk ≤ the configured maximum loss per trade;</li>
+        <li>worst drawdown ≤ the configured budget.</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- ============================================================ STAGE IV -->
+<div class="stage">STAGE IV — EXAMS (one look each)</div>
+
+<section id="p8">
+  <h2 class="section-title">P8 — VALIDATION</h2>
+  <div class="box">
+    <h4 class="job">Steps</h4><ol>
+      <li>Run each P7 strategy once on Validation, frozen. The engine histories are warmed on the bars before Validation.</li>
+      <li>Compute gross excess (matched drift built within Validation), net, stationary bootstrap (10,000), BH across strategies, N2 (999), cost × 1.5, and MinTRL against the Test sessions.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b>:
+      <ul>
+        <li>trades ≥ 30;</li>
+        <li>gross excess &gt; 0;</li>
+        <li>net &gt; 0;</li>
+        <li>BH q ≤ 0.05 and N2 p ≤ 0.05 (both ≤ 0.01 for ★);</li>
+        <li>net &gt; 0 at cost × 1.5;</li>
+        <li>MinTRL ≤ Test sessions.</li>
+      </ul></div>
+  </div>
+</section>
+
+<section id="p9">
+  <h2 class="section-title">P9 — SEALED TEST</h2>
+  <div class="box">
+    <h4 class="job">Steps</h4><ol>
+      <li>Check and write the lock.</li>
+      <li>Run once on Test: net per session, 95% CI (10,000), DSR with N = strategies tested, cost × 1.5, gross excess.</li>
+      <li>Write a deployment card per survivor: market, contract, family, Q, level, side, costs, flat-by, Test CI, worst drawdown, ★.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b>:
+      <ul>
+        <li>trades ≥ 30;</li>
+        <li>CI lower bound &gt; 0;</li>
+        <li>DSR ≥ 0.95;</li>
+        <li>net &gt; 0 at cost × 1.5;</li>
+        <li>gross excess &gt; 0;</li>
+        <li>not contaminated.</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- ============================================================ STAGE V -->
+<div class="stage">STAGE V — LIVE</div>
+
+<section id="p10">
+  <h2 class="section-title">P10 — PINE PARITY, INCUBATION &amp; KILL SWITCH</h2>
+  <div class="box">
+    <h4 class="job">Steps</h4><ol>
+      <li>Load the card into <code>DISC_ENGINE_v3.pine</code>: family, Q, level, side and clock inputs, on the continuous contract, 30-minute bars, full session.</li>
+      <li>Parity replay on the Test dates with commission 0 and slippage 0: the entry and exit bars must equal the research engine's. Then set the card's commission and slippage.</li>
+      <li>Incubate in simulation for ≥ 30 trades.</li>
+      <li>Kill switch after every trade from the 30th: stop when the live mean R falls below the Test CI lower bound or the drawdown exceeds the worst historical drawdown.</li>
+      <li>A killed strategy is never re-optimised.</li>
+    </ol>
+    <div class="gate"><b>Gates (hard)</b>: exact parity; incubation inside the Test CI and the historical drawdown.</div>
+  </div>
+</section>
+
+<!-- ============================================================ REFERENCES -->
+<section id="refs">
+  <h2 class="section-title">PART D — REFERENCES</h2>
+  <div class="box"><ol>
+    <li>[R1] Bailey &amp; López de Prado (2012), The Sharpe Ratio Efficient Frontier, J. Risk 15(2). [R2] Bailey &amp; López de Prado (2014), The Deflated Sharpe Ratio, JPM 40(5). [R3] Bailey, Borwein, López de Prado &amp; Zhu (2017), The Probability of Backtest Overfitting, J. Comp. Finance 20(4). [R4] López de Prado (2019), JFDS 1(1).</li>
+    <li>[R5] Benjamini &amp; Hochberg (1995). [R6a] White (2000), Econometrica 68(5). [R6b] Hansen (2005), JBES 23(4). [R7] Newey &amp; West (1987). [R8] Newey &amp; West (1994). [R9] Politis &amp; Romano (1994); Politis &amp; White (2004).</li>
+    <li>[R10] López de Prado (2018), Advances in Financial Machine Learning — purging, walk-forward, CPCV, CUSUM filter. [R11] Aronson (2006), Evidence-Based Technical Analysis. [R12] Masters (2020), Permutation and Randomization Tests for Trading System Development. [R36] Masters (2018), Testing and Tuning Market Trading Systems.</li>
+    <li>[R22] CME Group contract specifications and fees. [R26] Topstep Help Center: TopstepX commissions and fees; flattening at 15:08–15:10 CT. [R48] Topstep Combine parameters.</li>
+    <li>[R31] Andersen &amp; Bollerslev (1997), Intraday periodicity and volatility persistence, J. Empirical Finance 4.</li>
+    <li>[R33] Simes (1986), Biometrika 73(3). [R34] Benjamini &amp; Bogomolov (2014), JRSS B 76(1). [R37] Novy-Marx &amp; Velikov (2016), RFS 29(1).</li>
+    <li>[R50] Samuelson (1968), How deviant can you be?, JASA 63 — the √(n−1) bound. [R51] Ehlers (2004), the inverse Fisher transform (tanh), TASC. [R52] Kaufman (1995), Smarter Trading — the efficiency ratio. [R53] Lo &amp; MacKinlay (1988), RFS 1(1) — the variance ratio. [R54] Hyndman &amp; Fan (1996), Sample quantiles in statistical packages, Am. Statistician 50(4).</li>
+    <li>[R55] Campbell, Grossman &amp; Wang (1993), QJE 108(4). [R56] Llorente, Michaely, Saar &amp; Wang (2002), RFS 15(4). [R57] Nagel (2012), Evaporating Liquidity, RFS 25(7). [R58] Bianco &amp; Renò (2006), JFM 26(1); (2009), Quantitative Finance. [R59] Heston, Korajczyk &amp; Sadka (2010), JF 65(4).</li>
+    <li>[R60] Moskowitz, Ooi &amp; Pedersen (2012), JFE 104(2). [R61] Hurst, Ooi &amp; Pedersen (2017), A Century of Evidence on Trend-Following. [R62] Kwon, Kang &amp; Yun (2020), Weekly momentum in the commodity futures market, FRL. [R63] Osler (2005), Stop-loss orders and price cascades, JIMF 24(2).</li>
+    <li>[R64] Gao, Han, Li &amp; Zhou (2018), JFE 129(2). [R65] Baltussen, Da, Lammers &amp; Martens (2021), JFE 142(1). [R66] Rosa (2022), JFM 42(12). [R67] Zarattini, Aziz &amp; Barbon (2024), SFI RP 24-97. [R68] Holmberg, Lönnbark &amp; Lundström (2013), FRL 10(1). [R69] Lundström (2017), Day trading returns across volatility states.</li>
+    <li>[R70] Boyarchenko, Larsen &amp; Whelan (2023), The Overnight Drift, RFS 36(9). [R71] Mesfin (2026), Structural limits of OHLCV-based intraday momentum signals in MNQ futures, arXiv 2605.04004. [R72] Lento, Gradojevic &amp; Wright (2007), Applied Financial Economics Letters 3(4). [R73] Park &amp; Irwin (2010), JFM; Marshall, Cahan &amp; Cahan (2008), J. Empirical Finance.</li>
+  </ol></div>
+</section>
+</main>
+</body>
+</html>
