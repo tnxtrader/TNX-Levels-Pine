@@ -212,6 +212,8 @@ The original called rvol "research-side, not computable in Pine". It is computab
 
 The search axes are Q on a geometric grid from 3 to 500 (23 values) × levels 80, 90, 95 × both sides. Each family has one fixed exit; no family has a tuned constant.
 
+Each family also names a refutation: the same entries with its key condition removed (DISC_FAMILIES.html, "Refuted if"). It runs once on Validation (P8), where the selection on Dev cannot inflate it. A family whose key condition adds nothing out of sample has not shown its mechanism, and it stops.
+
 ---
 
 ## 5. Verification (synthetic data only)
@@ -226,6 +228,10 @@ The search axes are Q on a geometric grid from 3 to 500 (23 values) × levels 80
 | pure noise, BAND_RECOVERY, 10 markets | pooled z = 1.5 (no false edge) |
 | planted mean reversion | BAND_RECOVERY t = 3.2; BAND_RIDE does not profit from it |
 | stop-fill optimism | with 4-step intrabar paths, stops filled at the stop price gave a false +0.1 ATR on noise; with 60-step paths it vanished. Stop fills at the stop price are optimistic when price jumps through the stop, so the framework stresses stop slippage |
+| second engine (Backtrader, written independently) == reference engine | **0 mismatches**: 3,462 trades in 40 runs (10 families × 2 (Q, level) × 2 sides) |
+| holiday market (early closes, missing OB and SB bars, a 3-hour halt, missing sessions): Pine replica == reference | **0 mismatches**: 10,386 signals and 9,362 trades. The first run found that the research engine closed trades at the last bar *present* before 15:08, which reads the next bar; the rule is now the Pine's: the last tradable bar is known from the clock and the exchange calendar |
+| Hypothesis property tests | 3,000 random bar sets: DISC inside [low, high], exact mirror, flat bar = MID; 2,000 random samples: type-7 quantile == numpy |
+| Pine v6 audit against the official reference | every name and every named argument exists in v6; no lookahead_on; history offsets ≤ 2,000 < max_bars_back 5,000. The prior-window mean and sd now use ta.sma and ta.stdev (population, as the manual defines them) and the slot RMS keeps a running sum, so no loop over Q runs on a bar (1,500 loop steps per bar at Q = 500 before) |
 
 ---
 

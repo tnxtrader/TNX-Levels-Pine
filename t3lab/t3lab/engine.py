@@ -2,7 +2,8 @@
 
 Signal at the CLOSE of bar t -> market entry at the OPEN of bar e = t + 1 (+ delay).
 Shorts run on mirrored prices (o, h, l, c) -> (-o, -l, -h, -c), so one long-only engine serves both sides.
-Stop = max(1, round(sl_atr * ATR[t] / tick)) ticks, target = max(1, round(tp_r * stop ticks)) ticks, fixed at the fill.
+Stop = max(1, round(sl_atr * ATR[t] / tick)) ticks, target = max(1, round(tp_r * stop ticks)) ticks, fixed at the fill;
+round = nearest integer with halves up, as TradingView's math.round.
 Inside a bar: gap through a level fills at the open; stop and target both inside the bar -> stop (pessimistic) or the
 TradingView path (open nearer the high -> high first). Time exit: order at the close of bar e + max_bars - 1, filled at
 the next open. No position crosses a session end or a contract roll: it is closed at that bar's close.
@@ -56,10 +57,10 @@ def _run(o, h, l, c, atr, sig, sess_last, roll_last, sl_atr, tp_r, max_bars, tic
         stop = -np.inf
         tgt = np.inf
         if sl_atr > 0:
-            sl_t = max(1.0, np.round(sl_atr * a / tick))
+            sl_t = max(1.0, np.floor(sl_atr * a / tick + 0.5))
             stop = entry - sl_t * tick
             if tp_r > 0:
-                tgt = entry + max(1.0, np.round(tp_r * sl_t)) * tick
+                tgt = entry + max(1.0, np.floor(tp_r * sl_t + 0.5)) * tick
         last = min(e + max_bars - 1, sess_last[e], roll_last[e], end - 1)
         up = 0.0; dn = 0.0; px = np.nan; typ = -1; xbar = last
         for j in range(e, last + 1):

@@ -233,6 +233,8 @@
     <li>The input is one 30-minute file per market with <code>timestamp, open, high, low, close, volume, contract</code> in CT. The prices are continuous and back-adjusted by addition.</li>
     <li>Back-adjustment by addition keeps price differences and destroys price ratios. All rules and results therefore use differences in ATR or ticks (Pillar 7).</li>
     <li>A roll is a change in the contract column. No trade, rule window or session anchor mixes two contracts without the adjustment, and no position crosses a roll.</li>
+    <li>Timestamps are bar open times in CT local time (America/Chicago, with daylight saving), so every clock rule follows the exchange in summer and in winter.</li>
+    <li><b>Holidays and early closes.</b> A session has the bars it has and ends at its last bar on the exchange calendar. A missing OB or SB leaves that session's anchors empty: R_prev, H_prev and L_prev need both, S_prev needs SB, and a rule that reads an empty anchor is false. Slot histories (σ<sub>τ</sub>, the SLOT z) only take the slots a session has.</li>
   </ol></div>
 
   <h3 class="h">B.3 — The execution law</h3>
@@ -242,7 +244,7 @@
     <li>One position at a time. A new signal on the exit bar is allowed.</li>
     <li>Shorts run on mirrored prices: (o, h, l, c) → (−o, −l, −h, −c). Every line built from price (T3, VWAP, session levels, σ<sub>τ</sub>) is mirrored, and volume is unchanged.</li>
     <li>Sessions: the CME day starts at 17:00 CT (session date = timestamp + 7 h), and a gap of 120 minutes or more also starts a new session.</li>
-    <li><b>Flat by 15:08 CT</b> (TopstepX). A bar that closes after 15:08 and opens before 17:00 cannot hold a position. The last tradable bar of a session is the last bar closing at or before 15:08. No entry is made from it, and open trades close at its close.</li>
+    <li><b>Flat by 15:08 CT</b> (TopstepX). A bar that closes after 15:08 and opens before 17:00 cannot hold a position. The last tradable bar is known at its own close: it is the bar whose next scheduled bar would close after 15:08, or the session's last bar on the exchange calendar. No entry is made from it, and open trades close at its close. If that bar is missing from the data, the first bar after it closes the trade at its close, as TradingView does.</li>
   </ol>
   <div class="basis"><b>Basis:</b> next-bar execution [R10]; CME Globex trading day [R22]; Topstep flat by 15:10 CT with the platform flattening from 15:08 CT [R23].</div></div>
 
@@ -253,8 +255,10 @@
             ATR[i] = (ATR[i−1] × 13 + TR[i]) / 14 after that (identical to TradingView ta.atr)
 SL ticks  = max(1, round(SL_ATR × ATR / tick))      stop   = entry − SL ticks × tick
 TP ticks  = max(1, round(TP_R × SL ticks))          target = entry + TP ticks × tick      (TP_R = none → no target)
+round(x)  = the nearest integer, halves up (TradingView math.round): round(2.5) = 3
 last bar  = min(e + max_bars − 1, last tradable bar of the session, last bar before a roll)
-gap through a level → fill at the open;  stop and target in one bar → stop
+gap through a level → fill at the open;  stop and target in one bar → stop (research)
+TradingView path (P10 parity, engine option pessimistic = False): open nearer the high → high first, else low first
 no barrier hit → TIME exit at the open of e + max_bars if tradable, else EOS at the close of the last bar
 Stage I screen exits: no stop, no target, exit after the screen hold (C.10)
 gross R_ATR = (exit − entry)/ATR        net ticks = gross ticks − cost_ticks_rt − (stop_slip if the exit is a stop)
@@ -384,7 +388,7 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
       <tr><td><b>N4 Stationary bootstrap</b></td><td>The per-session excess series is resampled in blocks and centred under H0.</td><td>the serial dependence of the result</td><td>a positive mean inside sampling noise</td></tr>
       <tr><td><b>N5 Detrended data</b></td><td>Each bar's close-to-close change has its slot's Dev mean change subtracted, and prices are rebuilt.</td><td>everything except drift</td><td>edges that only ride the drift</td></tr>
     </table></div>
-    <p>Statistics: N1 and N1-S use the Newey-West t of the per-session excess; N2 and N3 use the mean gross R<sub>ATR</sub> per trade; N4 uses the mean per-session excess. B = 999 for N1, N1-S, N2 and N3; 2,000 for N4 in P4 and P7; 10,000 in P8 and P9.</p>
+    <p>Statistics: N1 and N1-S use the Newey-West t of the per-session excess; N2 and N3 use the mean gross R<sub>ATR</sub> per trade; N4 uses the mean per-session excess. B = 999 for N1, N1-S, N2 and N3; 2,000 for N4 in P4 and P7; 10,000 in P8 and P9. Every draw uses a seed fixed in F2 and written to the ledger, so every p-value can be reproduced exactly.</p>
     <div class="basis"><b>Basis:</b> Monte Carlo permutation tests and the removal of selection bias [R12, R33]; randomization tests and detrending of rules [R11]; stationary bootstrap [R9]; testing the best of many [R6a, R6b, R32].</div>
   </div>
 
@@ -414,6 +418,7 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
     <tr><td>neighbours</td><td>Pool N: the other T3 speed, the adjacent T3 context, the adjacent market context and the family's adjacent threshold. Pool L: the T3 grid points next to (L, v) and the filter's adjacent threshold.</td><td>P4 (gross), P7 (net)</td></tr>
     <tr><td>concentration</td><td>the best 5% of trades removed; the best year removed</td><td>P4, P7</td></tr>
     <tr><td>clock placebo</td><td>for session-anchored triggers: OB, IB and SB shifted 2 bars earlier and 2 bars later</td><td>P4 report</td></tr>
+    <tr><td>stop-fill stress</td><td>every stop fill 2 ticks worse than the stop: a stop filled exactly at its price is optimistic when price jumps through it</td><td>P7</td></tr>
     <tr><td>cost and slippage</td><td>cost × 1.5 and × 2; +1 tick per side</td><td>P5, P7, P8, P9</td></tr>
   </table></div>
   <div class="basis"><b>Basis:</b> robust parameter regions and stress testing [R20, R33]; randomization and perturbation [R12].</div></div>
@@ -451,7 +456,11 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
     <li>The statistics must equal independent references: statsmodels for HAC and BH; Monte Carlo for E[max SR], the null SR variance and the DSR false-positive rate; known inputs for PBO, CPCV, the bootstrap, SPA, StepM, Simes, Benjamini–Bogomolov and K<sub>eff</sub>.</li>
     <li>Each null of B.13 returns uniform p-values on null markets (Kolmogorov-Smirnov test, 200 markets).</li>
     <li>B.17 calibration and power are measured and reported.</li>
-  </ol></div>
+    <li>Second engines: an independent implementation of B.3–B.4 on another framework (Backtrader) reproduces every trade of the engine, both sides, with stops, targets, time exits and session ends; vectorbt reproduces every Stage I screen trade.</li>
+    <li>Property tests (Hypothesis, thousands of random small markets): the engine equals its slow reference; every entry is at the next open inside the session; one position at a time; a stop never fills better than the stop, a target never worse than the target.</li>
+    <li>Holiday markets: the Pool N reference, MARKET_AGREE and the session ends of item 1 also hold on synthetic markets with early closes, missing OB and SB bars, a halt inside a session and missing sessions.</li>
+  </ol>
+  <div class="basis"><b>Basis:</b> property-based testing [R52].</div></div>
 </section>
 
 <!-- ============================================================ PART C -->
@@ -471,20 +480,20 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
   <h3 class="h">C.2 — Pool L: the 5,046 legacy candidates by family</h3>
   <div class="box">
     <div class="tw"><table>
-      <tr><th>family</th><th>program</th><th>candidates</th><th>long / short</th><th>triggers</th></tr>
-      <tr><td>CANDLE_REVERSAL</td><td>1</td><td>565</td><td>276 / 289</td><td>TWO_BAR_REVERSAL, OUTSIDE_BAR_REVERSAL</td></tr>
-      <tr><td>COMPRESSION_EXPANSION</td><td>1</td><td>613</td><td>307 / 306</td><td>COMPRESSION_BREAK_3, _5, _8, RANGE_EXPANSION_CLOSE</td></tr>
-      <tr><td>MOMENTUM_CONTINUATION</td><td>1</td><td>612</td><td>312 / 300</td><td>MOMENTUM_3, MOMENTUM_6, THREE_BAR_CONTINUATION, GAP_CONTINUATION</td></tr>
-      <tr><td>STRUCTURE_BREAKOUT</td><td>1</td><td>613</td><td>310 / 303</td><td>DONCHIAN_3, _5, _8, _12, _20, PREVBAR_BREAK, INSIDE_BAR_BREAK</td></tr>
-      <tr><td>STRUCTURE_RECLAIM</td><td>1</td><td>565</td><td>278 / 287</td><td>SWEEP_RECLAIM_5, SWEEP_RECLAIM_10</td></tr>
-      <tr><td>T3_CROSS_RECLAIM</td><td>1</td><td>489</td><td>249 / 240</td><td>T3_BODY_CROSS, T3_CLOSE_CROSS, T3_TWO_CLOSE, T3_WICK_RECLAIM, T3_CLEAN_RECLAIM</td></tr>
-      <tr><td>T3_PULLBACK_CONTINUATION</td><td>1</td><td>489</td><td>244 / 245</td><td>T3_PULLBACK_BREAK, T3_TOUCH_3BAR_TREND, T3_THREE_CLOSE, T3_CROSS_RANGE_BREAK</td></tr>
-      <tr><td>T3_TURN_DISTANCE</td><td>1</td><td>489</td><td>230 / 259</td><td>T3_SLOPE_TURN, T3_DISTANCE_RELEASE</td></tr>
-      <tr><td>VOLATILITY_MEAN_REVERSION</td><td>1</td><td>565</td><td>307 / 258</td><td>MEAN_REVERSION_2, MEAN_REVERSION_3</td></tr>
-      <tr><td>OPENING_RANGE</td><td>2</td><td>16</td><td>8 / 8</td><td>ORB_OPEN_BAR, ORB_BREAK × {NONE, T3_SLOPE_NONNEG, T3_DIST_NEAR_100, ABOVE_PREV_SETTLE}</td></tr>
-      <tr><td>INTRADAY_MOMENTUM</td><td>2</td><td>8</td><td>4 / 4</td><td>IMOM_DAY, IMOM_FIRST × {NONE, T3_SLOPE_NONNEG}</td></tr>
-      <tr><td>T3_ACTIVE_SESSION</td><td>2</td><td>22</td><td>11 / 11</td><td>11 T3 triggers × RTH_OPEN_90</td></tr>
-      <tr><td colspan="2"><b>total</b></td><td><b>5,046</b></td><td></td><td>Program 1: 32 triggers × 28 filters × side with a T3 setting from the B.7 grid, registered hold 8 bars. Program 2: T3 5 / 0.7, registered hold 48 bars (to flat-by) or 1 bar (INTRADAY_MOMENTUM).</td></tr>
+      <tr><th>family</th><th>program</th><th>candidates</th><th>long / short</th><th>triggers</th><th>reason</th><th>refuted if</th></tr>
+      <tr><td>CANDLE_REVERSAL</td><td>1</td><td>565</td><td>276 / 289</td><td>TWO_BAR_REVERSAL, OUTSIDE_BAR_REVERSAL</td><td>A bar that reverses the previous bar marks exhausted one-sided order flow, and a short-horizon reversal follows. Evidence for candle patterns on liquid markets is weak, so the family stays a legacy test [R49, R51].</td><td>PREVBAR_BREAK without the reversal pattern earns as much.</td></tr>
+      <tr><td>COMPRESSION_EXPANSION</td><td>1</td><td>613</td><td>307 / 306</td><td>COMPRESSION_BREAK_3, _5, _8, RANGE_EXPANSION_CLOSE</td><td>Volatility contracts before it expands: a break out of the narrowest recent range starts a move [R19].</td><td>the same break without the compression earns as much (COMPRESSION_BREAK_N → DONCHIAN_N; RANGE_EXPANSION_CLOSE → CLV ≥ 0.75 without rng &gt; atr1).</td></tr>
+      <tr><td>MOMENTUM_CONTINUATION</td><td>1</td><td>612</td><td>312 / 300</td><td>MOMENTUM_3, MOMENTUM_6, THREE_BAR_CONTINUATION, GAP_CONTINUATION</td><td>Short-horizon returns continue when information and order flow arrive gradually [R24, R40].</td><td>long entries after the opposite move (the mirrored condition) earn as much: the direction adds nothing.</td></tr>
+      <tr><td>STRUCTURE_BREAKOUT</td><td>1</td><td>613</td><td>310 / 303</td><td>DONCHIAN_3, _5, _8, _12, _20, PREVBAR_BREAK, INSIDE_BAR_BREAK</td><td>Breaks of a trading range continue, because resting orders sit at the range's edge [R13, R50].</td><td>PREVBAR_BREAK earns as much as the selected channel (PREVBAR_BREAK itself: c &gt; o earns as much).</td></tr>
+      <tr><td>STRUCTURE_RECLAIM</td><td>1</td><td>565</td><td>278 / 287</td><td>SWEEP_RECLAIM_5, SWEEP_RECLAIM_10</td><td>Stops cluster beyond recent lows. A sweep that triggers them and closes back above has absorbed the selling and reverses [R48].</td><td>the same close above the level without the sweep (l[1] ≥ lvl) earns as much.</td></tr>
+      <tr><td>T3_CROSS_RECLAIM</td><td>1</td><td>489</td><td>249 / 240</td><td>T3_BODY_CROSS, T3_CLOSE_CROSS, T3_TWO_CLOSE, T3_WICK_RECLAIM, T3_CLEAN_RECLAIM</td><td>A close back across a smoothed trend line marks a change of the short-term trend [R17, R50].</td><td>the same cross of SMA20 in place of T3 earns as much: the T3 line adds nothing.</td></tr>
+      <tr><td>T3_PULLBACK_CONTINUATION</td><td>1</td><td>489</td><td>244 / 245</td><td>T3_PULLBACK_BREAK, T3_TOUCH_3BAR_TREND, T3_THREE_CLOSE, T3_CROSS_RANGE_BREAK</td><td>A pullback to a rising trend line that holds resumes the trend [R17, R40].</td><td>the same triggers while T3 is falling earn as much: the trend adds nothing.</td></tr>
+      <tr><td>T3_TURN_DISTANCE</td><td>1</td><td>489</td><td>230 / 259</td><td>T3_SLOPE_TURN, T3_DISTANCE_RELEASE</td><td>T3 turning up, or price pulling away from it, marks new trend strength [R17].</td><td>a close above T3 without the turn or the growing distance earns as much.</td></tr>
+      <tr><td>VOLATILITY_MEAN_REVERSION</td><td>1</td><td>565</td><td>307 / 258</td><td>MEAN_REVERSION_2, MEAN_REVERSION_3</td><td>An overextension of two or three ATR below the mean, closed by an up bar, reverts as liquidity returns [R11, R51].</td><td>the same up bar after a 1-ATR extension earns as much: the extremity adds nothing.</td></tr>
+      <tr><td>OPENING_RANGE</td><td>2</td><td>16</td><td>8 / 8</td><td>ORB_OPEN_BAR, ORB_BREAK × {NONE, T3_SLOPE_NONNEG, T3_DIST_NEAR_100, ABOVE_PREV_SETTLE}</td><td>as C.7</td><td>as C.7</td></tr>
+      <tr><td>INTRADAY_MOMENTUM</td><td>2</td><td>8</td><td>4 / 4</td><td>IMOM_DAY, IMOM_FIRST × {NONE, T3_SLOPE_NONNEG}</td><td>as C.7</td><td>as C.7</td></tr>
+      <tr><td>T3_ACTIVE_SESSION</td><td>2</td><td>22</td><td>11 / 11</td><td>11 T3 triggers × RTH_OPEN_90</td><td>Trends that start in the first 90 minutes of the day session carry, because volume and information concentrate there [R28].</td><td>the same T3 triggers outside the first 90 minutes earn as much.</td></tr>
+      <tr><td colspan="2"><b>total</b></td><td><b>5,046</b></td><td></td><td colspan="3">Program 1: 32 triggers × 28 filters × side with a T3 setting from the B.7 grid, registered hold 8 bars. Program 2: T3 5 / 0.7, registered hold 48 bars (to flat-by) or 1 bar (INTRADAY_MOMENTUM).</td></tr>
     </table></div>
   </div>
 
@@ -541,31 +550,31 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
 
   <h3 class="h">C.7 — Pool N families and triggers (long form; short = mirror)</h3>
   <div class="box"><div class="tw"><table>
-    <tr><th>family</th><th>trigger</th><th>rule</th><th>reason</th></tr>
-    <tr><td rowspan="4">OPENING_RANGE <span class="star">★</span><br>800</td><td>ORB_DIR_30</td><td><code>bar = OB and c &gt; o</code></td><td rowspan="4">The opening of the day session concentrates information and volume, and the direction and breakout of the opening range carry into the day; the effect depends on the volatility state [R19, R26, R27, R37].</td></tr>
+    <tr><th>family</th><th>trigger</th><th>rule</th><th>reason</th><th>refuted if</th></tr>
+    <tr><td rowspan="4">OPENING_RANGE <span class="star">★</span><br>800</td><td>ORB_DIR_30</td><td><code>bar = OB and c &gt; o</code></td><td rowspan="4">The opening of the day session concentrates information and volume, and the direction and breakout of the opening range carry into the day; the effect depends on the volatility state [R19, R26, R27, R37].</td><td rowspan="4">the clock placebo (OB, OB2 and h(OB) two bars later) earns as much: the opening adds nothing.</td></tr>
     <tr><td>ORB_BREAK_30</td><td><code>first(OB &lt; bar &lt; SB and c &gt; h(OB))</code></td></tr>
     <tr><td>ORB_BREAK_60</td><td><code>first(OB2 &lt; bar &lt; SB and c &gt; max(h(OB), h(OB2)))</code></td></tr>
     <tr><td>ORB_RETEST_30</td><td><code>first(OB &lt; bar &lt; SB, an ORB_BREAK_30 earlier this session, l ≤ h(OB) and c &gt; h(OB))</code></td></tr>
-    <tr><td rowspan="3">INTRADAY_MOMENTUM <span class="star">★</span><br>600</td><td>IMOM_DAY</td><td><code>bar = IB and c &gt; S_prev</code></td><td rowspan="3">The return since the previous settlement predicts the last half-hour through hedging demand, in more than 60 futures; the effect is stronger on large-move days [R24, R25].</td></tr>
+    <tr><td rowspan="3">INTRADAY_MOMENTUM <span class="star">★</span><br>600</td><td>IMOM_DAY</td><td><code>bar = IB and c &gt; S_prev</code></td><td rowspan="3">The return since the previous settlement predicts the last half-hour through hedging demand, in more than 60 futures; the effect is stronger on large-move days [R24, R25].</td><td rowspan="3">IMOM_LARGE does not beat IMOM_DAY: the effect is not stronger on large-move days.</td></tr>
     <tr><td>IMOM_FIRST</td><td><code>bar = IB and c(OB) &gt; S_prev</code></td></tr>
     <tr><td>IMOM_LARGE</td><td><code>bar = IB and c − S_prev ≥ 0.5 × mean(R_prev of the last 20 sessions)</code></td></tr>
-    <tr><td rowspan="2">NOISE_BOUNDARY<br>400</td><td>NB_10</td><td><code>first(OB &lt; bar &lt; SB and c &gt; max(O_day, S_prev) + 1.0·σ_τ)</code></td><td rowspan="2">A move beyond the normal noise area of that time of day signals an imbalance of supply and demand [R36].</td></tr>
+    <tr><td rowspan="2">NOISE_BOUNDARY<br>400</td><td>NB_10</td><td><code>first(OB &lt; bar &lt; SB and c &gt; max(O_day, S_prev) + 1.0·σ_τ)</code></td><td rowspan="2">A move beyond the normal noise area of that time of day signals an imbalance of supply and demand [R36].</td><td rowspan="2">the SHORT hold earns as much as the DAY hold: the imbalance does not carry.</td></tr>
     <tr><td>NB_15</td><td><code>first(OB &lt; bar &lt; SB and c &gt; max(O_day, S_prev) + 1.5·σ_τ)</code></td></tr>
-    <tr><td rowspan="2">VOLATILITY_BREAKOUT<br>400</td><td>VBO_025</td><td><code>first(DAY and c &gt; O_day + 0.25·R_prev)</code></td><td rowspan="2">A move from the open larger than a fraction of the previous day's range starts a range expansion [R19, R37].</td></tr>
+    <tr><td rowspan="2">VOLATILITY_BREAKOUT<br>400</td><td>VBO_025</td><td><code>first(DAY and c &gt; O_day + 0.25·R_prev)</code></td><td rowspan="2">A move from the open larger than a fraction of the previous day's range starts a range expansion [R19, R37].</td><td rowspan="2">the SHORT hold earns as much as the DAY hold: no range expansion follows.</td></tr>
     <tr><td>VBO_050</td><td><code>first(DAY and c &gt; O_day + 0.50·R_prev)</code></td></tr>
-    <tr><td rowspan="2">OVERNIGHT_GAP<br>400</td><td>GAP_CONTINUE</td><td><code>bar = OB, O_day − S_prev ≥ 0.25·R_prev and c &gt; o</code></td><td rowspan="2">Overnight and day-session returns behave differently, and the first day-session bar either confirms or rejects the overnight move [R38, R39, R46].</td></tr>
+    <tr><td rowspan="2">OVERNIGHT_GAP<br>400</td><td>GAP_CONTINUE</td><td><code>bar = OB, O_day − S_prev ≥ 0.25·R_prev and c &gt; o</code></td><td rowspan="2">Overnight and day-session returns behave differently, and the first day-session bar either confirms or rejects the overnight move [R38, R39, R46].</td><td rowspan="2">the same OB entry on days without a gap (|O_day − S_prev| &lt; 0.25·R_prev) earns as much: the gap adds nothing.</td></tr>
     <tr><td>GAP_FADE</td><td><code>bar = OB, O_day − S_prev ≤ −0.25·R_prev and c &gt; o</code></td></tr>
-    <tr><td rowspan="2">VWAP_TREND<br>400</td><td>VWAP_RECLAIM</td><td><code>OB &lt; bar &lt; SB, c[1] ≤ VWAP[1] and c &gt; VWAP</code></td><td rowspan="2">VWAP is the execution benchmark of institutional orders, so acceptance above it marks buy-side control [R35, R44].</td></tr>
+    <tr><td rowspan="2">VWAP_TREND<br>400</td><td>VWAP_RECLAIM</td><td><code>OB &lt; bar &lt; SB, c[1] ≤ VWAP[1] and c &gt; VWAP</code></td><td rowspan="2">VWAP is the execution benchmark of institutional orders, so acceptance above it marks buy-side control [R35, R44].</td><td rowspan="2">the same rule with O_day in place of VWAP earns as much: VWAP adds nothing.</td></tr>
     <tr><td>VWAP_PULLBACK</td><td><code>OB &lt; bar &lt; SB, c[1] &gt; VWAP[1], l ≤ VWAP, c &gt; VWAP and c &gt; o</code></td></tr>
-    <tr><td rowspan="2">SAME_SLOT_CONTINUATION<br>400</td><td>SLOT_20</td><td>bar t + 1 in DAY, and z of the return (c − o) of bar t + 1's time slot over the previous 20 sessions ≥ 2, where z = mean / sd × √n and sd divides by n − 1</td><td rowspan="2">Half-hour returns continue at the same time of day over the following days and weeks (shown for stocks; untested on futures and tested here as a new hypothesis). The excess over the Dev slot mean removes the fixed seasonal part [R47].</td></tr>
+    <tr><td rowspan="2">SAME_SLOT_CONTINUATION<br>400</td><td>SLOT_20</td><td>bar t + 1 in DAY, and z of the return (c − o) of bar t + 1's time slot over the previous 20 sessions ≥ 2, where z = mean / sd × √n and sd divides by n − 1</td><td rowspan="2">Half-hour returns continue at the same time of day over the following days and weeks (shown for stocks; untested on futures and tested here as a new hypothesis). The excess over the Dev slot mean removes the fixed seasonal part [R47].</td><td rowspan="2">slots with 1 ≤ z &lt; 2 earn as much: the z threshold adds nothing.</td></tr>
     <tr><td>SLOT_40</td><td>as SLOT_20 over the previous 40 sessions</td></tr>
-    <tr><td rowspan="2">COMPRESSION_DAY<br>400</td><td>NR4_DAY_BREAK</td><td><code>R_prev = min of the last 4 day ranges and first(DAY and c &gt; H_prev)</code></td><td rowspan="2">Narrow-range days are followed by expansion days (NR4 / NR7); the idea of COMPRESSION_EXPANSION at day scale [R19].</td></tr>
+    <tr><td rowspan="2">COMPRESSION_DAY<br>400</td><td>NR4_DAY_BREAK</td><td><code>R_prev = min of the last 4 day ranges and first(DAY and c &gt; H_prev)</code></td><td rowspan="2">Narrow-range days are followed by expansion days (NR4 / NR7); the idea of COMPRESSION_EXPANSION at day scale [R19].</td><td rowspan="2">PDH_BREAK on all days earns as much: the narrow day adds nothing.</td></tr>
     <tr><td>NR7_DAY_BREAK</td><td><code>R_prev = min of the last 7 day ranges and first(DAY and c &gt; H_prev)</code></td></tr>
-    <tr><td rowspan="2">PRIOR_DAY_LEVELS<br>400</td><td>PDH_BREAK</td><td><code>first(DAY and c &gt; H_prev)</code></td><td rowspan="2">The previous session's extremes are the levels most watched by day traders; the ideas of STRUCTURE_BREAKOUT and STRUCTURE_RECLAIM at session scale [R19].</td></tr>
+    <tr><td rowspan="2">PRIOR_DAY_LEVELS<br>400</td><td>PDH_BREAK</td><td><code>first(DAY and c &gt; H_prev)</code></td><td rowspan="2">The previous session's extremes are the levels most watched by day traders; the ideas of STRUCTURE_BREAKOUT and STRUCTURE_RECLAIM at session scale [R19].</td><td rowspan="2">the same rule at a level 0.25·R_prev inside the previous day's range earns as much: the watched level adds nothing.</td></tr>
     <tr><td>PDL_RECLAIM</td><td><code>first(DAY and l[1] &lt; L_prev and c &gt; L_prev)</code></td></tr>
-    <tr><td rowspan="2">T3_DAY_TREND <span class="star">★</span><br>400</td><td>T3_PULLBACK_BREAK_D</td><td><code>DAY, T &gt; T[1], l[1] ≤ T[1] &lt; c[1], c &gt; h[1]</code></td><td rowspan="2">The T3 engine's continuation after a pullback, restricted to the day session where costs are smallest relative to the move [R17].</td></tr>
+    <tr><td rowspan="2">T3_DAY_TREND <span class="star">★</span><br>400</td><td>T3_PULLBACK_BREAK_D</td><td><code>DAY, T &gt; T[1], l[1] ≤ T[1] &lt; c[1], c &gt; h[1]</code></td><td rowspan="2">The T3 engine's continuation after a pullback, restricted to the day session where costs are smallest relative to the move [R17].</td><td rowspan="2">the same T3 triggers outside the day session earn as much: the day session adds nothing.</td></tr>
     <tr><td>T3_TOUCH_3BAR_D</td><td><code>DAY, T &gt; T[1], some l[k] ≤ T[k] (k = 1..3), c &gt; T</code></td></tr>
-    <tr><td rowspan="2">EXTREME_REVERSION <span class="star">★</span><br>400</td><td>MR_VWAP_2</td><td><code>OB &lt; bar &lt; SB, l ≤ VWAP − 2·atr1, c &gt; o and CLV ≥ 0.5</code></td><td rowspan="2">An overextension from the session's value is followed by a reversal bar [R11].</td></tr>
+    <tr><td rowspan="2">EXTREME_REVERSION <span class="star">★</span><br>400</td><td>MR_VWAP_2</td><td><code>OB &lt; bar &lt; SB, l ≤ VWAP − 2·atr1, c &gt; o and CLV ≥ 0.5</code></td><td rowspan="2">An overextension from the session's value is followed by a reversal bar [R11].</td><td rowspan="2">the same overextension without the reversal bar (c ≤ o) earns as much: the reversal adds nothing.</td></tr>
     <tr><td>MR_SMA20_2_D</td><td><code>DAY, l ≤ SMA20[1] − 2·atr1 and c &gt; o</code></td></tr>
   </table></div>
   <p>The figure under each family name is its number of candidates: triggers × 10 × 5 × 2 × 2.</p></div>
@@ -632,7 +641,7 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
       <li>Load each file and sort it by time.</li>
       <li>Remove duplicate timestamps (keeping the last), enforce OHLC containment, and count both.</li>
       <li>Check the 30-minute grid, the tick grid and non-negative volume.</li>
-      <li>Build sessions (B.3), rolls, the flat-by mask and the session clock (B.8).</li>
+      <li>Build sessions (B.3), rolls, the flat-by mask and the session clock (B.8). List every gap of 120 minutes or more inside a trading week and match it to the CME holiday calendar.</li>
       <li>Measure roll gaps against normal session-open gaps, in ATR.</li>
       <li>Cut the windows by session (A.4), and split Dev into 6 blocks, 10 groups and 16 blocks.</li>
       <li>Build the paired-market table (NQ↔YM, GC↔SI, CL↔NQ) by timestamp.</li>
@@ -643,6 +652,7 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
       <li>≥ 99% of timestamps on the 30-minute grid; ≥ 99% of prices on the tick grid.</li>
       <li>≥ 250 sessions in every window of every market.</li>
       <li>OB and SB present in ≥ 95% of Dev sessions of every market.</li>
+      <li>Every gap of 120 minutes or more inside a week is a calendar holiday or halt.</li>
       <li>Paired-market timestamps aligned in ≥ 99% of day-session bars.</li>
     </ol></div>
     <div class="out"><b>Outputs</b>: data_qa, repairs, splits, costs (micro and mini), session-clock coverage, pair alignment. Plots: split timeline, session lengths, time-of-day coverage, roll gaps.</div>
@@ -660,12 +670,13 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
       <li><b>Slow references</b> (B.21) for the engine, both drift baselines, every trigger and context of both pools, VWAP, σ<sub>τ</sub>, the session anchors, T3 and ATR, on synthetic markets, with exact equality.</li>
       <li><b>Mirror and causality</b> tests over every rule.</li>
       <li><b>Statistic references</b> (B.21-3).</li>
+      <li><b>Second engines, property tests and holiday markets</b> (B.21-6, B.21-7, B.21-8).</li>
       <li><b>Null uniformity</b>: the p-values of N1–N5 on 200 null markets, Kolmogorov-Smirnov.</li>
       <li><b>False-certificate calibration</b> (B.17-1).</li>
       <li><b>Power and MDE</b> (B.17-2, B.17-3).</li>
     </ol>
     <div class="gate"><b>Gates (hard)</b><ol>
-      <li>Every hand case, slow reference, mirror and causality test passes.</li>
+      <li>Every hand case, slow reference, mirror, causality, second-engine, property and holiday test passes.</li>
       <li>Statistic references are within tolerance.</li>
       <li>No null's p-values reject uniformity at 1%.</li>
       <li>At most 5 of 100 null markets yield a certificate, on every instrument.</li>
@@ -858,13 +869,13 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
       <li>WF-OOS net: stationary bootstrap CI (2,000); PSR; net DSR with N = ledger N + K<sub>eff</sub>(configurations); MinTRL.</li>
       <li>Random-entry and circular-shift nulls on net R with the final parameters (999 each).</li>
       <li>PBO of the exit search.</li>
-      <li>Stress (cost × 1.5, +1 tick, one-bar delay), neighbours, concentration, stability.</li>
+      <li>Stress (cost × 1.5, +1 tick, one-bar delay, stop fills 2 ticks worse), neighbours, concentration, stability.</li>
       <li>Account fit for one contract: stop risk = SL_ATR × median Dev ATR × point value; the worst WF-OOS drawdown in dollars.</li>
       <li>Report a Combine simulation: stationary-bootstrap paths of the WF-OOS daily net dollar P&amp;L under the account's trailing maximum loss limit, giving the share of paths that reach the profit target before the limit, per contract.</li>
     </ol>
     <div class="gate"><b>Gates (hard)</b><ol>
       <li>CI lower bound &gt; 0; net DSR ≥ 0.95; both nulls p ≤ 0.05; PBO of the exit search ≤ 0.30.</li>
-      <li>Positive at cost × 1.5, at +1 tick and with a one-bar delay; neighbours' median &gt; 0; positive without the top 5% of trades and without the best year; no significantly negative bucket.</li>
+      <li>Positive at cost × 1.5, at +1 tick, with a one-bar delay and with stop fills 2 ticks worse; neighbours' median &gt; 0; positive without the top 5% of trades and without the best year; no significantly negative bucket.</li>
       <li>MinTRL ≤ Validation sessions.</li>
       <li>Stop risk ≤ the configured maximum loss per trade; worst drawdown ≤ the configured drawdown budget.</li>
     </ol></div>
@@ -886,11 +897,13 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
       <li>Stationary bootstrap (10,000), with BH across strategies.</li>
       <li>Random-entry null on gross R (999).</li>
       <li>Cost × 1.5; MinTRL of the Validation net series against the number of Test sessions.</li>
+      <li>Refutation test: build the comparison the family names ("refuted if", C.2 and C.7) with the strategy's own side, hold and exits, and run it once on Validation.</li>
     </ol>
     <div class="gate"><b>Gates (hard)</b><ol>
       <li>Trades ≥ 30; gross excess &gt; 0; net mean &gt; 0.</li>
       <li>Not ★: BH q ≤ 0.05 and random-entry p ≤ 0.05. ★: BH q ≤ 0.01 and random-entry p ≤ 0.01.</li>
       <li>Net &gt; 0 at cost × 1.5; MinTRL ≤ Test sessions.</li>
+      <li>Not refuted: the mean gross excess per trade is above the comparison's.</li>
     </ol></div>
     <div class="out"><b>Outputs</b>: validation table. Plots: equity through Dev and Validation, CI forest.</div>
   </div>
@@ -921,13 +934,14 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
     <h4 class="job">Job</h4><p>Reproduce each card in TradingView, incubate it, and stop it at once if it breaks.</p>
     <h4 class="job">Steps</h4>
     <ol>
-      <li>Load the card into <code>T3_Edge_Lab.pine</code> on the instrument's continuous contract, with 30-minute bars, the electronic session, commission per side and slippage from the card, and flat-by at 15:08 CT.</li>
-      <li>Run a parity replay on the Test dates: the trade count must be within ±5% of the engine's, and the net mean R inside the Test CI.</li>
+      <li>Load the card into <code>T3_Edge_Lab.pine</code> on the instrument's continuous contract, with 30-minute bars, the electronic session and flat-by at 15:08 CT. Run the Pine Profiler on the full chart: the script must finish inside TradingView's execution-time limit (20 s on a basic plan, 40 s on the others).</li>
+      <li>Run a parity replay on the Test dates, holiday sessions included, with commission 0 and slippage 0 against the engine with the TradingView intrabar path (B.4, option pessimistic = False): every entry and exit bar, price and exit type must be equal. Then set the card's commission per side and slippage.</li>
       <li>Incubate in simulation until ≥ 30 trades.</li>
+      <li>Repaint check: every week of incubation, replay the same bars in TradingView's bar replay. Every live signal and fill must be identical: nothing appears, moves or disappears after its bar has closed (this also covers MARKET_AGREE, whose paired bar must be complete when the chart bar closes).</li>
       <li>Apply the kill switch after every trade from the 30th on: stop when the live mean R falls below the Test CI lower bound or the drawdown exceeds the worst historical drawdown.</li>
       <li>A killed strategy is never re-optimised. A new idea is a new program (B.20).</li>
     </ol>
-    <div class="gate"><b>Gates (hard)</b>: parity; incubation within the Test CI and within the historical drawdown.</div>
+    <div class="gate"><b>Gates (hard)</b>: inside the execution-time limit; exact parity; no repaint; incubation within the Test CI and within the historical drawdown.</div>
   </div>
 </section>
 
@@ -983,6 +997,11 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
     <li>[R45] Topstep Help Center. Trading Combine parameters: profit target, Maximum Loss Limit, maximum position size, Daily Loss Limit, micro contract counting.</li>
     <li>[R46] Berkman, H., Koch, P. D., Tuttle, L. &amp; Zhang, Y. J. (2012). Paying Attention: Overnight Returns and the Hidden Cost of Buying at the Open. <i>Journal of Financial and Quantitative Analysis</i> 47(4).</li>
     <li>[R47] Heston, S. L., Korajczyk, R. A. &amp; Sadka, R. (2010). Intraday Patterns in the Cross-Section of Stock Returns. <i>Journal of Finance</i> 65(4).</li>
+    <li>[R48] Osler, C. L. (2005). Stop-loss Orders and Price Cascades in Currency Markets. <i>Journal of International Money and Finance</i> 24(2).</li>
+    <li>[R49] Marshall, B. R., Young, M. R. &amp; Rose, L. C. (2006). Candlestick Technical Trading Strategies: Can They Create Value for Investors? <i>Journal of Banking &amp; Finance</i> 30(8).</li>
+    <li>[R50] Brock, W., Lakonishok, J. &amp; LeBaron, B. (1992). Simple Technical Trading Rules and the Stochastic Properties of Stock Returns. <i>Journal of Finance</i> 47(5).</li>
+    <li>[R51] Lehmann, B. N. (1990). Fads, Martingales, and Market Efficiency. <i>Quarterly Journal of Economics</i> 105(1).</li>
+    <li>[R52] MacIver, D. R., Hatfield-Dodds, Z. et al. (2019). Hypothesis: A New Approach to Property-Based Testing. <i>Journal of Open Source Software</i> 4(43), 1891.</li>
   </ol></div>
 </section>
 

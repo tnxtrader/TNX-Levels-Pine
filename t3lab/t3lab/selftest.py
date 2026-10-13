@@ -42,6 +42,18 @@ def synthetic(n_sessions=300, bars=46, seed=0, tick=0.01, start="2015-01-04 17:0
     df["timestamp"] = df["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
     return df
 
+def with_holidays(df, seed=0):
+    """The same market with an exchange calendar's irregular days: early closes at 12:00 CT, a missing opening bar,
+    a missing settlement bar, a 3-hour halt inside a session, and whole sessions missing."""
+    rng = np.random.default_rng(seed)
+    ts = pd.to_datetime(df["timestamp"]); tod = ts.dt.hour * 60 + ts.dt.minute
+    day = (ts + pd.Timedelta(hours=7)).dt.normalize(); days = day.unique()
+    pick = lambda k: set(rng.choice(days[30:], k, replace=False))
+    early, no_ob, no_sb, halt, gone = pick(12), pick(10), pick(10), pick(6), pick(5)
+    drop = (day.isin(early) & (tod >= 12 * 60) & (tod < 17 * 60)) | (day.isin(no_ob) & (tod == 8 * 60 + 30)) | \
+           (day.isin(no_sb) & (tod == 14 * 60 + 30)) | (day.isin(halt) & (tod >= 2 * 60) & (tod < 5 * 60)) | day.isin(gone)
+    return df[~drop.to_numpy()].reset_index(drop=True)
+
 def _prep(df):
     d = core.load_symbol_df(df.copy())
     d = core.add_sessions(d, 17, 120, {"ALL": (0, 24)})
@@ -60,9 +72,9 @@ def ref_engine(o, h, l, c, atr, sig, sess_last, roll_last, sl_atr, tp_r, max_bar
             t += 1; continue
         entry = o[e]
         if sl_atr > 0:
-            slt = max(1, round(sl_atr * atr[t] / tick))
+            slt = max(1, math.floor(sl_atr * atr[t] / tick + 0.5))
             stop = entry - slt * tick
-            tgt = entry + max(1, round(tp_r * slt)) * tick if tp_r > 0 else math.inf
+            tgt = entry + max(1, math.floor(tp_r * slt + 0.5)) * tick if tp_r > 0 else math.inf
         else:
             stop, tgt = -math.inf, math.inf
         last = min(e + max_bars - 1, sess_last[e], roll_last[e], end - 1)
@@ -448,6 +460,10 @@ def run_all():
     check("engine: round-trip cost deducted, gross kept", abs(r[3][0] - 27) < 1e-6 and abs(r[5][0] - 0.30) < 1e-9, r)
     r = _one(o, hi, lo, o, [1, 0, 0, 0, 0, 0, 0, 0], A, max_bars=3, delay=1)
     check("engine: one-bar delay enters at the open of t + 2", len(r[1]) == 1 and r[1][0] == 2, r)
+    o5 = [100.0] * 8; h5 = [100.0, 100.0, 100.031, 100.0, 100.0, 100.0, 100.0, 100.0]; l5 = [100.0] * 8
+    r = _one(o5, h5, l5, o5, [1] + [0] * 7, [0.05] + [1.0] * 7, sl_atr=1.0, tp_r=0.5, max_bars=3)
+    check("engine: halves round up like TradingView math.round (TP 0.5 x 5 ticks = 3 ticks)",
+          r[8][0] == 1 and abs(r[3][0] - 3) < 1e-6, r)
 
     # --- engine and baseline vs the slow reference on random markets
     df = synthetic(160, seed=1)
@@ -490,8 +506,8 @@ def run_all():
     tr = m.trades(core.trigger(b, "PREVBAR_BREAK", 1), 1, 1.0, 1.5, 40)
     ok = np.all(d["sess"].to_numpy()[tr["entry_bar"]] == d["sess"].to_numpy()[tr["exit_bar"]]) and np.all(tr["exit_bar"] <= rl[tr["entry_bar"]])
     check("no trade crosses a session end or a roll", ok)
-    tm = core.tradable_mask(d, 17, 30, "15:08")
-    slf, _ = core.last_index_arrays(d, tm)
+    tm, tmn = core.clock_masks(d, 17, 30, "15:08")
+    slf, _ = core.last_index_arrays(d, tm, tmn)
     mf = Market(b, slf, rl, 0.01, 3, 1)
     trf = mf.trades(core.trigger(b, "PREVBAR_BREAK", 1), 1, 1.0, 1.5, 40)
     tod = (d["ts"].dt.hour * 60 + d["ts"].dt.minute).to_numpy()
@@ -592,6 +608,28 @@ def run_all():
         bad += [(side, k) for k in x1 if not np.array_equal(x1[k][:cut], x2[k][:cut])]
     check("Pool N: no look-ahead (future bars of both markets never change past signals)", not bad, bad)
 
+    # --- holidays and early closes: the same comparisons on markets with irregular sessions
+    dh, dph, bh, pbh = prep_pair(with_holidays(dfa, 1), with_holidays(dfb, 2))
+    pdh = ref_pair_diff(pbh.c.tolist(), pbh.tod.tolist(), pbh.sess.tolist(), pbh.settle_start)
+    pdh = pd.Series(pdh, index=dph["ts"].to_numpy()).reindex(dh["ts"].to_numpy()).to_numpy(float)   # gaps_on: na where no bar
+    TFh, TSh = ref_t3(bh.c, 5, 0.7), ref_t3(bh.c, 13, 0.7)
+    bad = [] if np.allclose(bh.pair_d, pdh, equal_nan=True) else ["MARKET_AGREE input"]
+    for side in (1, -1):
+        ref = ref_stream_n(bh.o.tolist(), bh.h.tolist(), bh.l.tolist(), bh.c.tolist(), bh.v.tolist(), bh.tod.tolist(),
+                           bh.sess.tolist(), bh.atr.tolist(), TFh.tolist(), TSh.tolist(), list(pdh), side,
+                           bh.or_start, bh.settle_start, bh.bar)
+        fast = core_n(bh, side)
+        bad += [(side, k, int((ref[k] != fast[k]).sum())) for k in ref if not np.array_equal(ref[k], fast[k])]
+    tmh, tmnh = core.clock_masks(dh, 17, 30, "15:08")
+    slh, rlh = core.last_index_arrays(dh, tmh, tmnh)
+    trh = Market(bh, slh, rlh, 0.01, 3, 1).trades(core.ntrigger(bh, "ORB_BREAK_30", 1), 1, 1.0, 1.5, core.DAY_BARS)
+    sh = dh["sess"].to_numpy()
+    if not (len(trh["entry_bar"]) and np.all(sh[trh["entry_bar"]] == sh[trh["exit_bar"]])
+            and np.all(trh["exit_bar"] <= slh[trh["entry_bar"]])):
+        bad.append("engine: a trade passed its session end")
+    check(f"holidays and early closes ({int(bh.nsess)} sessions): Pool N rules, MARKET_AGREE and session ends == streamed "
+          f"reference", not bad, bad)
+
     # --- Program 3 registry and contract costs
     import pathlib
     regp = pathlib.Path(__file__).resolve().parents[1] / "registry" / "program3_candidates.csv"
@@ -616,8 +654,8 @@ def run_all():
     got = {k: contract_costs(*k)["cost_ticks_rt"] for k in want}
     check("costs: TopstepX round trip in ticks, micro and mini (FRAMEWORK.html B.5)",
           all(abs(got[k] - want[k]) < 1e-9 for k in want) and set(TOPSTEPX) == {"CL", "GC", "NQ", "SI", "YM"}, got)
-    tmA = core.tradable_mask(da, 17, 30, "15:08")
-    slA, rlA = core.last_index_arrays(da, tmA)
+    tmA, tmnA = core.clock_masks(da, 17, 30, "15:08")
+    slA, rlA = core.last_index_arrays(da, tmA, tmnA)
     mA = Market(ba, slA, rlA, 0.01, 3, 1)
     trA = mA.trades(core.ntrigger(ba, "ORB_BREAK_30", 1), 1, 0.0, 0.0, core.DAY_BARS)
     check("DAY hold: every screen trade ends at the close of the session's last tradable bar (flat-by)",

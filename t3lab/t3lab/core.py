@@ -54,18 +54,30 @@ def tradable_mask(df: pd.DataFrame, start_hour: int, bar_minutes: int, flat_by: 
     tod = (df["ts"].dt.hour * 60 + df["ts"].dt.minute).to_numpy()
     return ~((tod < start_hour * 60) & (tod + bar_minutes > hh * 60 + mm))
 
-def last_index_arrays(df: pd.DataFrame, tradable: np.ndarray | None = None):
-    """Per bar: index of the last TRADABLE bar of its session (entries need e <= it, positions close at its close),
-    and of the last bar before the next contract roll."""
+def clock_masks(df: pd.DataFrame, start_hour: int, bar_minutes: int, flat_by: str | None):
+    """(tradable, next_tradable): whether each bar may hold a position, and whether the NEXT SCHEDULED bar (bar time +
+    bar_minutes) could. Both come from the clock alone, so the last tradable bar is known at its close without reading
+    the next bar (the same rule as T3_Edge_Lab.pine: lastTradable / afterFlat)."""
+    nxt = df[["ts"]].copy()
+    nxt["ts"] = nxt["ts"] + pd.Timedelta(minutes=bar_minutes)
+    return tradable_mask(df, start_hour, bar_minutes, flat_by), tradable_mask(nxt, start_hour, bar_minutes, flat_by)
+
+def last_index_arrays(df: pd.DataFrame, tradable: np.ndarray | None = None, next_tradable: np.ndarray | None = None):
+    """Per bar i: the session's end marker at or after i, and the last bar before the next contract roll.
+    An end marker is a bar that may not hold a position, a bar whose next scheduled bar may not, or the session's last bar
+    (sessions end on the exchange calendar). A position closes at the marker's close; no entry is made from a marker.
+    Everything is known at the close of the bar, as in T3_Edge_Lab.pine (session.islastbar, lastTradable, afterFlat)."""
     n = len(df)
     s = df["sess"].to_numpy()
     tr = np.ones(n, bool) if tradable is None else np.asarray(tradable, bool)
+    trn = np.ones(n, bool) if next_tradable is None else np.asarray(next_tradable, bool)
+    marker = ~tr | ~trn | np.r_[s[1:] != s[:-1], True]
     sess_last = np.empty(n, np.int64)
-    ends = np.r_[np.nonzero(np.diff(s))[0], n - 1]
-    starts = np.r_[0, ends[:-1] + 1]
-    for a, b in zip(starts, ends):
-        idx = np.nonzero(tr[a:b + 1])[0]
-        sess_last[a:b + 1] = a + idx[-1] if len(idx) else a - 1
+    nxt = n - 1
+    for i in range(n - 1, -1, -1):
+        if marker[i]:
+            nxt = i
+        sess_last[i] = nxt
     roll = df["roll"].to_numpy()
     roll_last = np.empty(n, np.int64)
     nxt = n - 1

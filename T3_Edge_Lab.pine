@@ -1,8 +1,8 @@
 //@version=6
-// T3 Edge Lab — executes one candidate of t3lab/registry/program3_candidates.csv (Pool L or Pool N) with the execution
-// rules of t3lab/FRAMEWORK.html (B.3 execution, B.4 barriers, B.7 T3, B.8 session clock, Part C rules).
-// Every rule is identical to t3lab/t3lab/core.py; the trade rules are those of t3lab/t3lab/engine.py with the TradingView
-// intrabar path (engine option pessimistic = False).
+// T3 Edge Lab — executes one candidate of program3_candidates.csv (Pool L or Pool N) with the execution
+// rules of FRAMEWORK.html (B.3 execution, B.4 barriers, B.7 T3, B.8 session clock, Part C rules).
+// Every rule is the framework's rule; the trades follow B.3 and B.4 with the TradingView intrabar path (B.4, the
+// research engine's option pessimistic = False).
 // Chart: the instrument's continuous contract, 30-minute bars, full electronic (ETH) session, exchange time zone CT.
 // Properties: commission = cash per contract per side = the contract's fees round trip / 2 (MNQ/MYM 0.61, MCL 0.86,
 // MGC 0.96, SIL 1.36, NQ/YM 1.89, CL 2.02, GC/SI 2.16); slippage = 1 tick.
@@ -149,7 +149,8 @@ f_pairDiff(int sStart) =>
     var float sToday = na
     var float sPrev = na
     int m = hour(time, "America/Chicago") * 60 + minute(time, "America/Chicago")
-    if ta.change(time_tradingday) != 0
+    int k = dayofmonth(time + 7 * 3600000, "America/Chicago")
+    if bar_index > 0 and (k != k[1] or time - time[1] >= 120 * 60000)
         sPrev := sToday
         sToday := na
     if m == sStart
@@ -198,7 +199,9 @@ or2Start    = orStart + tfMin                                                 //
 settleStart = int(math.floor((rthCH * 60 + rthCM - 1) / float(tfMin)) * tfMin)  // SB
 imomStart   = settleStart - tfMin                                             // IB
 pairSettleStart = int(math.floor((pairCH * 60 + pairCM - 1) / float(tfMin)) * tfMin)
-newSession  = ta.change(time_tradingday) != 0
+// a session starts at 17:00 CT (the CT date of t + 7 h changes) or after a gap of 120 minutes or more (FRAMEWORK.html B.3)
+sKey        = dayofmonth(time + 7 * 3600000, "America/Chicago")
+newSession  = bar_index > 0 and (sKey != sKey[1] or time - time[1] >= 120 * 60000)
 
 pairD = request.security(pairSym, timeframe.period, f_pairDiff(pairSettleStart), gaps = barmerge.gaps_on,
      lookahead = barmerge.lookahead_off)

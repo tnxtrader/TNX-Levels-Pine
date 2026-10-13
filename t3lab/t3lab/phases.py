@@ -40,7 +40,7 @@ def market(ctx, sym, upto="val"):
     if upto == "val":
         df = df[df["seg"] != "test"].reset_index(drop=True)
     cs = ctx.cfg["session"]
-    sl, rl = core.last_index_arrays(df, core.tradable_mask(df, cs["start_hour"], cs["bar_minutes"], ctx.cfg.get("flat_by")))
+    sl, rl = core.last_index_arrays(df, *core.clock_masks(df, cs["start_hour"], cs["bar_minutes"], ctx.cfg.get("flat_by")))
     i = ctx.ins(sym)
     b = core.Bars(df, ctx.cfg["atr_len"], i.get("rth_open", "08:30"), i.get("rth_close", "15:00"), cs["bar_minutes"])
     m = Market(b, sl, rl, i["tick"], i["cost_ticks_rt"], i["stop_slip_ticks"], ctx.cfg["intrabar"] == "pessimistic")

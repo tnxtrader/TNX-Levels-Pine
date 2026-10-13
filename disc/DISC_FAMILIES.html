@@ -69,6 +69,7 @@ Every stop sits 1 tick beyond its level.</li>
 <li>Both sides.</li>
 </ul></li>
 <li><b>Gate.</b> A family that reads a band fires only where the band is ready (census full, K_U and K_L &gt; 0). A family that reads a slot history fires only once that history is full.</li>
+<li><b>Refutation.</b> Each family names a comparison: the same entries with its key condition removed. P8 builds it with the strategy's own Q, level, side and exit and runs it once on Validation. The family is refuted, whatever its earlier results, when its mean gross R per trade is not above the comparison's.</li>
 <li><b>Constants.</b> The only constants are TS 0.85 / 2.0 (random-walk quantiles), SHOCK ×2 (twice the slot median), SLOT_N 20 sessions, the shock close CLV ≥ 0.5, and the published horizons of families 7 and 10 (2 and 4 bars). None is ever tuned.</li>
 </ul>
 
@@ -95,6 +96,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Entry</div><div>The recovery bar of a Lower-band excursion: a close below Lower, then a close above Lower within W(Q) bars.</div>
 <div class="k">Exit</div><div>The first close ≥ μ, at the next open. Stop 1 tick below the excursion low. Time cap 2·W(Q) bars. Flat-by.</div>
 <div class="k">Fixed vs v2</div><div>The band uses the prior-window z, so there is no Samuelson ceiling and Q 3–500 all work. The census is exact. The DISC is symmetric. The exit is defined.</div>
+<div class="k">Refuted if</div><div>Entering at the first close below Lower, without waiting for the recovery, with the same exit, earns as much: waiting adds nothing.</div>
 <div class="k">Basis</div><div class="basis">Campbell, Grossman &amp; Wang 1993; Nagel 2012; Heston, Korajczyk &amp; Sadka 2010; contrarian Bollinger results (Lento et al. 2007)</div>
 </div></div>
 
@@ -103,6 +105,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Idea</div><div>Reversion pays where the market itself is mean-reverting. A market choppier than a random walk has a low efficiency ratio for its horizon.</div>
 <div class="k">Entry</div><div>The BAND_RECOVERY event with <code>TS_Q ≤ 0.85</code> on the recovery bar.</div>
 <div class="k">Exit</div><div>As BAND_RECOVERY.</div>
+<div class="k">Refuted if</div><div>BAND_RECOVERY events of the same cell with TS_Q &gt; 0.85 earn as much: the choppy market adds nothing.</div>
 <div class="k">Basis</div><div class="basis">Lo &amp; MacKinlay 1988 (variance ratio &lt; 1 means mean reversion); Kaufman efficiency ratio; Bianco &amp; Renò 2006 (reversal outside high unexpected-volatility regimes). The threshold is the random-walk median, simulated.</div>
 </div></div>
 
@@ -112,6 +115,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Entry</div><div>The BAND_RECOVERY event whose excursion held at least one shock bar (from the first bar beyond the band to the recovery bar, inclusive).</div>
 <div class="k">Exit</div><div>As BAND_RECOVERY.</div>
 <div class="k">Fixed vs v2</div><div>The CLIMAX label compared a bar with the previous 4 hours and fired on 98.6% of cash-open bars. The shock is now measured against the same slot of previous sessions, so it fires on about a third at every hour.</div>
+<div class="k">Refuted if</div><div>BAND_RECOVERY events of the same cell whose excursion held no shock earn as much: the shock adds nothing.</div>
 <div class="k">Basis</div><div class="basis">Campbell, Grossman &amp; Wang 1993 (high-volume moves reverse); Llorente et al. 2002 (reversal where trading is hedging, as in index futures); Nagel 2012; Andersen &amp; Bollerslev 1997 (slot normalization)</div>
 </div></div>
 
@@ -123,6 +127,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Idea</div><div>A short-term overreaction against a longer trend reverses back into the trend: buy the dip of an up-trend once it has recovered.</div>
 <div class="k">Entry</div><div>The BAND_RECOVERY event with <code>TS_4Q ≥ 2.0</code> and <code>C − C[4Q] &gt; 0</code> on the recovery bar.</div>
 <div class="k">Exit</div><div>The first close ≥ Upper, at the next open (the trend resumed). Stop 1 tick below the excursion low. Time cap 4·W(Q) bars. Flat-by.</div>
+<div class="k">Refuted if</div><div>BAND_RECOVERY events of the same cell without the 4Q trend, given this family's exit, earn as much: the trend adds nothing.</div>
 <div class="k">Basis</div><div class="basis">Moskowitz, Ooi &amp; Pedersen 2012; Hurst, Ooi &amp; Pedersen 2017; Kwon et al. 2020 (weekly commodity momentum); short-term liquidity reversal (above)</div>
 </div></div>
 
@@ -132,6 +137,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Entry</div><div>The bar on which the run of consecutive closes above Upper reaches 2, with <code>TS_Q ≥ 2.0</code> and <code>C − C[Q] &gt; 0</code>. Needs Q ≥ 5 (TS ≤ √Q).</div>
 <div class="k">Exit</div><div>The first close &lt; μ, at the next open. Stop 1 tick below the signal bar's μ. Flat-by.</div>
 <div class="k">Fixed vs v2</div><div>band_move and mean_dir (the 20th-percentile direction rules, about 80% UP/DOWN by construction) are replaced by one trend test with a random-walk null.</div>
+<div class="k">Refuted if</div><div>The same second close above Upper with TS_Q &lt; 2.0 earns as much: the trend test adds nothing.</div>
 <div class="k">Basis</div><div class="basis">Moskowitz, Ooi &amp; Pedersen 2012; Lo &amp; MacKinlay 1988 (variance ratio &gt; 1); Kaufman</div>
 </div></div>
 
@@ -140,6 +146,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Idea</div><div>Stops cluster just beyond the extreme of a recent excursion. When a failed upper excursion's high is broken soon after, the triggered stops push price further.</div>
 <div class="k">Entry</div><div>After an Upper-band recovery (a close back below Upper) at bar r with excursion high X: the first close &gt; X within W(Q) bars after r.</div>
 <div class="k">Exit</div><div>Stop 1 tick below the signal bar's low. Time cap W(Q) bars. Flat-by.</div>
+<div class="k">Refuted if</div><div>The first close above the excursion high between W(Q) + 1 and 3·W(Q) bars after the recovery earns as much: the stops are gone by then, so timing adds nothing.</div>
 <div class="k">Basis</div><div class="basis">Osler 2005 (trends accelerate at stop-loss clusters; take-profit clusters reverse)</div>
 </div></div>
 
@@ -148,6 +155,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Idea</div><div>Unexpected volatility makes short-horizon index-futures returns positively autocorrelated. A shock bar that closes beyond the band near its high carries on briefly.</div>
 <div class="k">Entry</div><div>A shock bar with <code>C &gt; Upper</code> and <code>CLV ≥ 0.5</code>.</div>
 <div class="k">Exit</div><div>Stop 1 tick below the shock bar's middle. Time cap 2 bars. Flat-by.</div>
+<div class="k">Refuted if</div><div>Closes above Upper with CLV ≥ 0.5 on bars without a shock earn as much: the shock adds nothing.</div>
 <div class="k">Basis</div><div class="basis">Bianco &amp; Renò 2006, 2009 (unexpected volatility drives positive intraday serial correlation). Short hold, because the effect is short-lived.</div>
 </div></div>
 
@@ -159,6 +167,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Idea</div><div>A move away from the open that is large <i>for that time of day</i> marks an imbalance that carries through the day. This is the noise-area breakout on DISC.</div>
 <div class="k">Entry</div><div>On day-session bars (OB ≤ bar &lt; SB): <code>d = (DISC − O_day) / rms_slot</code>, where rms_slot is the root mean square of <code>DISC − O_day</code> at the same slot over the previous Q sessions. Enter on the first bar of the session with <code>d ≥ z_L</code>.</div>
 <div class="k">Exit</div><div>Stop 1 tick below O_day. Flat-by.</div>
+<div class="k">Refuted if</div><div>The same trades closed at the open two bars after entry earn as much as the trades held to flat-by: the move does not carry through the day.</div>
 <div class="k">Basis</div><div class="basis">Zarattini, Aziz &amp; Barbon 2024 (noise area, 2007–2024); Holmberg et al. 2013; Lundström 2017 (volatility states). Q here counts sessions; ZAB's 14 days is on the grid.</div>
 </div></div>
 
@@ -167,6 +176,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Idea</div><div>The day's move since the previous settlement predicts the last half-hour (hedging demand). Thresholds survive out of sample better than signs.</div>
 <div class="k">Entry</div><div>At IB: <code>s = (DISC − S_prev) / rms_IB</code>, where rms_IB is the root mean square of <code>DISC − S_prev</code> at IB over the previous Q sessions. Enter if <code>s ≥ z_L</code>.</div>
 <div class="k">Exit</div><div>One bar: in at the open of SB, out at the next open, or at SB's close when SB is the last tradable bar.</div>
+<div class="k">Refuted if</div><div>Entries at IB with 0 &lt; s &lt; z_L earn as much: the threshold adds nothing.</div>
 <div class="k">Basis</div><div class="basis">Gao et al. 2018; Baltussen et al. 2021; Rosa 2022 (out-of-sample decay; thresholds help)</div>
 </div></div>
 
@@ -175,6 +185,7 @@ Every stop sits 1 tick beyond its level.</li>
 <div class="k">Idea</div><div>After a US sell-off into the close, dealers carry inventory. Prices rebound strongly when Europe opens; after rallies the effect is much weaker.</div>
 <div class="k">Entry</div><div>Signal at the bar before the European-open bar (default 01:00 CT) if the previous session's SB closed below its Lower band. Fill at the European-open bar.</div>
 <div class="k">Exit</div><div>Stop 1 tick below the session's lowest low up to and including the signal bar. Time cap 4 bars. Flat-by.</div>
+<div class="k">Refuted if</div><div>The same entry after sessions whose SB closed inside the bands earns as much: the sell-off adds nothing.</div>
 <div class="k">Basis</div><div class="basis">Boyarchenko, Larsen &amp; Whelan 2023, RFS (the overnight drift; asymmetric after sell-offs). The paper studies US equities, so CL, GC and SI are tested as an extension.</div>
 </div></div>
 
