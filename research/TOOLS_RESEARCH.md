@@ -14,7 +14,7 @@ logic and the formulas. They are not part of the frameworks. An agent builds eac
 | **Pydantic** (the model layer of PydanticAI 2.55) | every family checked against a 12-field specification (mechanism, entry, exit, parameters, timeframe, data, risk, refutation, experiment plan, sources); every finding is a typed record | round 1: no family of either project had a refutation rule; T3's 10 legacy families had no mechanism or sources |
 | **Pine v6 reference** (pinescript-mcp 0.7.5) | every function, variable, constant, method and named argument of both scripts checked against the v6 lists | all valid; no lookahead_on; history offsets inside max_bars_back |
 | **Backtrader** 1.9.78.123 | a second engine, written independently, for both projects | T3: 12,710 trades, 0 mismatches. DISC: 3,462 trades, and 4,895 on the holiday market, 0 mismatches |
-| **vectorbt** 1.1.2 | the T3 Stage I screen rebuilt in vectorbt | 8,470 trades, 0 mismatches |
+| **vectorbt** 1.1.2 | the T3 Stage I screen rebuilt in vectorbt | 9,774 trades (time and session-end exits), 0 mismatches |
 | **Hypothesis** 6.169 | property tests on random markets | T3 engine: 4,000 random markets, all properties hold. DISC: 3,000 random bar sets and 2,000 quantile samples |
 | **statsmodels** 0.15, **arch** 8.0, **scikit-learn** 1.9.1, **QuantStats** 0.0.86, **Optuna** 5.0 | the statistics checked against independent references | HAC t, BH, SPA, StepM, K_eff all match; QuantStats and Optuna conventions pinned (section 4) |
 | **MLflow** 3.17 | each audit round logged (findings by severity, the report) | MLflow 3 refuses the old file store: use `sqlite:///mlflow.db` |

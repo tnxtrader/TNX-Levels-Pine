@@ -935,7 +935,7 @@ Program 3 new series: Pool N at both holds; Pool L at the DAY hold (Pool L at it
     <h4 class="job">Steps</h4>
     <ol>
       <li>Load the card into <code>T3_Edge_Lab.pine</code> on the instrument's continuous contract, with 30-minute bars, the electronic session and flat-by at 15:08 CT. Run the Pine Profiler on the full chart: the script must finish inside TradingView's execution-time limit (20 s on a basic plan, 40 s on the others).</li>
-      <li>Run a parity replay on the Test dates, holiday sessions included, with commission 0 and slippage 0 against the engine with the TradingView intrabar path (B.4, option pessimistic = False): every entry and exit bar, price and exit type must be equal. Then set the card's commission per side and slippage.</li>
+      <li>Run a parity replay on the Test dates, holiday sessions included, with commission 0 and slippage 0 against the engine with the TradingView intrabar path (B.4, option pessimistic = False): every entry and exit bar and price must be equal. Then set the card's commission per side and slippage.</li>
       <li>Incubate in simulation until ≥ 30 trades.</li>
       <li>Repaint check: every week of incubation, replay the same bars in TradingView's bar replay. Every live signal and fill must be identical: nothing appears, moves or disappears after its bar has closed (this also covers MARKET_AGREE, whose paired bar must be complete when the chart bar closes).</li>
       <li>Apply the kill switch after every trade from the 30th on: stop when the live mean R falls below the Test CI lower bound or the drawdown exceeds the worst historical drawdown.</li>
